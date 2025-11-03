@@ -1,1 +1,15 @@
-import {getSeasonNow}from"@/lib/jikan";import AnimeCard from"@/components/AnimeCard";import Pagination from"@/components/Pagination";export default async function NewReleases({searchParams}){const page=Number(searchParams?.page||1);const res=await getSeasonNow(page,30);return(<div className="pt-4"><h1 className="text-2xl font-bold mb-4">New Releases</h1><div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">{(res.data||[]).map(a=><AnimeCard key={a.mal_id} a={a} tag="New"/>)}</div><Pagination baseUrl="/new" page={page} hasNext={res.pagination?.has_next_page}/></div>)}
+import { fetchRecentAnime } from '@/lib/jikan';
+import AnimeGrid from '@/components/AnimeGrid';
+
+export const revalidate = 600;
+
+export default async function NewPage() {
+  const animeList = await fetchRecentAnime();
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948] text-white p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">🆕 New Anime</h1>
+      <AnimeGrid animeList={animeList || []} />
+    </main>
+  );
+}
