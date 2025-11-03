@@ -1,39 +1,51 @@
-'use client';
-export const dynamic = 'force-dynamic';
-
-import { useEffect, useState } from 'react';
-import { fetchTopAnime } from '@/lib/jikan';
-import AnimeGrid from '@/components/AnimeGrid';
+// /app/popular/page.jsx
+"use client";
+import { useEffect, useState } from "react";
+import { fetchTopAnime } from "@/lib/jikan";
+import AnimeGrid from "@/components/AnimeGrid";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function PopularPage() {
-  const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const sp = useSearchParams();
+  const router = useRouter();
+  const page = Number(sp.get("page") || "1");
+
+  const [items, setItems] = useState([]);
+  const [hasNext, setHasNext] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await fetchTopAnime();
-        setAnimeList(data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load popular anime.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
-
-  if (error)
-    return <div className="text-center text-pink-400 p-10">{error}</div>;
-  if (loading)
-    return <div className="text-center text-white/60 p-10 animate-pulse">Loading popular anime...</div>;
+    let on = true;
+    (async () => {
+      const res = await fetchTopAnime(page);
+      if (!on) return;
+      setItems(res.items);
+      setHasNext(res.pageInfo.hasNext);
+    })();
+    return () => (on = false);
+  }, [page]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948] text-white p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">🔥 Popular Anime</h1>
-      <AnimeGrid animeList={animeList} />
-    </main>
+    <section className="space-y-6">
+      <h1 className="text-3xl font-bold">Popular</h1>
+      <AnimeGrid items={items} />
+
+      <div className="flex items-center gap-2 justify-center pt-4">
+        <button
+          onClick={() => router.push(`/popular?page=${Math.max(1, page - 1)}`)}
+          disabled={page <= 1}
+          className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-40"
+        >
+          Geri
+        </button>
+        <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">Page {page}</span>
+        <button
+          onClick={() => router.push(`/popular?page=${page + 1}`)}
+          disabled={!hasNext}
+          className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-40"
+        >
+          İleri
+        </button>
+      </div>
+    </section>
   );
 }

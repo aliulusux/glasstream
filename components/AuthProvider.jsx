@@ -1,16 +1,35 @@
+// /components/AuthProvider.jsx
 "use client";
-import {supabase}from"@/lib/supabaseClient";
-import {createContext,useContext,useEffect,useState}from"react";
 
-const Ctx=createContext({user:null});
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
-const cleanSession = JSON.parse(JSON.stringify(session || null));
+const Ctx = createContext({ user: null });
 
-export default function AuthProvider({children}){
-    const[user,setUser]=useState(null);useEffect(()=>{
-        supabase.auth.getUser().then(({data})=>setUser(data?.user||null));
-        const{sub}=supabase.auth.onAuthStateChange((_e,session)=>setUser(session?.user||null));
-        return()=>sub.subscription?.unsubscribe?.()},[]);
-        return <Ctx.Provider value={{cleanUser}}>{children}</Ctx.Provider>}
+export default function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
 
-        export function useAuth(){return useContext(Ctx)}
+  useEffect(() => {
+    let active = true;
+
+    const init = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!active) return;
+      setUser(data?.user ?? null);
+    };
+    init();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      active = false;
+      sub?.subscription?.unsubscribe?.();
+    };
+  }, []);
+
+  return <Ctx.Provider value={{ user }}>{children}</Ctx.Provider>;
+}
+
+export const useAuth = () => useContext(Ctx);

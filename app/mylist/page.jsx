@@ -1,48 +1,60 @@
-'use client';
-export const dynamic = 'force-dynamic';
-
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import AnimeGrid from '@/components/AnimeGrid';
-import Link from 'next/link';
+// /app/mylist/page.jsx
+"use client";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/lib/supabaseClient";
+import AnimeGrid from "@/components/AnimeGrid";
 
 export default function MyListPage() {
-  const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const { data } = await supabase.from('user_favorites').select('*');
-        setAnimeList(data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+    let on = true;
+    const load = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("anime_id:title, cover_url:image, meta")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
-  if (loading)
-    return <div className="text-center text-white/60 p-10 animate-pulse">Loading your list...</div>;
+      if (error) {
+        console.warn(error.message);
+        return;
+      }
+      // Normalize to AnimeGrid format
+      const out = (data || []).map((r, i) => ({
+        id: r.meta?.id || r.anime_id || i,
+        title: r.meta?.title || "Saved anime",
+        image: r.cover_url || r.meta?.image || "/placeholder.png",
+        score: r.meta?.score ?? null,
+        year: r.meta?.year ?? null,
+        type: r.meta?.type ?? "",
+      }));
+      if (on) setItems(out);
+    };
+    load();
+    return () => (on = false);
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <h1 className="text-2xl font-bold mb-2">My List</h1>
+        <p className="text-white/70">Giriş yapmalısın.</p>
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948] text-white p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">💖 My List</h1>
-      {animeList.length > 0 ? (
-        <AnimeGrid animeList={animeList} />
+    <section className="space-y-6">
+      <h1 className="text-3xl font-bold">My List</h1>
+      {items.length ? (
+        <AnimeGrid items={items} />
       ) : (
-        <div className="text-center mt-10">
-          <p className="text-white/60 mb-4">You haven’t added anything yet.</p>
-          <Link
-            href="/popular"
-            className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl text-white hover:scale-105 transition"
-          >
-            Browse Anime →
-          </Link>
-        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-white/70">Henüz favori eklenmedi.</div>
       )}
-    </main>
+    </section>
   );
 }

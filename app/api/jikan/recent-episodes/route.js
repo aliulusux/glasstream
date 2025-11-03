@@ -1,1 +1,0 @@
-export async function GET(req){const u=new URL(req.url);const p=u.searchParams.get("page")||"1";let r=await fetch(`https://api.jikan.moe/v4/watch/episodes?page=${p}`).catch(()=>null);if(!r||!r.ok) r=await fetch(`https://api.jikan.moe/v4/schedules?page=${p}`);return Response.json(await r.json())}
