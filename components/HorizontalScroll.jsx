@@ -1,1 +1,0 @@
-"use client";export default function HorizontalScroll({children}){return(<div className=\"relative\"><div className=\"flex overflow-x-auto gap-4 scrollbar-hide scroll-smooth pb-2\">{children}</div></div>);}

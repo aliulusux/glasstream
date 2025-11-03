@@ -1,18 +1,1 @@
-"use client";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "./AuthProvider";
-export default function AuthButtons(){
-  const { user } = useAuth();
-  async function signInGoogle(){ await supabase.auth.signInWithOAuth({ provider: "google" }); }
-  async function signOut(){ await supabase.auth.signOut(); }
-  if (user) {
-    return (
-      <div className="flex items-center gap-3">
-        <span className="text-sm opacity-80">Merhaba, {user.email || user.id.slice(0,6)}</span>
-        <a href="/mylist" className="glass px-3 py-1 rounded-xl hover:bg-white/20">Benim Listem</a>
-        <button onClick={signOut} className="glass px-3 py-1 rounded-xl hover:bg-white/20">Çıkış</button>
-      </div>
-    );
-  }
-  return <button onClick={signInGoogle} className="glass px-3 py-1 rounded-xl hover:bg-white/20">Google ile Giriş</button>;
-}
+"use client";import {supabase}from"@/lib/supabaseClient";import {useAuth}from"./AuthProvider";import {useTheme}from"./ThemeProvider";export default function AuthButtons(){const{user}=useAuth();const{theme,toggle}=useTheme();async function signInGoogle(){await supabase.auth.signInWithOAuth({provider:"google"})}async function signOut(){await supabase.auth.signOut()}return(<div className="flex items-center gap-3"><button onClick={toggle} className="glass px-3 py-1 rounded-xl hover:bg-white/20">{theme==="dark"?"☾ Dark":"☼ Light"}</button>{user?(<><span className="text-sm opacity-80 hidden sm:inline">Merhaba, {user.email||user.id.slice(0,6)}</span><a href="/mylist" className="glass px-3 py-1 rounded-xl hover:bg-white/20">Benim Listem</a><button onClick={signOut} className="glass px-3 py-1 rounded-XL hover:bg-white/20">Çıkış</button></>):(<><a href="/login" className="glass px-3 py-1 rounded-xl hover:bg-white/20">Giriş</a><a href="/register" className="glass px-3 py-1 rounded-xl hover:bg-white/20">Kaydol</a><button onClick={signInGoogle} className="glass px-3 py-1 rounded-xl hover:bg-white/20">Google</button></>)}</div>)}

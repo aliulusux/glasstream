@@ -1,1 +1,1 @@
-export async function GET(req){const u=new URL(req.url);const p=u.searchParams.get('page')||'1';const l=u.searchParams.get('limit')||'24';const r=await fetch(`https://api.jikan.moe/v4/seasons/now?page=${p}&limit=${l}`);return Response.json(await r.json());}
+export async function GET(req){const u=new URL(req.url);const p=u.searchParams.get("page")||"1";const l=u.searchParams.get("limit")||"24";const r=await fetch(`https://api.jikan.moe/v4/seasons/now?page=${p}&limit=${l}`);return Response.json(await r.json())}

@@ -1,1 +1,1 @@
-export async function GET(_, {params}){const r=await fetch(`https://api.jikan.moe/v4/anime/${params.id}/full`);return Response.json(await r.json());}
+export async function GET(_,{params}){const r=await fetch(`https://api.jikan.moe/v4/anime/${params.id}/full`);return Response.json(await r.json())}

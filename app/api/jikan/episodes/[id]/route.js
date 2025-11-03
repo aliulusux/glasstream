@@ -1,1 +1,1 @@
-export async function GET(req,{params}){const u=new URL(req.url);const p=u.searchParams.get('page')||'1';const r=await fetch(`https://api.jikan.moe/v4/anime/${params.id}/episodes?page=${p}`);return Response.json(await r.json());}
+export async function GET(req,{params}){const u=new URL(req.url);const p=u.searchParams.get("page")||"1";const r=await fetch(`https://api.jikan.moe/v4/anime/${params.id}/episodes?page=${p}`);return Response.json(await r.json())}
