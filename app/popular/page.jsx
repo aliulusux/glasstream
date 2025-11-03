@@ -1,18 +1,39 @@
+'use client';
+export const dynamic = 'force-dynamic';
+
+import { useEffect, useState } from 'react';
 import { fetchTopAnime } from '@/lib/jikan';
 import AnimeGrid from '@/components/AnimeGrid';
 
-export const revalidate = 600;
+export default function PopularPage() {
+  const [animeList, setAnimeList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-export default async function PopularPage() {
-  const animeList = await fetchTopAnime();
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await fetchTopAnime();
+        setAnimeList(data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load popular anime.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-    // 👇 ÇÖZÜM: Veriyi burada JSON uyumlu hale getiriyoruz.
-    const cleanAnimeList = JSON.parse(JSON.stringify(animeList || []));
+  if (error)
+    return <div className="text-center text-pink-400 p-10">{error}</div>;
+  if (loading)
+    return <div className="text-center text-white/60 p-10 animate-pulse">Loading popular anime...</div>;
 
   return (
-    <main className="min-h-screen text-white p-6">
+    <main className="min-h-screen bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948] text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">🔥 Popular Anime</h1>
-      <AnimeGrid animeList={cleanAnimeList}/>
+      <AnimeGrid animeList={animeList} />
     </main>
   );
 }
