@@ -1,11 +1,11 @@
-'use client';
-export const dynamic = 'force-dynamic';
+"use client";
+export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { fetchAnimeById } from '@/lib/jikan';
-import Link from 'next/link';
-import FavoriteButton from '@/components/FavoriteButton';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { fetchAnimeById } from "@/lib/jikan";
+import Link from "next/link";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export default function AnimeDetailsPage() {
   const { id } = useParams();
@@ -46,26 +46,30 @@ export default function AnimeDetailsPage() {
     );
   }
 
+  const image =
+    anime.images?.jpg?.large_image_url ||
+    anime.images?.jpg?.image_url ||
+    anime.image_url;
+
   return (
     <div className="max-w-5xl mx-auto space-y-10">
       <div className="flex flex-col md:flex-row gap-8">
-        <img
-          src={
-            anime.images?.jpg?.large_image_url ||
-            anime.images?.jpg?.image_url ||
-            anime.image_url
-          }
-          alt={anime.title}
-          className="w-full md:w-72 rounded-3xl border border-white/10 shadow-lg"
-        />
+        <div className="relative">
+          <img
+            src={image}
+            alt={anime.title}
+            className="w-full md:w-72 rounded-3xl border border-white/10 shadow-lg"
+          />
+          {/* ❤️ Floating Favorite Button */}
+          <div className="absolute top-3 right-3">
+            <FavoriteButton anime={anime} />
+          </div>
+        </div>
+
         <div className="flex-1 space-y-4">
           <h1 className="text-3xl font-bold">{anime.title}</h1>
-
-          {/* ✅ Single source of truth for favorites */}
-          <FavoriteButton anime={anime} />
-
           <p className="text-white/70 leading-relaxed whitespace-pre-line">
-            {anime.synopsis || 'No description available.'}
+            {anime.synopsis || "No description available."}
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-white/70">
