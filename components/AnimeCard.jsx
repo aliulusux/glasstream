@@ -2,6 +2,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { addFavorite, removeFavorite } from "@/lib/favorites";
+
+export default function AnimeCard({ a, tag, user }) {
+  const [fav, setFav] = useState(false);
+
+  async function toggleFav() {
+    setFav(!fav);
+    if (!fav) await addFavorite(user?.id || "anon", a);
+    else await removeFavorite(user?.id || "anon", a.mal_id);
+  }
 
 function cover(a){ 
   return a?.images?.jpg?.large_image_url || a?.images?.jpg?.image_url || a?.image_url || "/placeholder.png";
@@ -22,6 +32,14 @@ export default function AnimeCard({ a, tag }){
           {a.score && <div className="mt-1 text-primary">★ {a.score}</div>}
         </div>
       </Link>
+      <button
+        onClick={toggleFav}
+        className={`absolute top-3 right-3 text-lg ${
+          fav ? "text-pink-400" : "text-white/60"
+        } hover:text-pink-500 transition`}
+      >
+        ♥
+      </button>
     </motion.div>
   );
 }

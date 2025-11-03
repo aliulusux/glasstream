@@ -7,6 +7,24 @@
   --bg2: #302b63;
   --bg3: #24243e;
 }
+/* Animated gradient background */
+/*body {
+  background: linear-gradient(-45deg, #2e026d, #15162c, #9333ea, #4f46e5);
+  background-size: 400% 400%;
+  animation: gradientFlow 18s ease infinite;
+}*/
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Hover glow for cards */
+.card:hover {
+  box-shadow: 0 0 20px rgba(168,85,247,0.4);
+  transform: translateY(-6px) scale(1.02);
+}
 
 body {
   @apply min-h-screen text-white;

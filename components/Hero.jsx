@@ -13,9 +13,17 @@ export default function Hero({ slides=[] }) {
   return (
     <div className="relative h-[52vh] sm:h-[60vh] md:h-[68vh] rounded-3xl overflow-hidden mb-10 glass-soft">
       <AnimatePresence mode="wait">
-        <motion.div key={i} initial={{opacity:0, scale:1.02}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.98}} transition={{duration:.6}} className="absolute inset-0">
+        <motion.div 
+          key={i} 
+          initial={{ opacity: 0, scale: 1.05, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -10 }} 
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
           {s?.images?.jpg?.large_image_url && (
-            <Image src={s.images.jpg.large_image_url} alt={s.title} fill className="object-cover" priority />
+            <Image src={s.images.jpg.large_image_url} alt={s.title} fill className="object-cover will-change-transform transform hover:scale-105 transition-all duration-[4000ms]"
+            priority />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
         </motion.div>
