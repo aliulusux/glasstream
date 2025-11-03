@@ -1,0 +1,13 @@
+"use client";
+import Link from "next/link";
+
+export default function Pagination({ baseUrl, page, hasNext=true }){
+  const p = Number(page||1);
+  return (
+    <div className="flex items-center justify-center gap-2 mt-8">
+      <Link className={`glass px-3 py-1 rounded-lg ${p<=1?'opacity-50 pointer-events-none':''}`} href={`${baseUrl}?page=${p-1}`}>Geri</Link>
+      <div className="glass px-3 py-1 rounded-lg">{p}</div>
+      <Link className={`glass px-3 py-1 rounded-lg ${!hasNext?'opacity-50 pointer-events-none':''}`} href={`${baseUrl}?page=${p+1}`}>İleri</Link>
+    </div>
+  );
+}
