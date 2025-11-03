@@ -1,1 +1,0 @@
-export async function GET(req){const u=new URL(req.url);const gid=u.searchParams.get("gid");const p=u.searchParams.get("page")||"1";const l=u.searchParams.get("limit")||"24";const r=await fetch(`https://api.jikan.moe/v4/anime?genres=${gid}&page=${p}&limit=${l}&order_by=score&sort=desc&sfw`);return Response.json(await r.json())}
