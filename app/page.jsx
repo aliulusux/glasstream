@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import AutoCarousel from "@/components/AutoCarousel";
 
@@ -41,8 +40,7 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="min-h-screen text-white bg-gradient-to-b from-[#120022] via-[#180033] to-[#100022]">
-      <Header />
+    <div className="min-h-screen transition-colors duration-500 text-gray-900 dark:text-white bg-gradient-to-b from-[#f8f8ff] via-[#eceaff] to-[#d8d6ff] dark:from-[#120022] dark:via-[#180033] dark:to-[#100022]">
 
       {/* Featured Carousel */}
       <section className="pt-6 px-4 max-w-7xl mx-auto">
