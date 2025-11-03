@@ -5,45 +5,37 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/components/AuthProvider";
 import { Heart } from "lucide-react";
 
-/**
- * FavoriteButton – client-only component for adding/removing favorites
- * Works safely with Supabase and Next.js App Router
- */
-export default function FavoriteButton({ anime }) {
+export default function FavoriteButton({ anime, small = false }) {
   const { user } = useAuth();
   const [inList, setInList] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
-  // --- Check if this anime is already in user's favorites ---
   useEffect(() => {
     if (!user || !anime?.mal_id) {
       setLoading(false);
       return;
     }
-
     (async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("favorites")
         .select("id")
         .eq("user_id", user.id)
         .eq("anime_id", anime.mal_id)
         .maybeSingle();
-
-      if (!error && data) setInList(true);
+      setInList(!!data);
       setLoading(false);
     })();
   }, [user, anime?.mal_id]);
 
-  // --- Toggle favorite ---
-  async function handleToggle() {
+  async function toggleFavorite(e) {
+    e.stopPropagation();
+    e.preventDefault();
     if (!user) {
       alert("Please log in to use favorites!");
       return;
     }
-
     setBusy(true);
-
     if (inList) {
       await supabase
         .from("favorites")
@@ -67,37 +59,55 @@ export default function FavoriteButton({ anime }) {
       ]);
       setInList(true);
     }
-
     setBusy(false);
   }
 
-  // --- Loading state (while checking DB) ---
-  if (loading) {
-    return (
-      <button
-        disabled
-        className="px-4 py-2.5 rounded-xl bg-white/5 text-white/50 cursor-wait"
-      >
-        Checking...
-      </button>
-    );
-  }
+  const size = small ? 22 : 28;
 
-  // --- Render favorite button ---
   return (
     <button
-      onClick={handleToggle}
-      disabled={busy}
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition 
-        ${inList ? "bg-pink-600/80 hover:bg-pink-600 text-white" : "bg-white/10 hover:bg-white/20 text-white/80"}
-        ${busy ? "opacity-70 cursor-wait" : ""}`}
+      onClick={toggleFavorite}
+      disabled={busy || loading}
+      className={`relative transition duration-200 ${
+        small ? "p-1" : "p-2"
+      } rounded-full ${
+        inList
+          ? "text-pink-500 hover:text-pink-400"
+          : "text-white/60 hover:text-white"
+      } ${busy ? "opacity-70" : ""}`}
+      aria-label="Toggle Favorite"
     >
+      {/* 💖 Animated Glow */}
       <Heart
-        size={20}
+        size={size}
         fill={inList ? "currentColor" : "none"}
-        className={`transition-transform ${busy ? "scale-90" : "hover:scale-110"}`}
+        className={`transition-all duration-300 ${
+          inList
+            ? "scale-110 drop-shadow-[0_0_8px_rgba(236,72,153,0.6)] animate-pulse-slow"
+            : "scale-100"
+        }`}
       />
-      {busy ? "Saving..." : inList ? "Remove from My List" : "Add to My List"}
+
+      {/* Pulse animation */}
+      <style jsx>{`
+        @keyframes pulse-slow {
+          0% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0.3));
+          }
+          50% {
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.8));
+          }
+          100% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0.3));
+          }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 1.8s ease-in-out infinite;
+        }
+      `}</style>
     </button>
   );
 }
