@@ -1,13 +1,112 @@
-import Image from "next/image";
-import { getAnime, getEpisodes } from "@/lib/jikan";
-import AnimeCard from "@/components/AnimeCard";
-import PlaySources from "@/components/PlaySources";
-import StatusPicker from "@/components/StatusPicker";
-export default async function AnimePage({ params, searchParams }){
-  const { id } = params;
-  const page = Number(searchParams?.page || 1);
-  const info = await getAnime(id);
-  const data = info.data;
-  const eps = await getEpisodes(id, page);
-  const episodes = eps.data || [];
-  return (<div className="pt-4"><div className="grid md:grid-cols-3 gap-6"><div className="md:col-span-2 glass rounded-3xl overflow-hidden"><div className="relative w-full h-64">{data?.images?.jpg?.large_image_url && <Image src={data.images.jpg.large_image_url} alt={data.title} fill className="object-cover" />}<div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" /><div className="absolute bottom-4 left-4 flex items-center gap-4"><div><h1 className="text-3xl font-extrabold">{data?.title}</h1><div className="mt-2 opacity-80">{data?.year} • {data?.episodes} Bölüm • {data?.rating}</div></div><PlaySources info={data} /></div></div><div className="p-6"><p className="text-white/80 leading-relaxed">{data?.synopsis}</p></div></div><div className="space-y-4"><div className="glass rounded-3xl p-6"><h3 className="font-semibold mb-3">Bilgiler</h3><div className="space-y-2 text-white/80"><div><span className="badge">Skor</span> <span className="ml-2">★ {data?.score || "-"}</span></div><div><span className="badge">Tür</span> <span className="ml-2">{(data?.genres||[]).map(g=>g.name).join(", ")}</span></div><div><span className="badge">Süre</span> <span className="ml-2">{data?.duration}</span></div></div></div><StatusPicker animeId={id} /></div></div><section className="mt-10"><h2 className="text-2xl font-bold mb-4">Bölümler</h2><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{episodes.map(ep => (<div key={ep.mal_id} className="glass rounded-xl p-4 hover:bg-white/10 transition"><div className="text-sm opacity-80">Bölüm {ep.mal_id || ep.episode}</div><div className="font-semibold line-clamp-1">{ep.title}</div>{ep.aired && <div className="text-xs opacity-70 mt-1">{new Date(ep.aired).toLocaleDateString()}</div>}</div>))}</div><div className="flex items-center justify-center gap-2 mt-6"><a className={`glass px-3 py-1 rounded-lg ${page<=1?'opacity-50 pointer-events-none':''}`} href={`/anime/${id}?page=${page-1}`}>Geri</a><div className="glass px-3 py-1 rounded-lg">{page}</div><a className={`glass px-3 py-1 rounded-lg ${!eps.pagination?.has_next_page?'opacity-50 pointer-events-none':''}`} href={`/anime/${id}?page=${page+1}`}>İleri</a></div></section>{data?.relations?.length>0 && (<section className="mt-10"><h2 className="text-2xl font-bold mb-3">İlgili</h2><div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">{(data.relations||[]).slice(0,12).map((rel, idx) => {const a = rel.entry?.[0];return a ? <AnimeCard key={idx} a={{ ...a, images:{jpg:{image_url: data.images?.jpg?.image_url}} }} tag={rel.relation} /> : null;})}</div></section>)}</div>);}
+import Image from 'next/image';
+import Link from 'next/link';
+import Comments from '@/components/Comments';
+import GlowCard from '@/components/GlowCard';
+import { GridSkeleton } from '@/components/Skeletons';
+
+export const dynamic = 'force-dynamic';
+
+async function getAnime(id){
+  try {
+    const r = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/jikan/anime/${id}`, { cache: 'no-store' });
+    return await r.json();
+  } catch { return null; }
+}
+async function getCharacters(id){
+  try {
+    const r = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/jikan/characters/${id}`, { cache: 'no-store' });
+    return await r.json();
+  } catch { return []; }
+}
+async function getRelations(id){
+  try {
+    const r = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/jikan/relations/${id}`, { cache: 'no-store' });
+    const d = await r.json();
+    // Flatten related entries to anime array-like
+    const rel = [];
+    (d||[]).forEach(g => g?.entry?.forEach(e => rel.push({ mal_id: e.mal_id, title: e.name })));
+    return rel;
+  } catch { return []; }
+}
+
+export default async function Page({ params }) {
+  const id = params.id;
+  const [anime, chars, rel] = await Promise.all([getAnime(id), getCharacters(id), getRelations(id)]);
+
+  if (!anime?.title) {
+    return (
+      <div className="max-w-7xl mx-auto p-4">
+        <GridSkeleton count={12}/>
+      </div>
+    );
+  }
+
+  const cover = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url;
+
+  return (
+    <div className="max-w-7xl mx-auto p-4 space-y-8">
+      {/* Hero */}
+      <GlowCard className="p-4 grid md:grid-cols-[240px_1fr_280px] gap-4 items-start">
+        <Image src={cover} alt={anime.title} width={240} height={340} className="rounded-xl object-cover"/>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold text-white">{anime.title}</h1>
+          <p className="text-white/70 mt-2">{anime.synopsis || 'No synopsis.'}</p>
+          {anime.trailer?.embed_url && (
+            <div className="mt-4 aspect-video">
+              <iframe
+                src={anime.trailer.embed_url}
+                className="w-full h-full rounded-xl border border-white/10"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                allowFullScreen
+              />
+            </div>
+          )}
+        </div>
+        <div className="space-y-2">
+          <div className="rounded-xl bg-white/8 border border-white/15 p-3 text-white/90">
+            <div>⭐ Score: <b>{anime.score ?? '-'}</b></div>
+            <div>Episodes: <b>{anime.episodes ?? '-'}</b></div>
+            <div>Year: <b>{anime.year ?? '-'}</b></div>
+            <div>Type: <b>{anime.type ?? '-'}</b></div>
+            <div>Rank: <b>{anime.rank ?? '-'}</b></div>
+          </div>
+        </div>
+      </GlowCard>
+
+      {/* Characters */}
+      <section>
+        <h2 className="text-white font-semibold mb-3">Characters</h2>
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7">
+          {(chars||[]).slice(0,14).map(c => {
+            const img = c?.character?.images?.jpg?.image_url;
+            return (
+              <GlowCard key={c?.character?.mal_id} className="p-2">
+                <Image src={img} alt={c?.character?.name} width={180} height={240} className="rounded-lg w-full h-[240px] object-cover"/>
+                <div className="mt-2 text-center text-white/90 text-sm">{c?.character?.name}</div>
+              </GlowCard>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Related */}
+      <section>
+        <h2 className="text-white font-semibold mb-3">Related</h2>
+        {rel.length === 0 ? (
+          <div className="text-white/60">No related titles.</div>
+        ) : (
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7">
+            {rel.slice(0,14).map(r => (
+              <GlowCard key={r.mal_id} className="p-3">
+                <Link href={`/anime/${r.mal_id}`} className="text-white/90 hover:text-white">{r.title}</Link>
+              </GlowCard>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Comments */}
+      <Comments animeId={Number(id)} />
+    </div>
+  );
+}
