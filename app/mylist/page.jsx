@@ -23,13 +23,15 @@ export default function MyListPage() {
     fetchMyList();
   }, []);
 
+  const cleanAnimeList = JSON.parse(JSON.stringify(animeList || []));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948] text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">💖 My Anime List</h1>
       {loading ? (
         <p className="text-center text-white/70">Loading your saved anime...</p>
       ) : animeList.length > 0 ? (
-        <AnimeGrid animeList={animeList} />
+        <AnimeGrid animeList={cleanAnimeList} />
       ) : (
         <div className="text-center mt-10">
           <p className="text-white/60 mb-4">You haven’t added anything yet.</p>

@@ -6,10 +6,13 @@ export const revalidate = 600;
 export default async function PopularPage() {
   const animeList = await fetchTopAnime();
 
+    // 👇 ÇÖZÜM: Veriyi burada JSON uyumlu hale getiriyoruz.
+    const cleanAnimeList = JSON.parse(JSON.stringify(animeList || []));
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948] text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">🔥 Popular Anime</h1>
-      <AnimeGrid animeList={animeList || []} />
+      <AnimeGrid animeList={cleanAnimeList}/>
     </main>
   );
 }
