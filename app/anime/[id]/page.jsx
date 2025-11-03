@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getAnime, getEpisodes } from "@/lib/jikan";
 import AnimeCard from "@/components/AnimeCard";
+import PlayClient from "@/components/PlayClient";
 
 export default async function AnimePage({ params, searchParams }){
   const { id } = params;
@@ -17,9 +18,12 @@ export default async function AnimePage({ params, searchParams }){
           <div className="relative w-full h-64">
             {data?.images?.jpg?.large_image_url && <Image src={data.images.jpg.large_image_url} alt={data.title} fill className="object-cover" />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-            <div className="absolute bottom-4 left-4">
-              <h1 className="text-3xl font-extrabold">{data?.title}</h1>
-              <div className="mt-2 opacity-80">{data?.year} • {data?.episodes} Bölüm • {data?.rating}</div>
+            <div className="absolute bottom-4 left-4 flex items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-extrabold">{data?.title}</h1>
+                <div className="mt-2 opacity-80">{data?.year} • {data?.episodes} Bölüm • {data?.rating}</div>
+              </div>
+              <PlayClient />
             </div>
           </div>
           <div className="p-6">
