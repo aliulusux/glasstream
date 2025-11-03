@@ -26,7 +26,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0b0613] via-[#1a1030] to-[#2b1948]">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="backdrop-blur-2xl bg-white/10 border border-white/20 p-8 rounded-2xl shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-semibold text-white mb-6 text-center">
           Create Account ✨
