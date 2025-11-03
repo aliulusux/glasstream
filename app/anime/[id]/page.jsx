@@ -48,6 +48,13 @@ export default async function Page({ params }) {
       {/* Hero */}
       <GlowCard className="p-4 grid md:grid-cols-[240px_1fr_280px] gap-4 items-start">
         <Image src={cover} alt={anime.title} width={240} height={340} className="rounded-xl object-cover"/>
+        <Link
+          href={`/anime/${params.aid}/watch`}
+          className="inline-block mt-4 px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium shadow-md hover:shadow-lg transition"
+        >
+          ▶️ Watch Episode 1
+        </Link>
+        <p className="text-white/70 mt-2">{anime.synopsis || 'No synopsis.'}</p>
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold text-white">{anime.title}</h1>
           <p className="text-white/70 mt-2">{anime.synopsis || 'No synopsis.'}</p>
