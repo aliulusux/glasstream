@@ -50,7 +50,7 @@ export default function Header() {
                 className={clsx(
                   "px-3 py-1.5 rounded-xl text-sm transition",
                   active
-                    ? "bg-[#2A213F] text-white shadow-glass"
+                    ? "bg-pink-600/30 text-pink-300 shadow-[0_0_10px_rgba(255,79,176,0.4)]"
                     : "text-white/75 hover:text-white hover:bg-white/5"
                 )}
               >
@@ -95,9 +95,10 @@ export default function Header() {
           </div>
         </form>
 
-        <button className="btn hidden sm:inline-flex">
-          <Star size={16} className="mr-2" /> Kaydol
-        </button>
+        <div className="flex items-center gap-2">
+            <button className="btn">Giriş</button>
+            <button className="btn bg-pink-600/40 hover:bg-pink-500/60">Kaydol</button>
+        </div>
       </div>
     </header>
   );

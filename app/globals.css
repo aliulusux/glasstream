@@ -34,3 +34,16 @@ html, body {
 .badge {
   @apply px-2 py-0.5 text-xs rounded-full bg-white/10 border border-white/10;
 }
+
+.btn {
+  @apply flex items-center justify-center px-5 h-10 rounded-xl text-sm font-medium transition select-none;
+  background: linear-gradient(180deg, #2a203f, #1c142e);
+  border: 1px solid rgba(255,255,255,0.08);
+  line-height: 1;
+}
+
+.card-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(255,79,176,0.35);
+  transform: scale(1.03);
+  transition: all 0.3s ease;
+}
