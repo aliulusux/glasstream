@@ -6,9 +6,11 @@ import AnimeGrid from "@/components/AnimeGrid";
 import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 import ShimmerGrid from "@/components/ShimmerGrid";
 
-export default function HomePage() {
-  const [topAnime, setTopAnime] = useState([]);
-  const [recentAnime, setRecentAnime] = useState([]);
+export default async function HomePage() {
+  const [topAnime, recentAnime] = await Promise.all([
+    fetchTopAnime(1, 6),
+    fetchRecentAnime(1, 6),
+  ]);
   const [loading, setLoading] = useState(true);
 
   // 🧠 Fetch both sections
@@ -103,7 +105,9 @@ export default function HomePage() {
           </a>
         </div>
 
-        {loading ? <ShimmerGrid count={12} /> : <AnimeGrid animeList={recentAnime} />}
+        <Suspense fallback={<ShimmerGrid count={6} />}>
+          <AnimeGrid animeList={recentAnime} />
+        </Suspense>
 
       </motion.section>
 
@@ -135,7 +139,9 @@ export default function HomePage() {
           </a>
         </div>
 
-        {loading ? <ShimmerGrid count={12} /> : <AnimeGrid animeList={topAnime} />}
+        <Suspense fallback={<ShimmerGrid count={6} />}>
+          <AnimeGrid animeList={topAnime} />
+        </Suspense>
       </motion.section>
     </main>
   );
