@@ -6,27 +6,31 @@ import Pagination from "../components/Pagination";
 export default function Browse() {
   const [searchParams, setSearchParams] = useSearchParams();
   const q = searchParams.get("q") || "";
-  const [list, setList] = useState([]);
+  const [animeList, setAnimeList] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const limit = 20;
-      const offset = (page - 1) * limit;
-      const endpoint = q
-        ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&order_by=score&sort=desc&page=${page}`
-        : `https://api.jikan.moe/v4/top/anime?page=${page}`;
-      const res = await fetch(endpoint);
-      const json = await res.json();
-      setList(json.data || []);
-      // Jikan returns pagination info
-      const pagination = json.pagination;
-      setTotalPages(pagination?.last_visible_page || 1);
-      setLoading(false);
+      try {
+        const endpoint = q
+          ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&page=${page}&sfw`
+          : `https://api.jikan.moe/v4/top/anime?page=${page}`;
+
+        const res = await fetch(endpoint);
+        const data = await res.json();
+
+        setAnimeList(data?.data || []);
+        setTotalPages(data?.pagination?.last_visible_page || 1);
+      } catch (e) {
+        console.error("Browse fetch error:", e);
+      } finally {
+        setLoading(false);
+      }
     }
+
     fetchData();
     setSearchParams({ q: q || "", page: String(page) });
   }, [q, page, setSearchParams]);
@@ -46,8 +50,12 @@ export default function Browse() {
         </div>
       ) : (
         <>
-          <AnimeGrid animeList={list} />
-          <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          <AnimeGrid animeList={animeList} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </>
       )}
     </main>

@@ -5,6 +5,7 @@ import Browse from "./pages/Browse";
 import Popular from "./pages/Popular";
 import New from "./pages/New";
 import MyList from "./pages/MyList";
+import Player from "./pages/Player";
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -21,6 +22,7 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/anime/:mal_id" element={<Player />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/popular" element={<Popular />} />
         <Route path="/new" element={<New />} />
