@@ -1,147 +1,48 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+// app/page.jsx
+import { fetchTopAnime, fetchRecentAnime } from "@/lib/jikan";
 import AnimeGrid from "@/components/AnimeGrid";
-import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 
-export const revalidate = 300;
+export const revalidate = 300; // ✅ must be a number, not an object
 
 export default async function HomePage() {
   const [topAnime, recentAnime] = await Promise.all([
     fetchTopAnime(1, 6),
     fetchRecentAnime(1, 6),
   ]);
-  const [loading, setLoading] = useState(true);
-
-  // 🧠 Fetch both sections
-  useEffect(() => {
-    async function loadAnime() {
-      try {
-        const top = await fetchTopAnime();
-        const recent = await fetchRecentAnime();
-
-        setTopAnime(Array.isArray(top) ? top : []);
-        setRecentAnime(Array.isArray(recent) ? recent : []);
-      } catch (err) {
-        console.error("Homepage fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAnime();
-  }, []);
 
   return (
-    <main className="min-h-screen text-white px-6 md:px-10 lg:px-20 py-10 space-y-20 bg-gradient-to-b from-[#0b0018] via-[#120029] to-[#0b0018] overflow-hidden">
-
-      {/* 🎥 Hero Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative rounded-3xl p-10 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden"
-      >
-        <motion.div
-          className="absolute -top-20 -right-20 w-72 h-72 bg-pink-500/20 blur-[120px] rounded-full"
-          animate={{ opacity: [0.4, 0.6, 0.4] }}
-          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-        />
-        <h2 className="text-sm text-white/50 mb-2">Featured</h2>
-        <motion.h1
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-4xl md:text-5xl font-extrabold leading-tight mb-4 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]"
-        >
-          Discover your next favorite{" "}
-          <span className="text-pink-500">Anime</span>
-        </motion.h1>
-        <p className="text-white/70 max-w-2xl mb-8">
+    <main className="px-8 py-10 space-y-10">
+      {/* Hero Section */}
+      <section className="rounded-3xl p-10 bg-gradient-to-br from-white/5 to-white/10 border border-white/10 backdrop-blur-lg">
+        <h1 className="text-5xl font-bold text-white">
+          Discover your next favorite <span className="text-pink-500">Anime</span>
+        </h1>
+        <p className="mt-3 text-white/70">
           Clean glass UI, smooth hover effects, and fresh data from Jikan API.
         </p>
-        <div className="flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-medium shadow-lg transition-all duration-300"
-          >
-            Watch Now
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 font-medium transition-all duration-300"
-          >
-            Explore
-          </motion.button>
-        </div>
-      </motion.section>
+      </section>
 
-      {/* 🌸 Seasonal Anime */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <motion.h2
-            animate={{
-              textShadow: [
-                "0 0 5px #ec4899",
-                "0 0 15px #ec4899",
-                "0 0 5px #ec4899",
-              ],
-            }}
-            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-            className="text-xl font-bold"
-          >
-            This Season’s Highlights ✨
-          </motion.h2>
-          <a
-            href="/browse"
-            className="text-sm text-white/60 hover:text-white transition"
-          >
+      {/* This Season’s Highlights */}
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-white">✨ This Season’s Highlights</h2>
+          <a href="/new" className="text-white/60 hover:text-pink-400 transition">
             See all
           </a>
         </div>
+        <AnimeGrid animeList={recentAnime} />
+      </section>
 
-          <AnimeGrid animeList={recentAnime} />
-
-      </motion.section>
-
-      {/* 🔥 Popular Anime */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <motion.h2
-            animate={{
-              textShadow: [
-                "0 0 5px #38bdf8",
-                "0 0 15px #38bdf8",
-                "0 0 5px #38bdf8",
-              ],
-            }}
-            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-            className="text-xl font-bold"
-          >
-            Popular Anime 💫
-          </motion.h2>
-          <a
-            href="/popular"
-            className="text-sm text-white/60 hover:text-white transition"
-          >
+      {/* Popular Anime */}
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-white">🔥 Popular Anime</h2>
+          <a href="/popular" className="text-white/60 hover:text-pink-400 transition">
             See all
           </a>
         </div>
-          <AnimeGrid animeList={topAnime} />
-      </motion.section>
+        <AnimeGrid animeList={topAnime} />
+      </section>
     </main>
   );
 }
-
-
-/*<Link href="/popular" className="text-sm text-white/70 hover:text-white">See all</Link>*/
