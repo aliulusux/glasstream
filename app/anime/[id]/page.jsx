@@ -21,7 +21,7 @@ export default function AnimeDetailsPage() {
       const data = await fetchAnimeById(id);
       console.log("Fetched anime data:", data); // ✅ Debug
       if (active) {
-        setAnime(data);
+        setAnime(data.data || data);
         setLoading(false);
       }
     })();
