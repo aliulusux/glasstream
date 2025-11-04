@@ -1,3 +1,5 @@
+"use client";
+
 // /app/layout.jsx
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
