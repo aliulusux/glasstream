@@ -28,7 +28,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="font-extrabold text-xl tracking-tight">
           <span className="text-white/90">glas</span>
-          <span className="text-pink-400">sS</span>
+          <motion.h6 className="drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]"> <span className="text-pink-400 " >sS</span> </motion.h6>
           <span className="text-white/90">tream</span>
         </Link>
         <nav className="flex gap-1">
