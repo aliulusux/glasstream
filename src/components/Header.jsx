@@ -3,6 +3,8 @@ import { Search, Star } from "lucide-react";
 import AuthModal from "./AuthModal";
 import { supabase } from "../lib/supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
