@@ -117,19 +117,8 @@ export default function HomePage() {
           </a>
         </div>
 
-        {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-72 rounded-3xl bg-white/5 animate-pulse"
-              ></div>
-            ))}
-          </div>
-        ) : (
-         <ShimmerGrid /> : <AnimeGrid animeList={recentAnime} />
-          />
-        )}
+        {loading ? <ShimmerGrid count={12} /> : <AnimeGrid animeList={recentAnime} />}
+
       </motion.section>
 
       {/* 🔥 Popular Anime */}
@@ -160,18 +149,7 @@ export default function HomePage() {
           </a>
         </div>
 
-        {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-72 rounded-3xl bg-white/5 animate-pulse"
-              ></div>
-            ))}
-          </div>
-        ) : (
-        <ShimmerGrid /> : <AnimeGrid animeList={topAnime} />
-        )}
+        {loading ? <ShimmerGrid count={12} /> : <AnimeGrid animeList={topAnime} />}
       </motion.section>
     </main>
   );
