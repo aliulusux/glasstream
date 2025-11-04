@@ -1,116 +1,80 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/lib/supabaseClient";
 import { Heart } from "lucide-react";
 
-export default function FavoriteButton({ anime, small = false }) {
-  // 🩵 Prevent errors on server
-  if (typeof window === "undefined") return null;
-
+export default function FavoriteButton({ anime }) {
   const { user } = useAuth();
   const [inList, setInList] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!user || !anime?.mal_id) {
-      setLoading(false);
-      return;
-    }
+    if (!user || !anime?.id) return;
+
     (async () => {
       const { data } = await supabase
         .from("favorites")
         .select("id")
         .eq("user_id", user.id)
-        .eq("anime_id", anime.mal_id)
+        .eq("anime_id", anime.id)
         .maybeSingle();
       setInList(!!data);
-      setLoading(false);
     })();
-  }, [user, anime?.mal_id]);
+  }, [user, anime?.id]);
 
-  async function toggleFavorite(e) {
-    e.stopPropagation();
+  const toggleFavorite = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!user) {
-      alert("Please log in to use favorites!");
+      alert("Please log in to manage favorites.");
       return;
     }
+
     setBusy(true);
     if (inList) {
       await supabase
         .from("favorites")
         .delete()
         .eq("user_id", user.id)
-        .eq("anime_id", anime.mal_id);
+        .eq("anime_id", anime.id);
       setInList(false);
     } else {
       await supabase.from("favorites").upsert([
         {
           user_id: user.id,
-          anime_id: anime.mal_id,
+          anime_id: anime.id,
           title: anime.title,
           cover_url:
             anime.images?.jpg?.large_image_url ||
             anime.images?.jpg?.image_url ||
-            anime.image_url ||
-            "",
-          meta: anime,
+            anime.image_url,
         },
       ]);
       setInList(true);
     }
     setBusy(false);
-  }
-
-  const size = small ? 22 : 28;
+  };
 
   return (
     <button
       onClick={toggleFavorite}
-      disabled={busy || loading}
-      className={`relative transition duration-200 ${
-        small ? "p-1" : "p-2"
-      } rounded-full ${
-        inList
-          ? "text-pink-500 hover:text-pink-400"
-          : "text-white/60 hover:text-white"
-      } ${busy ? "opacity-70" : ""}`}
-      aria-label="Toggle Favorite"
-    >
-      {/* 💖 Animated Glow */}
-      <Heart
-        size={size}
-        fill={inList ? "currentColor" : "none"}
-        className={`transition-all duration-300 ${
-          inList
-            ? "scale-110 drop-shadow-[0_0_8px_rgba(236,72,153,0.6)] animate-pulse-slow"
-            : "scale-100"
+      disabled={busy}
+      className={`relative flex items-center justify-center w-8 h-8 rounded-full 
+        bg-black/40 backdrop-blur-md border border-white/10 
+        hover:bg-black/60 transition duration-300 ${
+          inList ? "text-pink-500" : "text-white/70 hover:text-pink-400"
         }`}
+    >
+      <Heart
+        className={`w-5 h-5 ${
+          inList ? "fill-pink-500" : "fill-transparent"
+        } transition-all duration-500 ease-out`}
       />
-
-      {/* Pulse animation */}
-      <style jsx>{`
-        @keyframes pulse-slow {
-          0% {
-            transform: scale(1);
-            filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0.3));
-          }
-          50% {
-            transform: scale(1.15);
-            filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.8));
-          }
-          100% {
-            transform: scale(1);
-            filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0.3));
-          }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 1.8s ease-in-out infinite;
-        }
-      `}</style>
+      {inList && (
+        <span className="absolute inset-0 rounded-full animate-ping bg-pink-500/30" />
+      )}
     </button>
   );
 }

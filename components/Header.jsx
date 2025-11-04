@@ -29,7 +29,7 @@ export default function Header() {
         <Link href="/" className="font-extrabold text-xl tracking-tight">
           <span className="text-white/90">gla</span>
           <span className="text-pink-400">ss</span>
-          <span className="text-white/90">tream</span>
+          <span className="text-white/90">Stream</span>
         </Link>
         <nav className="flex gap-1">
           {tabs.map(t => (
