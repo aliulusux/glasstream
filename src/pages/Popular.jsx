@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AnimeGrid from "../components/AnimeGrid";
 import Pagination from "../components/Pagination";
 

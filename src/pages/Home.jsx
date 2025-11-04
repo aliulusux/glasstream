@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import AnimeGrid from "../components/AnimeGrid";
 import ContinueWatching from "../components/ContinueWatching";
