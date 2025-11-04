@@ -5,7 +5,7 @@ import AnimeGrid from "@/components/AnimeGrid";
 import Header from "@/components/Header";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = false;
 
 export default function SearchPage() {
   const params = useSearchParams();
