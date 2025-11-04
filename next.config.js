@@ -28,9 +28,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "api.jikan.moe",
-      },
+      },  
     ],
   },
+  generateEtags: false,
   reactStrictMode: false,
 };
 
