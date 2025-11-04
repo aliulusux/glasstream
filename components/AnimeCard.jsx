@@ -44,12 +44,13 @@ export default function AnimeCard({ item }) {
         {/* anime cover */}
         <div className="relative w-full h-72 overflow-hidden rounded-3xl">
           <Image
-            src={image}
+            src={image || "/no-cover.jpg"}
             alt={item.title}
             fill
+            unoptimized={process.env.NODE_ENV === "development"} // avoids build crashes locally
+            onError={(e) => (e.currentTarget.src = "/no-cover.jpg")}
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             sizes="(max-width:768px) 50vw, 25vw"
-            priority={false}
           />
 
           {/* overlay gradient */}
