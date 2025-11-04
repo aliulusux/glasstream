@@ -15,7 +15,11 @@ export default function NewInner() {
   useEffect(() => {
     let on = true;
     (async () => {
-      const res = await fetchRecentAnime(page);
+      const res = await fetch("https://api.jikan.moe/v4/top/anime?page=" + page);
+      const json = await res.json();
+      const { data = [], pagination = {} } = json;
+
+      const hasNext = pagination.has_next_page || false;
       if (!on) return;
       setItems(res.items);
       setHasNext(res.pageInfo.hasNext);
