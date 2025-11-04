@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import AnimeGrid from "../components/AnimeGrid";
-import Pagination from "../components/Pagination";
 
 export default function Browse() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,11 +50,6 @@ export default function Browse() {
       ) : (
         <>
           <AnimeGrid animeList={animeList} />
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
         </>
       )}
     </main>

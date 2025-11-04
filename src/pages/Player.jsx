@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { saveWatchProgress } from "../lib/watchHistory";
 import { supabase } from "../lib/supabaseClient";

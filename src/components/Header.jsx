@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Search, Star, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "../lib/supabaseClient";
+import { Search, Star } from "lucide-react";
 import AuthModal from "./AuthModal";
-import WelcomeBanner from "./WelcomeBanner";
+import { supabase } from "../lib/supabaseClient";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
@@ -134,7 +132,7 @@ export default function Header() {
 
       {/* auth modal */}
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
-      {user && <WelcomeBanner user={user} />}
+      
     </header>
   );
 }

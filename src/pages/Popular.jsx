@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import AnimeGrid from "../components/AnimeGrid";
-import Pagination from "../components/Pagination";
 
 export default function Popular() {
   const [list, setList] = useState([]);
@@ -41,7 +40,6 @@ export default function Popular() {
       ) : (
         <>
           <AnimeGrid animeList={list} />
-          <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
         </>
       )}
     </main>
