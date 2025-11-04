@@ -27,8 +27,9 @@ export default function Header() {
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/5 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="font-extrabold text-xl tracking-tight">
-          <span className="text-pink-400">Anime</span>
-          <span className="text-white/90">Stream</span>
+          <span className="text-white/90">gla</span>
+          <span className="text-pink-400">ss</span>
+          <span className="text-white/90">tream</span>
         </Link>
         <nav className="flex gap-1">
           {tabs.map(t => (
