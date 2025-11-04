@@ -1,125 +1,101 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { fetchAnimeById } from "@/lib/jikan";
+import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import FavoriteButton from "@/components/FavoriteButton";
 
-export default function AnimeDetailsPage() {
-  const { aid } = useParams(); // ✅ must match folder name [aid]
-  const [anime, setAnime] = useState(null);
-  const [loading, setLoading] = useState(true);
+// fallback for broken covers
+const getCover = (anime) =>
+  anime?.images?.jpg?.large_image_url ||
+  anime?.images?.jpg?.image_url ||
+  anime?.image_url ||
+  "/no-cover.jpg";
 
-  // ✅ fetch anime data properly
-  useEffect(() => {
-    let active = true;
+// theme color map
+const themeColors = {
+  sunset: "from-pink-500 via-red-400 to-orange-400",
+  neon: "from-cyan-400 via-blue-400 to-purple-500",
+  amethyst: "from-violet-500 via-fuchsia-500 to-pink-400",
+  dark: "from-gray-600 via-gray-800 to-gray-900",
+  light: "from-gray-200 via-white to-gray-100",
+  iced: "from-sky-400 via-cyan-300 to-blue-300",
+  pastel: "from-pink-300 via-purple-300 to-blue-300",
+  default: "from-pink-500 via-fuchsia-500 to-violet-500",
+};
 
-    (async () => {
-      if (!aid) return;
-      try {
-        const data = await fetchAnimeById(aid);
-        if (active) {
-          setAnime(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch anime:", err);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [aid]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20 text-white/60 animate-pulse">
-        Loading anime details...
-      </div>
-    );
+export default function AnimeCard({ item }) {
+  if (!item || !item.mal_id) {
+    // prevent Next.js prerender crash
+    return null;
   }
 
-  if (!anime) {
-    return (
-      <div className="max-w-lg mx-auto text-center py-20">
-        <h1 className="text-2xl font-bold mb-3">Not Found</h1>
-        <p className="text-white/60 mb-6">Could not load this anime.</p>
-        <Link
-          href="/"
-          className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20"
-        >
-          Back to home
-        </Link>
-      </div>
-    );
-  }
-
-  const image =
-    anime.images?.jpg?.large_image_url ||
-    anime.images?.jpg?.image_url ||
-    anime.image_url ||
-    "/no-cover.jpg";
+  const theme =
+    typeof window !== "undefined"
+      ? localStorage.getItem("theme") || "default"
+      : "default";
+  const gradient = themeColors[theme] || themeColors.default;
+  const image = getCover(item);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10">
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="relative">
-          <img
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.25 }}
+      className="relative group rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-lg backdrop-blur-lg hover:shadow-pink-500/20 transition-all duration-500"
+    >
+      <Link href={`/anime/${item.mal_id}`} className="block relative">
+        <div className="relative w-full h-72 overflow-hidden rounded-3xl">
+          <Image
             src={image}
-            alt={anime.title}
-            className="w-full md:w-72 rounded-3xl border border-white/10 shadow-lg"
+            alt={item.title || "Anime cover"}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width:768px) 50vw, 25vw"
+            priority={false}
           />
-          {/* ❤️ Floating Favorite Button */}
-          <div className="absolute top-3 right-3">
-            <FavoriteButton anime={anime} />
-          </div>
-        </div>
 
-        <div className="flex-1 space-y-4">
-          <h1 className="text-3xl font-bold">{anime.title}</h1>
-          <p className="text-white/70 leading-relaxed whitespace-pre-line">
-            {anime.synopsis || "No description available."}
-          </p>
+          {/* overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90" />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-white/70">
-            {anime.type && (
-              <div className="bg-white/5 border border-white/10 p-2 rounded-lg">
-                Type: {anime.type}
-              </div>
-            )}
-            {anime.year && (
-              <div className="bg-white/5 border border-white/10 p-2 rounded-lg">
-                Year: {anime.year}
-              </div>
-            )}
-            {anime.episodes && (
-              <div className="bg-white/5 border border-white/10 p-2 rounded-lg">
-                Episodes: {anime.episodes}
-              </div>
-            )}
-            {anime.score && (
-              <div className="bg-white/5 border border-white/10 p-2 rounded-lg">
-                Score: {anime.score}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-3 pt-6">
-            <Link
-              href="/popular"
-              className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20"
+          {/* ✨ trending badge */}
+          {item.trending && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-gradient-to-r ${gradient} shadow-lg backdrop-blur-md`}
             >
-              Back to Popular
-            </Link>
+              ✨ Trending
+            </motion.div>
+          )}
+
+          {/* ❤️ favorite button */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100"
+          >
+            <FavoriteButton anime={item} />
+          </motion.div>
+        </div>
+
+        {/* Info overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent rounded-b-3xl backdrop-blur-sm">
+          <h3 className="font-semibold text-sm md:text-base truncate mb-1">
+            {item.title || "Untitled Anime"}
+          </h3>
+          <div className="flex items-center text-xs text-white/70 gap-2">
+            {item.score && (
+              <span className="flex items-center gap-1">
+                ⭐ <span>{item.score}</span>
+              </span>
+            )}
+            {item.year && <span>{item.year}</span>}
+            {item.type && <span>{item.type}</span>}
           </div>
         </div>
-      </div>
-    </div>
+      </Link>
+    </motion.div>
   );
 }
