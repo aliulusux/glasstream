@@ -6,6 +6,8 @@ import AnimeGrid from "@/components/AnimeGrid";
 import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 import ShimmerGrid from "@/components/ShimmerGrid";
 
+export const revalidate = 300;
+
 export default async function HomePage() {
   const [topAnime, recentAnime] = await Promise.all([
     fetchTopAnime(1, 6),
