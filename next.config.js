@@ -23,11 +23,13 @@ const nextConfig = {
 module.exports = {
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "cdn.myanimelist.net" },
-      { protocol: "https", hostname: "upload.wikimedia.org" },
-      { protocol: "https", hostname: "i.ytimg.com" }
-    ]
-  }
+      { protocol: "https", hostname: "cdn.myanimelist.net",},
+      { protocol: "https", hostname: "upload.wikimedia.org",},
+      { protocol: "https", hostname: "i.ytimg.com", },
+      { protocol: "https", hostname: "**.jikan.moe",},
+      { protocol: "https", hostname: "**.myanimelist.net",},
+    ],
+  },
 };
 
 module.exports = nextConfig;
