@@ -19,6 +19,7 @@ export default function AnimeDetailsPage() {
     (async () => {
       if (!id) return;
       const data = await fetchAnimeById(id);
+      console.log("Fetched anime data:", data); // ✅ Debug
       if (active) {
         setAnime(data);
         setLoading(false);
@@ -55,6 +56,12 @@ export default function AnimeDetailsPage() {
     anime.images?.jpg?.image_url ||
     anime.image_url ||
     "/placeholder.jpg";
+
+  // Safely extract array-based info
+  const genres = Array.isArray(anime.genres) ? anime.genres : [];
+  const producers = Array.isArray(anime.producers) ? anime.producers : [];
+  const studios = Array.isArray(anime.studios) ? anime.studios : [];
+  const themes = Array.isArray(anime.themes) ? anime.themes : [];
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 space-y-10">
@@ -112,19 +119,46 @@ export default function AnimeDetailsPage() {
             )}
           </div>
 
-          {/* ✅ Safe map checks */}
-          {Array.isArray(anime.genres) && anime.genres.length > 0 && (
+          {/* ✅ Display optional metadata safely */}
+          {genres.length > 0 && (
             <div className="pt-4">
               <strong className="text-pink-400">Genres:</strong>{" "}
-              {anime.genres.map((g) => g.name).join(", ")}
+              {genres.map((g) => g.name).join(", ")}
             </div>
           )}
-          {Array.isArray(anime.producers) && anime.producers.length > 0 && (
+          {studios.length > 0 && (
+            <div>
+              <strong className="text-pink-400">Studios:</strong>{" "}
+              {studios.map((s) => s.name).join(", ")}
+            </div>
+          )}
+          {producers.length > 0 && (
             <div>
               <strong className="text-pink-400">Producers:</strong>{" "}
-              {anime.producers.map((p) => p.name).join(", ")}
+              {producers.map((p) => p.name).join(", ")}
             </div>
           )}
+          {themes.length > 0 && (
+            <div>
+              <strong className="text-pink-400">Themes:</strong>{" "}
+              {themes.map((t) => t.name).join(", ")}
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-3 pt-6">
+            <Link
+              href="/"
+              className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+            >
+              Back to Home
+            </Link>
+            <Link
+              href="/popular"
+              className="px-5 py-2.5 rounded-xl bg-pink-600/30 hover:bg-pink-500/40 text-white border border-pink-400/20 transition-all duration-200 shadow-[0_0_10px_rgba(255,105,180,0.3)]"
+            >
+              Browse Popular
+            </Link>
+          </div>
         </div>
       </div>
 
