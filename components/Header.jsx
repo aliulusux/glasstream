@@ -48,11 +48,11 @@ export default function Header() {
             <Link
               key={t.href}
               href={t.disabled ? "#" : t.href}
-              className={[
-                "px-3 py-1.5 rounded-xl text-sm",
-                pathname === t.href ? "bg-white/10 text-white" : "text-white/70 hover:text-white hover:bg-white/5",
-                t.disabled && "pointer-events-none opacity-40"
-              ].join(" ")}
+              className={`px-3 py-1 rounded-xl transition-all ${
+                active
+                  ? "bg-pink-500/80 text-white drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]"
+                  : "hover:text-pink-400"
+              }`}
             >
               {t.label}
             </Link>

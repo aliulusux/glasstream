@@ -1,4 +1,5 @@
 // app/new/page.jsx
+"use client";
 import { useEffect, useState } from "react";
 import { fetchRecentAnime } from "@/lib/jikan";
 import AnimeGrid from "@/components/AnimeGrid";

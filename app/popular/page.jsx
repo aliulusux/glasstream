@@ -1,4 +1,5 @@
 // app/popular/page.jsx
+"use client";
 import { useEffect, useState } from "react";
 import { fetchTopAnime } from "@/lib/jikan";
 import AnimeGrid from "@/components/AnimeGrid";
