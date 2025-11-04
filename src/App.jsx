@@ -18,16 +18,16 @@ useEffect(() => {
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-glassDark to-[#0b0b19]">
+    <Router>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/anime/:mal_id" element={<Player />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/popular" element={<Popular />} />
         <Route path="/new" element={<New />} />
         <Route path="/mylist" element={<MyList />} />
+        <Route path="/anime/:mal_id" element={<Player />} />
       </Routes>
-    </div>
+    </Router>
   );
 }
