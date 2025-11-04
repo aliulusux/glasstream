@@ -1,9 +1,6 @@
-"use client";
-
-// /app/layout.jsx
+// app/layout.jsx  ✅ (server)
 import "./globals.css";
-import AuthProvider from "@/components/AuthProvider";
-import Header from "@/components/Header";
+import ClientLayout from "@/components/ClientLayout";
 
 export const metadata = {
   title: "AnimeStream",
@@ -16,7 +13,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen bg-gradient-to-br from-[#0f0b1d] via-[#1a1230] to-[#130f1e] text-white antialiased">
         <AuthProvider>
           <Header />
-          <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+          <ClientLayout className="max-w-7xl mx-auto px-4 py-8">{children}</ClientLayout>
         </AuthProvider>
       </body>
     </html>
