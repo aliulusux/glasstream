@@ -33,6 +33,7 @@ export default function AnimeCard({ a }) {
             </div>
         )}
       </Link>
+      </div>
       <div className="absolute right-2 top-2">
         <FavoriteButton item={a} />
       </div>
