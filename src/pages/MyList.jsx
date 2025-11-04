@@ -10,6 +10,22 @@ export default function MyList() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        navigate("/"); // Redirect home if not logged in
+        return;
+      }
+
+      setLoggedIn(true);
+      // Fetch favorites here (as before)
+    }
+
+    checkAuth();
+  }, [navigate]);
+
+  useEffect(() => {
     async function fetchData() {
       const { data: { session } } = await supabase.auth.getSession();
 
