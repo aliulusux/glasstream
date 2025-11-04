@@ -1,17 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: "class",
-  content: ["./app/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}"],
+  content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}"],
   theme: {
     extend: {
-      colors: { primary: { DEFAULT: "#a855f7", 100: "#f3e8ff" } },
-      boxShadow: { glass: "0 10px 30px rgba(0,0,0,.25)" },
-      keyframes: {
-        marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },
-        glow: { "0%,100%": { boxShadow: "0 0 0px rgba(168,85,247,0.0)" }, "50%": { boxShadow: "0 0 28px rgba(168,85,247,0.55)" } }
+      colors: {
+        surface: "#0F0A1F",
+        panel: "#19122B",
+        accent: "#FF4FB0",
+        glow: "#9b59ff"
       },
-      animation: { marquee: "marquee 30s linear infinite", slowglow: "glow 4s ease-in-out infinite" }
+      boxShadow: {
+        glass: "0 8px 40px rgba(255, 79, 176, 0.15)"
+      },
+      backdropBlur: {
+        xs: "2px"
+      }
     }
   },
   plugins: []
-}
+};

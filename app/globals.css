@@ -1,29 +1,36 @@
-/* /app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --glass: rgba(255,255,255,0.06);
-  --glass-border: rgba(255,255,255,0.12);
+  color-scheme: dark;
 }
 
-/* subtle glow dots */
-body {
-  background-attachment: fixed;
+html, body {
+  height: 100%;
+  background: radial-gradient(1200px 600px at 20% -10%, #2a1f44 0%, transparent 50%),
+              radial-gradient(900px 500px at 80% -10%, #251b3c 0%, transparent 50%),
+              #0F0A1F;
 }
 
-/* glassy placeholder effect */
-.no-cover {
-  background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(236,72,153,0.3));
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255,255,255,0.8);
-  font-weight: 500;
-  letter-spacing: 0.5px;
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+}
+
+.btn {
+  @apply px-4 h-9 rounded-xl text-sm font-medium transition;
+  background: linear-gradient(180deg, #2a203f, #1c142e);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.btn:hover { box-shadow: 0 0 0 2px rgba(255,255,255,0.06) inset; }
+
+.link {
+  @apply text-white/80 hover:text-white transition;
+}
+.badge {
+  @apply px-2 py-0.5 text-xs rounded-full bg-white/10 border border-white/10;
 }

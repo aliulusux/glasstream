@@ -1,48 +1,48 @@
-// app/page.jsx
-import { fetchTopAnime, fetchRecentAnime } from "@/lib/jikan";
+import Link from "next/link";
 import AnimeGrid from "@/components/AnimeGrid";
+import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 
-export const revalidate = 300; // ✅ must be a number, not an object
+export const revalidate = 120;
 
 export default async function HomePage() {
-  const [topAnime, recentAnime] = await Promise.all([
-    fetchTopAnime(1, 12),
+  const [{ data: seasonals = [] }, { data: top = [] }] = await Promise.all([
     fetchRecentAnime(1, 12),
+    fetchTopAnime(1, 12)
   ]);
 
   return (
-    <main className="px-8 py-10 space-y-10">
-      {/* Hero Section */}
-      <section className="rounded-3xl p-10 bg-gradient-to-br from-white/5 to-white/10 border border-white/10 backdrop-blur-lg">
-        <h1 className="text-5xl font-bold text-white">
-          Discover your next favorite <span className="text-pink-500">Anime</span>
-        </h1>
-        <p className="mt-3 text-white/70">
+    <>
+      {/* Hero */}
+      <section className="glass p-8 sm:p-10 mb-10">
+        <div className="text-3xl sm:text-5xl font-extrabold leading-tight">
+          Discover your next favorite <span className="text-accent drop-shadow">Anime</span>
+        </div>
+        <p className="mt-4 text-white/70">
           Clean glass UI, smooth hover effects, and fresh data from Jikan API.
         </p>
+        <div className="mt-6 flex gap-3">
+          <Link href="/popular" className="btn">Watch Now</Link>
+          <Link href="/browse" className="btn">Explore</Link>
+        </div>
       </section>
 
-      {/* This Season’s Highlights */}
-      <section>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-white">✨ This Season’s Highlights</h2>
-          <a href="/new" className="text-white/60 hover:text-pink-400 transition">
-            See all
-          </a>
+      {/* This Season */}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">✨ This Season’s Highlights</h2>
+          <Link href="/new" className="link">See all</Link>
         </div>
-        <AnimeGrid animeList={recentAnime} />
+        <AnimeGrid animeList={seasonals} />
       </section>
 
-      {/* Popular Anime */}
+      {/* Popular */}
       <section>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-white">🔥 Popular Anime</h2>
-          <a href="/popular" className="text-white/60 hover:text-pink-400 transition">
-            See all
-          </a>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">🔥 Popular Anime</h2>
+          <Link href="/popular" className="link">See all</Link>
         </div>
-        <AnimeGrid animeList={topAnime} />
+        <AnimeGrid animeList={top} />
       </section>
-    </main>
+    </>
   );
 }

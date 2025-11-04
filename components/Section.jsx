@@ -1,1 +1,0 @@
-export default function Section({title,children,action}){return(<section className="mt-10"><div className="flex items-center justify-between mb-4"><h2 className="text-2xl font-bold">{title}</h2>{action}</div>{children}</section>)}

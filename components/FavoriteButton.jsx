@@ -1,53 +1,39 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/lib/supabaseClient";
+import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 
-export default function FavoriteButton({ anime }) {
-  const [isFav, setIsFav] = useState(false);
+const KEY = "gs_favorites";
 
-  // Load saved favorites from localStorage
+export default function FavoriteButton({ item }) {
+  const [fav, setFav] = useState(false);
+
   useEffect(() => {
-    if (!anime?.mal_id) return;
-    const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setIsFav(saved.some((a) => a.mal_id === anime.mal_id));
-  }, [anime]);
+    const raw = localStorage.getItem(KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    setFav(list.some((x) => x.mal_id === item.mal_id));
+  }, [item.mal_id]);
 
-  // Toggle favorite
-  const toggleFavorite = () => {
-    if (!anime?.mal_id) return;
-    const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
-    let updated;
-
-    if (isFav) {
-      updated = saved.filter((a) => a.mal_id !== anime.mal_id);
+  function toggle() {
+    const raw = localStorage.getItem(KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    let next;
+    if (list.some((x) => x.mal_id === item.mal_id)) {
+      next = list.filter((x) => x.mal_id !== item.mal_id);
+      setFav(false);
     } else {
-      updated = [...saved, anime];
+      next = [{ mal_id: item.mal_id, title: item.title, images: item.images }, ...list];
+      setFav(true);
     }
-
-    localStorage.setItem("favorites", JSON.stringify(updated));
-    setIsFav(!isFav);
-  };
+    localStorage.setItem(KEY, JSON.stringify(next));
+  }
 
   return (
     <button
-      onClick={toggleFavorite}
-      aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
-      className={`relative p-2 rounded-full transition-all duration-300
-        border border-white/10 backdrop-blur-md shadow-md
-        ${
-          isFav
-            ? "bg-pink-600/40 text-pink-400 shadow-[0_0_15px_rgba(255,105,180,0.6)] animate-pulse"
-            : "bg-white/10 text-gray-300 hover:text-white hover:bg-white/20"
-        }`}
+      onClick={toggle}
+      aria-label="Toggle favorite"
+      className={`rounded-full p-1.5 border ${fav ? "bg-pink-500/20 text-pink-300 border-pink-500/40" : "bg-black/40 text-white/70 border-white/20"}`}
     >
-      <Heart
-        className={`w-5 h-5 transition-transform ${
-          isFav ? "fill-pink-500 scale-110" : "scale-100"
-        }`}
-      />
+      <Heart size={16} fill={fav ? "currentColor" : "transparent"} />
     </button>
   );
 }

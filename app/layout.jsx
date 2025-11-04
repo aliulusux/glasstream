@@ -1,17 +1,17 @@
-// app/layout.jsx  ✅ (server)
 import "./globals.css";
-import ClientLayout from "@/components/ClientLayout";
+import Header from "@/components/Header";
 
 export const metadata = {
-  title: "AnimeStream",
-  description: "Glassmorphism Anime website (Jikan + Supabase)",
+  title: "glassStream • Discover your next favorite Anime",
+  description: "Clean glass UI, smooth hover effects, and fresh data from Jikan API."
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gradient-to-br from-[#0f0b1d] via-[#1a1230] to-[#130f1e] text-white antialiased">
-          <ClientLayout>{children}</ClientLayout>
+      <body className="min-h-screen text-white">
+        <Header />
+        <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
       </body>
     </html>
   );
