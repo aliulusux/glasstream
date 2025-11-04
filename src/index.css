@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-glassDark text-white antialiased;
+}
+
+/* subtle glass card helper */
+.glass {
+  @apply bg-white/5 border border-white/10 backdrop-blur-md;
+}

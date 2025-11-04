@@ -1,21 +1,19 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}"],
+export default {
+  content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        surface: "#0F0A1F",
-        panel: "#19122B",
-        accent: "#FF4FB0",
-        glow: "#9b59ff"
+        glassDark: "#0b0b15",
+        glassPink: "#ff4dd8",
       },
       boxShadow: {
-        glass: "0 8px 40px rgba(255, 79, 176, 0.15)"
+        glow: "0 0 18px rgba(255,77,216,0.45)",
       },
       backdropBlur: {
-        xs: "2px"
+        xs: "2px",
       }
-    }
+    },
   },
-  plugins: []
+  plugins: [],
 };

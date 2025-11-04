@@ -1,0 +1,5 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="24" fill="#0b0b15"></rect>
+  <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="32" fill="#fff">glass</text>
+  <text x="50%" y="78%" dominant-baseline="middle" text-anchor="middle" font-family="Inter, system-ui" font-size="28" fill="#ff4dd8">S</text>
+</svg>
