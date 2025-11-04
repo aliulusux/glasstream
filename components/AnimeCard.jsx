@@ -32,11 +32,13 @@ export default function AnimeCard({ a }) {
                 <span>{a.score}</span>
             </div>
         )}
-      </Link>
+      
       </div>
       <div className="absolute right-2 top-2">
         <FavoriteButton item={a} />
       </div>
+      </Link>
     </div>
+    
   );
 }
