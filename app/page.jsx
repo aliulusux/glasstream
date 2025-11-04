@@ -5,32 +5,42 @@ import { motion } from "framer-motion";
 import AnimeGrid from "@/components/AnimeGrid";
 import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 
+// 🔥 Simple shimmer skeleton loader
+function ShimmerGrid() {
+  return (
+    <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-2xl h-[260px] animate-pulse bg-gradient-to-br from-purple-800/10 via-pink-400/10 to-indigo-600/10 backdrop-blur-xl border border-white/10 shadow-md"
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
-  const [recent, setRecent] = useState([]);
-  const [top, setTop] = useState([]);
+  const [topAnime, setTopAnime] = useState([]);
+  const [recentAnime, setRecentAnime] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Fetch anime data
+  // 🧠 Fetch both sections
   useEffect(() => {
-    let active = true;
-    (async () => {
+    async function loadAnime() {
       try {
-        const [recentData, topData] = await Promise.all([
-          fetchRecentAnime(12),
-          fetchTopAnime(12),
-        ]);
-        if (!active) return;
-        setRecent(recentData);
-        setTop(topData);
+        const top = await fetchTopAnime(1, 24);
+        const recent = await fetchRecentAnime(1, 24);
+
+        // ✅ Destructure the .data array properly
+        setTopAnime(top?.data || []);
+        setRecentAnime(recent?.data || []);
       } catch (err) {
-        console.error("Home fetch error:", err);
+        console.error("Homepage fetch error:", err);
       } finally {
         setLoading(false);
       }
-    })();
-    return () => {
-      active = false;
-    };
+    }
+    loadAnime();
   }, []);
 
   return (
@@ -117,11 +127,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <AnimeGrid
-            items={recent.map((a, i) => ({
-              ...a,
-              trending: i < 3, // add glow badge to first 3
-            }))}
+         <ShimmerGrid /> : <AnimeGrid animeList={recentAnime} />
           />
         )}
       </motion.section>
@@ -164,7 +170,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <AnimeGrid items={top} />
+        <ShimmerGrid /> : <AnimeGrid animeList={topAnime} />
         )}
       </motion.section>
     </main>
