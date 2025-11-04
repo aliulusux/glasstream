@@ -6,8 +6,8 @@ export const revalidate = 300; // ✅ must be a number, not an object
 
 export default async function HomePage() {
   const [topAnime, recentAnime] = await Promise.all([
-    fetchTopAnime(1, 6),
-    fetchRecentAnime(1, 6),
+    fetchTopAnime(1, 12),
+    fetchRecentAnime(1, 12),
   ]);
 
   return (

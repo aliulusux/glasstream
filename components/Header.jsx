@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "./AuthProvider";
 import { motion } from "framer-motion";
+import { Search } from "lucide-react";
 
 const tabs = [
   { href: "/", label: "Home" },
@@ -18,6 +19,14 @@ export default function Header() {
   const pathname = usePathname();
   const { user } = useAuth();
   const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  };
 
   async function logout() {
     await supabase.auth.signOut();
@@ -50,6 +59,36 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          {/* 🔍 Search toggle */}
+          <div className="relative">
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className="p-2 rounded-full bg-white/10 hover:bg-pink-500/20 transition"
+            >
+              <Search className="w-5 h-5 text-white" />
+            </button>
+
+            {searchOpen && (
+              <form
+                onSubmit={handleSearch}
+                className="absolute right-0 top-full mt-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-2 flex items-center gap-2"
+              >
+                <input
+                  type="text"
+                  placeholder="Search anime..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="bg-transparent outline-none text-white placeholder-white/50 w-48"
+                />
+                <button
+                  type="submit"
+                  className="text-sm text-white/80 hover:text-pink-400 transition"
+                >
+                  Go
+                </button>
+              </form>
+            )}
+          </div>
           {!user ? (
             <>
               <Link href="/login" className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm">Giriş</Link>
