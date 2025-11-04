@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import AnimeGrid from "@/components/AnimeGrid";
 import Header from "@/components/Header";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function SearchPage() {
   const params = useSearchParams();
   const query = params.get("q") || "";
