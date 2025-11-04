@@ -1,101 +1,175 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import FavoriteButton from "@/components/FavoriteButton";
+import AnimeGrid from "@/components/AnimeGrid";
+import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 
-// fallback for broken covers
-const getCover = (anime) =>
-  anime?.images?.jpg?.large_image_url ||
-  anime?.images?.jpg?.image_url ||
-  anime?.image_url ||
-  "/no-cover.jpg";
+export default function HomePage() {
+  const [recent, setRecent] = useState([]);
+  const [top, setTop] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-// glow color map based on your own themes
-const themeColors = {
-  sunset: "from-pink-500 via-red-400 to-orange-400",
-  neon: "from-cyan-400 via-blue-400 to-purple-500",
-  amethyst: "from-violet-500 via-fuchsia-500 to-pink-400",
-  dark: "from-gray-600 via-gray-800 to-gray-900",
-  light: "from-gray-200 via-white to-gray-100",
-  iced: "from-sky-400 via-cyan-300 to-blue-300",
-  pastel: "from-pink-300 via-purple-300 to-blue-300",
-  default: "from-pink-500 via-fuchsia-500 to-violet-500",
-};
-
-export default function AnimeCard({ item }) {
-  // 🌈 Detect user’s active theme from localStorage (your existing theme system)
-  const theme =
-    typeof window !== "undefined"
-      ? localStorage.getItem("theme") || "default"
-      : "default";
-  const gradient = themeColors[theme] || themeColors.default;
-
-  const image = getCover(item);
+  // 🔥 Fetch anime data
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const [recentData, topData] = await Promise.all([
+          fetchRecentAnime(12),
+          fetchTopAnime(12),
+        ]);
+        if (!active) return;
+        setRecent(recentData);
+        setTop(topData);
+      } catch (err) {
+        console.error("Home fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.03 }}
-      transition={{ duration: 0.25 }}
-      className="relative group rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-lg backdrop-blur-lg hover:shadow-pink-500/20 transition-all duration-500"
-    >
-      <Link href={`/anime/${item.mal_id}`} className="block relative">
-        {/* anime cover */}
-        <div className="relative w-full h-72 overflow-hidden rounded-3xl">
-          <Image
-            src={image}
-            alt={item.title}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width:768px) 50vw, 25vw"
-            priority={false}
-          />
+    <main className="min-h-screen text-white px-6 md:px-10 lg:px-20 py-10 space-y-20 bg-gradient-to-b from-[#0b0018] via-[#120029] to-[#0b0018] overflow-hidden">
 
-          {/* overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90" />
-
-          {/* ✨ trending badge */}
-          {item.trending && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-gradient-to-r ${gradient} shadow-lg backdrop-blur-md`}
-            >
-              ✨ Trending
-            </motion.div>
-          )}
-
-          {/* ❤️ favorite button hover overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100"
+      {/* 🎥 Hero Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative rounded-3xl p-10 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden"
+      >
+        <motion.div
+          className="absolute -top-20 -right-20 w-72 h-72 bg-pink-500/20 blur-[120px] rounded-full"
+          animate={{ opacity: [0.4, 0.6, 0.4] }}
+          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+        />
+        <h2 className="text-sm text-white/50 mb-2">Featured</h2>
+        <motion.h1
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="text-4xl md:text-5xl font-extrabold leading-tight mb-4 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]"
+        >
+          Discover your next favorite{" "}
+          <span className="text-pink-500">Anime</span>
+        </motion.h1>
+        <p className="text-white/70 max-w-2xl mb-8">
+          Clean glass UI, smooth hover effects, and fresh data from Jikan API.
+        </p>
+        <div className="flex gap-4">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-medium shadow-lg transition-all duration-300"
           >
-            <FavoriteButton anime={item} />
-          </motion.div>
+            Watch Now
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 font-medium transition-all duration-300"
+          >
+            Explore
+          </motion.button>
+        </div>
+      </motion.section>
+
+      {/* 🌸 Seasonal Anime */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <motion.h2
+            animate={{
+              textShadow: [
+                "0 0 5px #ec4899",
+                "0 0 15px #ec4899",
+                "0 0 5px #ec4899",
+              ],
+            }}
+            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+            className="text-xl font-bold"
+          >
+            This Season’s Highlights ✨
+          </motion.h2>
+          <a
+            href="/browse"
+            className="text-sm text-white/60 hover:text-white transition"
+          >
+            See all
+          </a>
         </div>
 
-        {/* anime info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent rounded-b-3xl backdrop-blur-sm">
-          <h3 className="font-semibold text-sm md:text-base truncate mb-1">
-            {item.title}
-          </h3>
-          <div className="flex items-center text-xs text-white/70 gap-2">
-            {item.score && (
-              <span className="flex items-center gap-1">
-                ⭐ <span>{item.score}</span>
-              </span>
-            )}
-            {item.year && <span>{item.year}</span>}
-            {item.type && <span>{item.type}</span>}
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-72 rounded-3xl bg-white/5 animate-pulse"
+              ></div>
+            ))}
           </div>
+        ) : (
+          <AnimeGrid
+            items={recent.map((a, i) => ({
+              ...a,
+              trending: i < 3, // add glow badge to first 3
+            }))}
+          />
+        )}
+      </motion.section>
+
+      {/* 🔥 Popular Anime */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <motion.h2
+            animate={{
+              textShadow: [
+                "0 0 5px #38bdf8",
+                "0 0 15px #38bdf8",
+                "0 0 5px #38bdf8",
+              ],
+            }}
+            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+            className="text-xl font-bold"
+          >
+            Popular Anime 💫
+          </motion.h2>
+          <a
+            href="/popular"
+            className="text-sm text-white/60 hover:text-white transition"
+          >
+            See all
+          </a>
         </div>
-      </Link>
-    </motion.div>
+
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-72 rounded-3xl bg-white/5 animate-pulse"
+              ></div>
+            ))}
+          </div>
+        ) : (
+          <AnimeGrid items={top} />
+        )}
+      </motion.section>
+    </main>
   );
 }
+
 
 /*<Link href="/popular" className="text-sm text-white/70 hover:text-white">See all</Link>*/
