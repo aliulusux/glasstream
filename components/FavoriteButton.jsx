@@ -6,6 +6,9 @@ import { useAuth } from "@/components/AuthProvider";
 import { Heart } from "lucide-react";
 
 export default function FavoriteButton({ anime, small = false }) {
+  // 🩵 Prevent errors on server
+  if (typeof window === "undefined") return null;
+
   const { user } = useAuth();
   const [inList, setInList] = useState(false);
   const [loading, setLoading] = useState(true);

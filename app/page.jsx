@@ -1,9 +1,12 @@
 // /app/page.jsx
 "use client";
+
 import { useEffect, useState } from "react";
 import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
 import AnimeGrid from "@/components/AnimeGrid";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   const [recent, setRecent] = useState([]);
