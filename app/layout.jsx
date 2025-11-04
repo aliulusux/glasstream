@@ -11,10 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-gradient-to-br from-[#0f0b1d] via-[#1a1230] to-[#130f1e] text-white antialiased">
-        <AuthProvider>
-          <Header />
-          <ClientLayout className="max-w-7xl mx-auto px-4 py-8">{children}</ClientLayout>
-        </AuthProvider>
+          <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
