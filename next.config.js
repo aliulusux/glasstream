@@ -4,7 +4,7 @@ const nextConfig = {
   experimental: {
     serverActions: false,
 
-  images: {
+    },  images: {
     remotePatterns: [
       {
         protocol: "https",
