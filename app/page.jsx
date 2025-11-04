@@ -4,20 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AnimeGrid from "@/components/AnimeGrid";
 import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
-
-// 🔥 Simple shimmer skeleton loader
-function ShimmerGrid() {
-  return (
-    <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-2xl h-[260px] animate-pulse bg-gradient-to-br from-purple-800/10 via-pink-400/10 to-indigo-600/10 backdrop-blur-xl border border-white/10 shadow-md"
-        />
-      ))}
-    </div>
-  );
-}
+import ShimmerGrid from "@/components/ShimmerGrid";
 
 export default function HomePage() {
   const [topAnime, setTopAnime] = useState([]);
