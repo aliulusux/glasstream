@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import FavoriteButton from "@/components/FavoriteButton";
+import FavoriteButton from "./FavoriteButton";
 
 // fallback for broken covers
 const getCover = (anime) =>
@@ -50,8 +50,12 @@ export default function AnimeCard({ item }) {
             unoptimized={process.env.NODE_ENV === "development"} // avoids build crashes locally
             onError={(e) => (e.currentTarget.src = "/no-cover.jpg")}
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width:768px) 50vw, 25vw"
+            sizes="(max-width:896px) 50vw, 25vw"
           />
+           {/* ❤️ Favorite Button */}
+          <div className="absolute top-3 right-3">
+            <FavoriteButton anime={item} />
+          </div>
 
           {/* overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90" />
