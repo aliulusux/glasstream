@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AnimeGrid from "@/components/AnimeGrid";
 import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
-import ShimmerGrid from "@/components/ShimmerGrid";
 
 export const revalidate = 300;
 
@@ -107,9 +106,7 @@ export default async function HomePage() {
           </a>
         </div>
 
-        <Suspense fallback={<ShimmerGrid count={6} />}>
           <AnimeGrid animeList={recentAnime} />
-        </Suspense>
 
       </motion.section>
 
@@ -140,10 +137,7 @@ export default async function HomePage() {
             See all
           </a>
         </div>
-
-        <Suspense fallback={<ShimmerGrid count={6} />}>
           <AnimeGrid animeList={topAnime} />
-        </Suspense>
       </motion.section>
     </main>
   );
