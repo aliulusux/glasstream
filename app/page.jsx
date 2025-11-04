@@ -1,68 +1,99 @@
-// /app/page.jsx
 "use client";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-import { useEffect, useState } from "react";
-import { fetchRecentAnime, fetchTopAnime } from "@/lib/jikan";
-import AnimeGrid from "@/components/AnimeGrid";
+import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useTheme } from "next-themes"; // optional, if you already manage themes this way
+import FavoriteButton from "./FavoriteButton";
 
-export default function HomePage() {
-  const [recent, setRecent] = useState([]);
-  const [top, setTop] = useState([]);
+// fallback for broken covers
+const getCover = (anime) =>
+  anime?.images?.jpg?.large_image_url ||
+  anime?.images?.jpg?.image_url ||
+  anime?.image_url ||
+  "/no-cover.jpg";
 
-  useEffect(() => {
-    let on = true;
-    (async () => {
-      const r = await fetchRecentAnime(1);
-      const t = await fetchTopAnime(1);
-      if (!on) return;
-      setRecent(r.items.slice(0, 10));
-      setTop(t.items.slice(0, 10));
-    })();
-    return () => (on = false);
-  }, []);
+// theme-based glow color mapping
+const themeColors = {
+  sunset: "from-pink-500 via-red-400 to-orange-400",
+  neon: "from-cyan-400 via-blue-400 to-purple-500",
+  amethyst: "from-violet-500 via-fuchsia-500 to-pink-400",
+  dark: "from-gray-500 via-gray-700 to-gray-900",
+  light: "from-slate-200 via-gray-100 to-white",
+  iced: "from-sky-400 via-cyan-300 to-blue-300",
+  pastel: "from-pink-300 via-purple-300 to-blue-300",
+  default: "from-pink-500 via-fuchsia-500 to-violet-500",
+};
+
+export default function AnimeCard({ item }) {
+  const { theme } = useTheme?.() || { theme: "default" };
+  const gradient = themeColors[theme] || themeColors.default;
+  const image = getCover(item);
 
   return (
-    <div className="space-y-10">
-      {/* Hero */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl p-8 shadow-2xl">
-        <div className="max-w-3xl">
-          <p className="text-sm text-white/70 mb-2">Featured</p>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-            Discover your next favorite <span className="text-pink-400">Anime</span>
-          </h1>
-          <p className="text-white/70 mt-4">
-            Clean glass UI, smooth hover effects, and fresh data from Jikan API.
-          </p>
-          <div className="mt-6 flex gap-3">
-            <Link href="/popular" className="px-4 py-2 rounded-xl bg-pink-500/80 hover:bg-pink-500 text-white shadow-lg shadow-pink-500/25">
-              Watch Now
-            </Link>
-            <Link href="/new" className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20">
-              Explore
-            </Link>
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.25 }}
+      className="relative group rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-lg backdrop-blur-lg hover:shadow-pink-500/20 transition-all duration-500"
+    >
+      {/* anime link */}
+      <Link href={`/anime/${item.mal_id}`} className="block relative">
+        {/* anime cover */}
+        <div className="relative w-full h-72 overflow-hidden rounded-3xl">
+          <Image
+            src={image}
+            alt={item.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width:768px) 50vw, 25vw"
+            priority={false}
+          />
+
+          {/* overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90" />
+
+          {/* ✨ trending badge */}
+          {item.trending && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-gradient-to-r ${gradient} shadow-lg backdrop-blur-md`}
+            >
+              ✨ Trending
+            </motion.div>
+          )}
+
+          {/* ❤️ favorite button hover overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100"
+          >
+            <FavoriteButton anime={item} />
+          </motion.div>
+        </div>
+
+        {/* anime info */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent rounded-b-3xl backdrop-blur-sm">
+          <h3 className="font-semibold text-sm md:text-base truncate mb-1">
+            {item.title}
+          </h3>
+          <div className="flex items-center text-xs text-white/70 gap-2">
+            {item.score && (
+              <span className="flex items-center gap-1">
+                ⭐ <span>{item.score}</span>
+              </span>
+            )}
+            {item.year && <span>{item.year}</span>}
+            {item.type && <span>{item.type}</span>}
           </div>
         </div>
-      </div>
-
-      <section className="space-y-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">This Season’s Highlights</h2>
-          <Link href="/new" className="text-sm text-white/70 hover:text-white">See all</Link>
-        </div>
-        <AnimeGrid items={recent} />
-      </section>
-
-      <section className="space-y-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Popular Anime</h2>
-          <Link href="/popular" className="text-sm text-white/70 hover:text-white">See all</Link>
-        </div>
-        <AnimeGrid items={top} />
-      </section>
-    </div>
+      </Link>
+    </motion.div>
   );
 }
+
+
+/*<Link href="/popular" className="text-sm text-white/70 hover:text-white">See all</Link>*/
