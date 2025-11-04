@@ -12,3 +12,18 @@
 body {
   background-attachment: fixed;
 }
+
+/* glassy placeholder effect */
+.no-cover {
+  background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(236,72,153,0.3));
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.8);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
