@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "./AuthProvider";
+import { motion } from "framer-motion";
 
 const tabs = [
   { href: "/", label: "Home" },

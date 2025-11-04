@@ -15,12 +15,11 @@ export default function HomePage() {
   useEffect(() => {
     async function loadAnime() {
       try {
-        const top = await fetchTopAnime(1, 24);
-        const recent = await fetchRecentAnime(1, 24);
+        const top = await fetchTopAnime();
+        const recent = await fetchRecentAnime();
 
-        // ✅ Destructure the .data array properly
-        setTopAnime(top?.data || []);
-        setRecentAnime(recent?.data || []);
+        setTopAnime(Array.isArray(top) ? top : []);
+        setRecentAnime(Array.isArray(recent) ? recent : []);
       } catch (err) {
         console.error("Homepage fetch error:", err);
       } finally {
