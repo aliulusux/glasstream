@@ -3,7 +3,6 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { fetchAnimeById } from "@/lib/jikan";
@@ -11,23 +10,32 @@ import Link from "next/link";
 import FavoriteButton from "@/components/FavoriteButton";
 
 export default function AnimeDetailsPage() {
-  const { id } = useParams();
+  const { aid } = useParams(); // ✅ must match folder name [aid]
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // fetch anime data
+  // ✅ fetch anime data properly
   useEffect(() => {
     let active = true;
+
     (async () => {
-      if (!id) return;
-      const data = await fetchAnimeById(id);
-      if (active) {
-        setAnime(data);
-        setLoading(false);
+      if (!aid) return;
+      try {
+        const data = await fetchAnimeById(aid);
+        if (active) {
+          setAnime(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch anime:", err);
+      } finally {
+        if (active) setLoading(false);
       }
     })();
-    return () => (active = false);
-  }, [id]);
+
+    return () => {
+      active = false;
+    };
+  }, [aid]);
 
   if (loading) {
     return (
@@ -42,7 +50,10 @@ export default function AnimeDetailsPage() {
       <div className="max-w-lg mx-auto text-center py-20">
         <h1 className="text-2xl font-bold mb-3">Not Found</h1>
         <p className="text-white/60 mb-6">Could not load this anime.</p>
-        <Link href="/" className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20">
+        <Link
+          href="/"
+          className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20"
+        >
           Back to home
         </Link>
       </div>
@@ -52,7 +63,8 @@ export default function AnimeDetailsPage() {
   const image =
     anime.images?.jpg?.large_image_url ||
     anime.images?.jpg?.image_url ||
-    anime.image_url;
+    anime.image_url ||
+    "/no-cover.jpg";
 
   return (
     <div className="max-w-5xl mx-auto space-y-10">

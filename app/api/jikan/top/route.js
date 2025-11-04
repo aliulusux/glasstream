@@ -7,12 +7,13 @@ export async function GET() {
     const { data } = await res.json();
 
     const items = data.map((a) => ({
+      id: a.mal_id,             // ✅ Add ID for AnimeCard link
       mal_id: a.mal_id,
       title: a.title,
       year: a.year,
       type: a.type,
       score: a.score,
-      images: a.images, // ✅ important
+      images: a.images,         // ✅ Pass images directly
     }));
 
     return NextResponse.json({ items });

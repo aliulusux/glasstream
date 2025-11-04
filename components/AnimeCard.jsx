@@ -111,7 +111,7 @@ export default function AnimeCard({ item }) {
           {item.year && <span>{item.year}</span>}
         </div>
         <Link
-          href={`/anime/${item.mal_id}`}
+          href={`/anime/${item.mal_id || item.id}`}
           className="inline-block mt-3 px-3 py-1.5 text-sm rounded-xl bg-white/10 hover:bg-white/20 text-white/80 transition"
         >
           Details
