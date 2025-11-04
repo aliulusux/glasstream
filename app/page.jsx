@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes"; // optional, if you already manage themes this way
-import FavoriteButton from "./FavoriteButton";
+import FavoriteButton from "@/components/FavoriteButton";
 
 // fallback for broken covers
 const getCover = (anime) =>
@@ -13,21 +12,26 @@ const getCover = (anime) =>
   anime?.image_url ||
   "/no-cover.jpg";
 
-// theme-based glow color mapping
+// glow color map based on your own themes
 const themeColors = {
   sunset: "from-pink-500 via-red-400 to-orange-400",
   neon: "from-cyan-400 via-blue-400 to-purple-500",
   amethyst: "from-violet-500 via-fuchsia-500 to-pink-400",
-  dark: "from-gray-500 via-gray-700 to-gray-900",
-  light: "from-slate-200 via-gray-100 to-white",
+  dark: "from-gray-600 via-gray-800 to-gray-900",
+  light: "from-gray-200 via-white to-gray-100",
   iced: "from-sky-400 via-cyan-300 to-blue-300",
   pastel: "from-pink-300 via-purple-300 to-blue-300",
   default: "from-pink-500 via-fuchsia-500 to-violet-500",
 };
 
 export default function AnimeCard({ item }) {
-  const { theme } = useTheme?.() || { theme: "default" };
+  // 🌈 Detect user’s active theme from localStorage (your existing theme system)
+  const theme =
+    typeof window !== "undefined"
+      ? localStorage.getItem("theme") || "default"
+      : "default";
   const gradient = themeColors[theme] || themeColors.default;
+
   const image = getCover(item);
 
   return (
@@ -36,7 +40,6 @@ export default function AnimeCard({ item }) {
       transition={{ duration: 0.25 }}
       className="relative group rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-lg backdrop-blur-lg hover:shadow-pink-500/20 transition-all duration-500"
     >
-      {/* anime link */}
       <Link href={`/anime/${item.mal_id}`} className="block relative">
         {/* anime cover */}
         <div className="relative w-full h-72 overflow-hidden rounded-3xl">
@@ -94,6 +97,5 @@ export default function AnimeCard({ item }) {
     </motion.div>
   );
 }
-
 
 /*<Link href="/popular" className="text-sm text-white/70 hover:text-white">See all</Link>*/
