@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -10,7 +10,6 @@ const supabase = createClient(
 );
 
 export default function AuthModal({ isOpen, onClose, mode = "login" }) {
-  const modalRef = useRef(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -49,7 +48,6 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          onMouseDown={handleOverlayClick} // close only on outside click
           className="fixed inset-0 z-[99999] flex items-center justify-center"
           style={{
             background:
@@ -58,7 +56,6 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
           }}
         >
           <motion.div
-            ref={modalRef}
             key="modal"
             initial={{ y: -30, opacity: 0, scale: 0.96 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -161,7 +158,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               </p>
             </div>
 
-            {/* Close button with spacing */}
+            {/* ❌ Only Close Button */}
             <div className="flex flex-col items-center mt-6 mb-5 space-y-3">
               <button
                 onClick={onClose}
