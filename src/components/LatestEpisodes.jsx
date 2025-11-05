@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-// 🔥 Fetch latest episodes from Jikan API
+// 🔥 Fetch latest episodes safely
 async function fetchLatestEpisodes(page = 1) {
   try {
     const res = await fetch(`https://api.jikan.moe/v4/watch/episodes?page=${page}`);
     if (!res.ok) throw new Error("Failed to fetch latest episodes");
     const data = await res.json();
-    return data.data || [];
+    return Array.isArray(data.data) ? data.data : [];
   } catch (err) {
     console.error("fetchLatestEpisodes error:", err);
     return [];
@@ -23,7 +23,7 @@ export default function LatestEpisodes() {
     const loadEpisodes = async () => {
       setLoading(true);
       const eps = await fetchLatestEpisodes(page);
-      setEpisodes(eps.slice(0, 12)); // show only 12
+      setEpisodes(eps.slice(0, 12)); // limit to 12 cards
       setLoading(false);
     };
     loadEpisodes();
@@ -40,7 +40,6 @@ export default function LatestEpisodes() {
           🎬 <span>Son Çıkan Bölümler</span>
         </h2>
 
-        {/* Glowing “Tümünü Gör” Button */}
         <Link
           to="/browse?sort=recent"
           className="px-4 py-1.5 rounded-full text-sm font-medium text-white 
@@ -53,23 +52,35 @@ export default function LatestEpisodes() {
         </Link>
       </div>
 
-      {/* Loading */}
       {loading ? (
         <p className="text-center text-white/60">Yükleniyor...</p>
+      ) : episodes.length === 0 ? (
+        <p className="text-center text-white/50 italic">
+          Şu anda gösterilecek bölüm bulunamadı.
+        </p>
       ) : (
         <>
           {/* Episode Grid */}
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-            {episodes.map((ep, index) => {
-              const anime = ep.entry?.[0];
+            {episodes.map((item, index) => {
+              // handle both array and object structure safely
+              const anime =
+                Array.isArray(item.entry) && item.entry.length
+                  ? item.entry[0]
+                  : item.entry || item.anime;
+
               if (!anime) return null;
 
               const cover =
                 anime.images?.jpg?.large_image_url ||
                 anime.images?.jpg?.image_url ||
+                anime.images?.webp?.image_url ||
                 "";
-              const episodeNumber =
-                ep.episodes?.[0]?.mal_id || ep.episodes?.[0]?.episode || "?";
+              const episode =
+                item.episodes?.[0]?.mal_id ||
+                item.episodes?.[0]?.title ||
+                item.episode ||
+                "?";
 
               return (
                 <Link
@@ -81,16 +92,22 @@ export default function LatestEpisodes() {
                              shadow-md hover:shadow-pink-500/20"
                 >
                   <div className="relative w-full aspect-[3/4]">
-                    <img
-                      src={cover}
-                      alt={anime.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    {cover ? (
+                      <img
+                        src={cover}
+                        alt={anime.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-black/30 text-white/40 text-sm">
+                        Kapak Yok
+                      </div>
+                    )}
                   </div>
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
                     <p className="text-sm font-medium truncate">{anime.title}</p>
                     <p className="text-xs text-pink-400 mt-1">
-                      Bölüm {episodeNumber}
+                      Bölüm {episode}
                     </p>
                   </div>
                 </Link>
