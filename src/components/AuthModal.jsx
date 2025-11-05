@@ -39,12 +39,11 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     }
   };
 
-  // ✅ Use portal so modal renders at root level (above header)
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 🩶 Fullscreen overlay — now on top of all */}
+          {/* 🩶 Background overlay */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -59,14 +58,14 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               backdropFilter: "blur(18px)",
             }}
           >
-            {/* 🌫️ Floating glass modal */}
+            {/* 🌫️ Glass Modal */}
             <motion.div
               key="modal"
               initial={{ y: -40, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: -30, opacity: 0, scale: 0.95 }}
               transition={{ type: "spring", damping: 20, stiffness: 220 }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()} // ✅ Prevent closing when clicking inside
               className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
                          bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden"
             >
@@ -75,7 +74,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                   {isLogin ? "Giriş Yap" : "Kayıt Ol"}
                 </h2>
 
-                {/* Form */}
+                {/* 🧾 Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="text-sm text-white/70">E-posta</label>
@@ -132,7 +131,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                   <span className="px-2">veya</span>
                 </div>
 
-                {/* Google Login */}
+                {/* Google login */}
                 <button
                   onClick={handleGoogle}
                   className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black 
@@ -147,7 +146,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                 </button>
 
                 {/* Switch */}
-                <p className="text-center text-sm text-white/60 mt-4">
+                <p className="text-center text-sm text-white/60 mt-6">
                   {isLogin ? "Hesabın yok mu?" : "Zaten hesabın var mı?"}{" "}
                   <button
                     type="button"
@@ -160,13 +159,14 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               </div>
 
               {/* Close */}
-              <button
-                onClick={onClose}
-                className="absolute bottom-3 left-1/2 -translate-x-1/2 text-pink-400 
-                           hover:underline text-sm"
-              >
-                Kapat
-              </button>
+              <div className="flex flex-col items-center mt-4 mb-4 space-y-2">
+                <button
+                  onClick={onClose}
+                  className="text-pink-400 hover:underline text-sm"
+                >
+                  Kapat
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         </>
