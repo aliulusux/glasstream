@@ -39,14 +39,9 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     }
   };
 
-  // 🪄 macOS-style close animation trigger
-  const [closing, setClosing] = useState(false);
+  // ✅ Instantly close on button click
   const handleClose = () => {
-    setClosing(true);
-    setTimeout(() => {
-      setClosing(false);
-      onClose();
-    }, 350); // matches animation timing
+    onClose();
   };
 
   return createPortal(
@@ -57,7 +52,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.25 }}
           className="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-none"
           style={{
             background:
@@ -68,20 +63,23 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
           <motion.div
             key="modal"
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={
-              closing
-                ? { opacity: 0, scale: 0.75, y: 30, transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } }
-                : { opacity: 1, scale: 1, y: 0, transition: { duration: 0.35, ease: [0.2, 0, 0, 1] } }
-            }
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              transition: { duration: 0.35, ease: [0.2, 0, 0, 1] },
+            }}
+            exit={{ opacity: 0 }}
             className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
-                       bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden pointer-events-auto"
+                       bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] 
+                       overflow-hidden pointer-events-auto"
           >
             <div className="p-6">
               <h2 className="text-xl font-bold mb-4 text-center">
                 {isLogin ? "Giriş Yap" : "Kayıt Ol"}
               </h2>
 
-              {/* 🧾 Form */}
+              {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-sm text-white/70">E-posta</label>
@@ -165,7 +163,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               </p>
             </div>
 
-            {/* macOS-style close button */}
+            {/* Close button */}
             <div className="flex flex-col items-center mt-6 mb-5 space-y-3">
               <button
                 onClick={handleClose}
