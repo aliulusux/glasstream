@@ -1,57 +1,129 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import AnimeGrid from "../components/AnimeGrid";
+'use client';
+import React, { useEffect, useState } from 'react';
+import AnimeGrid from '@/components/AnimeGrid';
+
+// 🎭 Türkçe genre dictionary
+const GENRE_MAP = {
+  1: 'Aksiyon',
+  2: 'Macera',
+  4: 'Komedi',
+  8: 'Drama',
+  10: 'Fantezi',
+  14: 'Korku',
+  22: 'Romantik',
+  24: 'Bilim Kurgu',
+  30: 'Spor',
+  36: 'Dilim Hayattan',
+  37: 'Doğaüstü',
+  38: 'Gerilim',
+  46: 'Gizem',
+  47: 'Suç',
+  48: 'Psikolojik',
+  49: 'Parodi',
+  50: 'Aile',
+  54: 'Askeri',
+};
 
 export default function Browse() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const q = searchParams.get("q") || "";
   const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+  const [page, setPage] = useState(1);
+  const [genre, setGenre] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const endpoint = q
-          ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&page=${page}&sfw`
-          : `https://api.jikan.moe/v4/top/anime?page=${page}`;
-
-        const res = await fetch(endpoint);
-        const data = await res.json();
-
-        setAnimeList(data?.data || []);
-        setTotalPages(data?.pagination?.last_visible_page || 1);
-      } catch (e) {
-        console.error("Browse fetch error:", e);
-      } finally {
-        setLoading(false);
-      }
+  // Fetch anime list (Jikan API)
+  const fetchAnime = async () => {
+    setLoading(true);
+    try {
+      const base = `https://api.jikan.moe/v4/anime?limit=18&page=${page}`;
+      const url = genre ? `${base}&genres=${genre}` : base;
+      const res = await fetch(url);
+      const data = await res.json();
+      setAnimeList(data.data || []);
+      setTotalPages(data.pagination?.last_visible_page || 1);
+    } catch (err) {
+      console.error('Failed to fetch anime:', err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    fetchData();
-    setSearchParams({ q: q || "", page: String(page) });
-  }, [q, page, setSearchParams]);
+  useEffect(() => {
+    fetchAnime();
+  }, [page, genre]);
 
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
+  // Handle genre change
+  const handleGenreClick = (id) => {
+    setGenre(id === genre ? null : id); // deselect if same genre
+    setPage(1);
   };
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">{q ? `Search: ${q}` : "Browse"}</h1>
+    <div className="px-6 py-8 text-white">
+      {/* 🏷️ Genre Bar */}
+      <div className="flex flex-wrap justify-center gap-3 mb-8">
+        {Object.entries(GENRE_MAP).map(([id, name]) => (
+          <button
+            key={id}
+            onClick={() => handleGenreClick(id)}
+            className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md border transition-all
+              ${
+                Number(id) === genre
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-[0_0_10px_rgba(255,0,128,0.6)]'
+                  : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white'
+              }`}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+
+      {/* 🌀 Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">
+          {genre ? `${GENRE_MAP[genre]} Anime` : 'Tüm Animeler'}
+        </h1>
+      </div>
+
+      {/* 📺 Anime Grid */}
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="h-72 rounded-2xl bg-white/10 animate-pulse" />
-          ))}
+        <div className="text-center py-20 text-pink-400 animate-pulse">
+          Yükleniyor...
         </div>
       ) : (
-        <>
-          <AnimeGrid animeList={animeList} />
-        </>
+        <AnimeGrid animeList={animeList} />
       )}
-    </main>
+
+      {/* 📄 Pagination */}
+      <div className="flex justify-center items-center gap-6 mt-10">
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+          className={`px-5 py-2 rounded-full text-sm font-medium backdrop-blur-md border border-white/10 transition-all ${
+            page === 1
+              ? 'text-white/30 bg-white/5 cursor-not-allowed'
+              : 'hover:bg-pink-500/20 hover:text-pink-300'
+          }`}
+        >
+          ← Önceki
+        </button>
+
+        <span className="text-white/80 text-sm">
+          Sayfa <strong className="text-pink-400">{page}</strong> / {totalPages}
+        </span>
+
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+          className={`px-5 py-2 rounded-full text-sm font-medium backdrop-blur-md border border-white/10 transition-all ${
+            page === totalPages
+              ? 'text-white/30 bg-white/5 cursor-not-allowed'
+              : 'hover:bg-pink-500/20 hover:text-pink-300'
+          }`}
+        >
+          Sonraki →
+        </button>
+      </div>
+    </div>
   );
 }
