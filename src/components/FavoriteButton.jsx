@@ -27,7 +27,7 @@ export default function FavoriteButton({ anime }) {
     setActive(set.has(anime.mal_id));
   }, [anime.mal_id]);
 
-  async function toggle() {
+  async function toggleFavorite() {
     const raw = localStorage.getItem(key);
     const set = new Set(JSON.parse(raw || "[]"));
     const next = new Set(set);
@@ -82,21 +82,3 @@ export default function FavoriteButton({ anime }) {
     </button>
   );
 }
-
-/* 🌸 Custom pulse animation styles (add this to your global CSS)
--------------------------------------------------- */
-/* tailwind.config.js -> add:
-  theme: {
-    extend: {
-      keyframes: {
-        'pulse-glow': {
-          '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
-          '50%': { opacity: 1, transform: 'scale(1.15)' },
-        },
-      },
-      animation: {
-        'pulse-glow': 'pulse-glow 1.8s ease-in-out infinite',
-      },
-    },
-  },
-*/
