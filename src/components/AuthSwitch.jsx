@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "./AuthModal";
 
@@ -10,10 +10,21 @@ export default function AuthSwitch() {
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
+  // 🚀 Google OAuth login
+  const handleGoogleLogin = () => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID; // your Google client ID
+    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI; // e.g. http://localhost:3000/auth/callback
+    const scope = "email profile openid";
+    const responseType = "token";
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&prompt=select_account`;
+
+    window.location.href = authUrl;
+  };
 
   return (
     <div className="relative">
-      {/* Switch */}
+      {/* Switch buttons */}
       <div className="flex items-center bg-white/10 rounded-full px-1 py-1 text-sm backdrop-blur-md border border-white/10 shadow-glow">
         {["login", "register"].map((item) => (
           <motion.button
@@ -24,7 +35,7 @@ export default function AuthSwitch() {
             }}
             className={`px-3 py-1 rounded-full transition font-medium ${
               mode === item
-                ? "bg-glassPink text-white shadow-[0_0_10px_rgba(255,0,128,0.8)]"
+                ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-[0_0_10px_rgba(255,0,128,0.8)]"
                 : "text-white/80 hover:text-white"
             }`}
           >
@@ -33,7 +44,7 @@ export default function AuthSwitch() {
         ))}
       </div>
 
-      {/* Modal below switch */}
+      {/* Modal */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -44,7 +55,18 @@ export default function AuthSwitch() {
             transition={{ duration: 0.25 }}
             className="absolute right-0 mt-4 w-80 bg-black/60 backdrop-blur-3xl rounded-2xl border border-white/20 shadow-[0_0_25px_rgba(255,0,128,0.3)] p-5 z-50"
           >
+            {/* Auth Modal */}
             <AuthModal isOpen={isOpen} onClose={closeModal} mode={mode} />
+
+            {/* Google Login Button */}
+            {mode === "login" && (
+              <button
+                onClick={handleGoogleLogin}
+                className="mt-4 w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium py-2 rounded-lg hover:opacity-90 transition shadow-[0_0_15px_rgba(255,0,128,0.5)]"
+              >
+                Sign in with Google
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
