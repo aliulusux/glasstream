@@ -22,4 +22,7 @@ body {
   .hover-glow:hover {
     text-shadow: 0 0 8px rgba(255, 105, 180, 0.8);
   }
+  .glow-focus {
+    box-shadow: 0 0 10px rgba(255, 20, 147, 0.4);
+  }
 }
