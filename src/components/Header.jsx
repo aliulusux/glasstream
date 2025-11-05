@@ -52,9 +52,9 @@ export default function Header() {
           {user && <Link to="/mylist" className="text-white/90 hover:text-glassPink">My List</Link>}
         </nav>
 
-        {/* Right Controls */}
+        {/* Right Side Controls */}
         <div className="flex items-center gap-4 relative">
-          {/* Search Icon */}
+          {/* Search */}
           <form onSubmit={submitSearch} className="relative flex items-center">
             <Search
               onClick={() => setShowSearch((s) => !s)}
@@ -77,15 +77,9 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
-          {/* Auth / User Section */}
+          {/* Auth */}
           {!user ? (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 100, damping: 10 }}
-            >
-              <AuthSwitch />
-            </motion.div>
+            <AuthSwitch />
           ) : (
             <div className="relative">
               <button
@@ -105,7 +99,6 @@ export default function Header() {
                 </span>
               </button>
 
-              {/* Dropdown */}
               <AnimatePresence>
                 {menuOpen && (
                   <motion.div

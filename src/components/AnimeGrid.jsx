@@ -48,14 +48,15 @@ export default function AnimeGrid({ animeList = [] }) {
                 </div>
               )}
             </div>
-            {/* favorite */}
-            <div className="absolute top-2 right-2">
-              <FavoriteButton anime={a} />
-            </div>
+            
 
             {/* Hover Glow */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-pink-500/10 rounded-2xl"></div>
           </Link>
+          {/* favorite */}
+            <div className="absolute top-2 right-2">
+              <FavoriteButton anime={a} />
+            </div>
         );
       })}
     </div>

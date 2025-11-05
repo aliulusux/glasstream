@@ -1,35 +1,27 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
-// 🧠 İngilizce → Türkçe hata mesajı dönüştürme fonksiyonu
 function translateError(message) {
   const lower = message.toLowerCase();
-
-  if (lower.includes("invalid login credentials"))
-    return "Geçersiz e-posta veya şifre.";
-  if (lower.includes("email not confirmed"))
-    return "E-posta adresinizi doğrulamanız gerekiyor.";
-  if (lower.includes("password"))
-    return "Şifre en az 6 karakter olmalıdır.";
-  if (lower.includes("rate limit"))
-    return "Çok fazla deneme yaptınız. Lütfen birkaç dakika bekleyin.";
-  if (lower.includes("already registered"))
-    return "Bu e-posta adresi zaten kayıtlı.";
-  if (lower.includes("network"))
-    return "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.";
-
+  if (lower.includes("invalid login")) return "Geçersiz e-posta veya şifre.";
+  if (lower.includes("email not confirmed")) return "E-posta adresinizi doğrulamanız gerekiyor.";
+  if (lower.includes("password")) return "Şifre en az 6 karakter olmalıdır.";
+  if (lower.includes("rate limit")) return "Çok fazla deneme yaptınız. Lütfen bekleyin.";
+  if (lower.includes("already registered")) return "Bu e-posta adresi zaten kayıtlı.";
+  if (lower.includes("network")) return "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.";
   return "Bir hata oluştu. Lütfen tekrar deneyin.";
 }
 
 export default function AuthModal({ isOpen, onClose, mode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   if (!isOpen) return null;
 
-  // 🔑 E-posta + Şifre Girişi
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -37,17 +29,11 @@ export default function AuthModal({ isOpen, onClose, mode }) {
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMessage("Giriş başarılı! 🎉");
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         setMessage("Kayıt başarılı! E-posta adresinizi doğrulayın.");
       }
@@ -59,7 +45,6 @@ export default function AuthModal({ isOpen, onClose, mode }) {
     }
   };
 
-  // 🌐 Google ile giriş
   const handleGoogle = async () => {
     try {
       await supabase.auth.signInWithOAuth({ provider: "google" });
@@ -74,12 +59,9 @@ export default function AuthModal({ isOpen, onClose, mode }) {
         {mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
       </h2>
 
-      {/* E-posta + Şifre Formu */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-left">
         <div>
-          <label className="block text-sm mb-1 text-white/80">
-            Kullanıcı Adı / E-posta
-          </label>
+          <label className="block text-sm mb-1 text-white/80">E-posta</label>
           <input
             type="email"
             value={email}
@@ -92,14 +74,23 @@ export default function AuthModal({ isOpen, onClose, mode }) {
 
         <div>
           <label className="block text-sm mb-1 text-white/80">Şifre</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 rounded-lg bg-white/10 border border-white/20 focus:border-pink-500 outline-none text-sm"
-            placeholder="••••••••"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPass ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 rounded-lg bg-white/10 border border-white/20 focus:border-pink-500 outline-none text-sm pr-8"
+              placeholder="••••••••"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              className="absolute right-2 top-2 text-white/60 hover:text-white transition"
+            >
+              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <button
@@ -107,17 +98,12 @@ export default function AuthModal({ isOpen, onClose, mode }) {
           disabled={loading}
           className="w-full mt-2 bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white py-2 rounded-lg font-semibold hover:opacity-90 transition"
         >
-          {loading
-            ? "Bekleyin..."
-            : mode === "login"
-            ? "Giriş Yap"
-            : "Kayıt Ol"}
+          {loading ? "Bekleyin..." : mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
         </button>
       </form>
 
       <div className="my-4 text-white/50 text-sm">veya</div>
 
-      {/* Google ile giriş butonu */}
       <button
         onClick={handleGoogle}
         className="flex items-center justify-center gap-2 w-full bg-white text-black py-2 rounded-lg font-medium hover:bg-gray-200 transition"
@@ -130,7 +116,6 @@ export default function AuthModal({ isOpen, onClose, mode }) {
         Google ile Devam Et
       </button>
 
-      {/* Kapat butonu */}
       <button
         onClick={onClose}
         className="mt-4 text-pink-400 text-sm hover:text-pink-300 transition"
@@ -138,9 +123,7 @@ export default function AuthModal({ isOpen, onClose, mode }) {
         Kapat
       </button>
 
-      {message && (
-        <p className="mt-2 text-xs text-pink-400">{message}</p>
-      )}
+      {message && <p className="mt-2 text-xs text-pink-400">{message}</p>}
     </div>
   );
 }
