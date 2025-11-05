@@ -23,11 +23,12 @@ export default function AnimeGrid({ animeList = [] }) {
           "";
         const score = Number(a?.score) || null;
 
-        return (
-          {/* favorite */}
+        {/* favorite */}
             <div className="absolute top-2 right-2">
               <FavoriteButton anime={a} />
             </div>
+
+        return (
           <Link
             key={a.mal_id}
             to={`/anime/${a.mal_id}`}
