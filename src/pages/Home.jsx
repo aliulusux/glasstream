@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchAnime() {
       try {
-        const res = await fetch("https://api.jikan.moe/v4/seasons/now?limit=20");
+        const res = await fetch("https://api.jikan.moe/v4/seasons/now?limit=12");
         const json = await res.json();
         setAnime(json?.data || []);
       } catch (err) {

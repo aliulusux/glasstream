@@ -24,28 +24,25 @@ export default function AnimeGrid({ animeList = [] }) {
         const score = Number(a?.score) || null;
 
         return (
-          <Link
+          <div
             key={a.mal_id}
-            to={`/anime/${a.mal_id}`}
-            className="relative group overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,105,180,0.5)] transition-all duration-300"
+            className="relative group overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all"
           >
-            {/* Anime Cover */}
-            <img
-              src={cover}
-              alt={a.title}
-              className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            {/* Anime Cover Link */}
+            <Link to={`/anime/${a.mal_id}`} className="block relative">
+              <img
+                src={cover}
+                alt={a.title}
+                className="w-full h-64 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-500"
+              />
+            </Link>
 
-          </Link>
-          
-          {/* Favorite Button on top of image but outside link */}
-          <FavoriteButton anime={a} className="absolute top-2 right-2 z-20" />
+            {/* Favorite Button outside link */}
+            <FavoriteButton anime={a} className="absolute top-2 right-2 z-20" />
 
             {/* Title + Score Overlay */}
-            <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2 flex flex-col items-start">
-              <h3 className="text-white text-sm font-semibold truncate w-full">
-                {a.title}
-              </h3>
+            <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
+              <h3 className="text-white text-sm font-semibold truncate w-full">{a.title}</h3>
               {score && (
                 <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
                   <span>★</span>
@@ -53,15 +50,10 @@ export default function AnimeGrid({ animeList = [] }) {
                 </div>
               )}
             </div>
-            
 
             {/* Hover Glow */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-pink-500/10 rounded-2xl"></div>
-          
-   
-        );
-      })}
-    </div>
+          </div>
   );
 }
 
