@@ -16,7 +16,7 @@ function getCover(anime) {
 export default function AnimeGrid({ animeList = [] }) {
   if (!Array.isArray(animeList)) animeList = [];
 
-  const currentYear = new Date().getFullYear(); // e.g., 2025
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
@@ -25,10 +25,7 @@ export default function AnimeGrid({ animeList = [] }) {
         const score = Number(a?.score) || null;
         const year = Number(a?.year) || null;
 
-        // ⭐ Top Rated: always
         const isTopRated = score >= 9.0;
-
-        // 🔥 Trending: only if new this year
         const isTrending = !isTopRated && score >= 8.5 && year === currentYear;
 
         return (
@@ -52,13 +49,13 @@ export default function AnimeGrid({ animeList = [] }) {
                              text-xs font-semibold text-white 
                              shadow-[0_0_10px_rgba(255,0,128,0.6)] 
                              backdrop-blur-sm border border-white/20 
-                             animate-pulse"
+                             animate-pulse z-20"
                 >
                   🔥 Trending Now
                 </div>
               )}
 
-              {/* ⭐ Top Rated Badge (any year) */}
+              {/* ⭐ Top Rated Badge */}
               {isTopRated && (
                 <div
                   className="absolute top-2 left-2 px-3 py-1 rounded-full 
@@ -66,17 +63,19 @@ export default function AnimeGrid({ animeList = [] }) {
                              text-xs font-semibold text-black 
                              shadow-[0_0_12px_rgba(255,215,0,0.7)] 
                              backdrop-blur-sm border border-yellow-300/40 
-                             animate-pulse"
+                             animate-pulse z-20"
                 >
                   ⭐ Top Rated
                 </div>
               )}
+
+              {/* ❤️ Favorite Button (top-right) */}
+              <div className="absolute top-2 right-2 z-30">
+                <FavoriteButton anime={a} />
+              </div>
             </Link>
 
-            {/* Favorite Button */}
-            <FavoriteButton anime={a} className="absolute top-2 right-2 z-20" />
-
-            {/* Title + Score Overlay */}
+            {/* Title + Score + Year Overlay */}
             <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
               <h3 className="text-white text-sm font-semibold truncate w-full">
                 {a.title}
