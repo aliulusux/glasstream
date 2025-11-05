@@ -14,7 +14,6 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(mode === "login");
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
 
   if (!isOpen) return null;
 
@@ -65,15 +64,6 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
             {/* 📧 Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm text-white/70">Kullanıcı Adı</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full p-2 rounded-lg bg-white/10 border border-white/20 focus:border-pink-500 outline-none text-sm"
-                  placeholder="örnek: username"
-                  required
-                />
                 <label className="text-sm text-white/70">E-posta</label>
                 <input
                   type="email"
