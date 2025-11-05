@@ -41,6 +41,36 @@ export async function fetchGenres() {
         "Space": "Uzay"
     };
 
+    export async function fetchAllAnime(page = 1, limit = 18, genreId = null) {
+        try {
+            // Build the API URL
+            let url = `https://api.jikan.moe/v4/anime?page=${page}&limit=${limit}&order_by=score&sort=desc`;
+
+            if (genreId) {
+            url += `&genres=${genreId}`;
+            }
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (!data || !data.data) {
+            console.warn("No anime data received from Jikan API");
+            return [];
+            }
+
+            return data.data.map((a) => ({
+            mal_id: a.mal_id,
+            title: a.title,
+            year: a.year,
+            score: a.score,
+            images: a.images,
+            }));
+        } catch (err) {
+            console.error("fetchAllAnime failed:", err);
+            return [];
+        }
+    }
+
 
     // Map + translate
     return data.data
