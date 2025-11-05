@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, Star, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "./lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import AuthModal from "./AuthModal";
 
 export default function Header() {
