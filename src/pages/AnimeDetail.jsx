@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import FavoriteButton from "../components/FavoriteButton";
 import RelatedAnime from "../components/RelatedAnime";
+import EpisodesScrollable from "../components/EpisodesScrollable";
 
 export default function AnimeDetail() {
   const { mal_id } = useParams();
@@ -71,24 +72,11 @@ export default function AnimeDetail() {
       {/* Episodes List */}
       <section className="mt-10">
         <h2 className="text-xl font-semibold mb-4 border-b border-white/10 pb-2">
-          Episodes
+          Bölümler
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {episodes.map((ep) => (
-            <Link
-              key={ep.mal_id || ep.episode_id}
-              to={`/player/${mal_id}?ep=${ep.mal_id || ep.episode_id}`}
-              className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all duration-200 group"
-            >
-              <h3 className="font-semibold text-white group-hover:text-glassPink transition">
-                Episode {ep.mal_id || ep.episode_id}
-              </h3>
-              <p className="text-white/70 text-sm truncate">
-                {ep.title || "Untitled"}
-              </p>
-            </Link>
-          ))}
-        </div>
+
+        <EpisodesScrollable episodes={episodes} />
+
       </section>
       <RelatedAnime mal_id={mal_id} />
     </main>

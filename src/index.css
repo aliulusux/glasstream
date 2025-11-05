@@ -48,3 +48,23 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.25s ease-out forwards;
 }
+
+/* Frosted glass list container */
+.glass-list {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+/* Nice thin scrollbar */
+.glass-list::-webkit-scrollbar {
+  width: 10px;
+}
+.glass-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff7acbAA, #b388ffAA);
+  border-radius: 9999px;
+}
+.glass-list::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -60,8 +60,10 @@ export default function Browse() {
             <button
               key={g.mal_id}
               onClick={() => handleGenreClick(g.mal_id)}
-              className={`w-full px-5 py-2 text-center rounded-full text-sm font-medium backdrop-blur-lg 
-                          border border-white/10 transition-all duration-200
+              className={`w-full px-5 py-2 text-center rounded-full text-sm font-medium bg-black/50 backdrop-blur-xl border border-white/10 
+                       shadow-[0_0_20px_rgba(255,0,128,0.2)] 
+                       hover:shadow-[0_0_25px_rgba(255,0,128,0.4)] 
+                       transition-all duration-500
                           ${
                             selectedGenre === g.mal_id
                               ? "bg-pink-500/40 text-white shadow-lg shadow-pink-500/50"
