@@ -51,7 +51,7 @@ export default function Browse() {
             <select
               value={sortType}
               onChange={handleSortChange}
-              className="appearance-none bg-gradient-to-r from-pink-500/40 to-pink-400/20 
+              className="appearance-none
                         backdrop-blur-xl text-white font-semibold rounded-2xl 
                         px-6 py-2 pr-10 border border-white/20 shadow-[0_0_20px_rgba(255,20,147,0.4)] 
                         focus:outline-none focus:ring-2 focus:ring-pink-400/70 
