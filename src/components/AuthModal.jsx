@@ -48,7 +48,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[99999] flex items-center justify-center"
+          className="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-none"
           style={{
             background:
               "radial-gradient(circle at center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.95) 80%)",
@@ -67,7 +67,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               duration: 0.35,
             }}
             className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
-                       bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden"
+                       bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden pointer-events-auto"
           >
             <div className="p-6">
               <h2 className="text-xl font-bold mb-4 text-center">
@@ -158,7 +158,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               </p>
             </div>
 
-            {/* ❌ Only Close Button */}
+            {/* Only Kapat button */}
             <div className="flex flex-col items-center mt-6 mb-5 space-y-3">
               <button
                 onClick={onClose}
