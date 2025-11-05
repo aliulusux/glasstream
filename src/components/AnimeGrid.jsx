@@ -19,20 +19,24 @@ export default function AnimeGrid({ animeList = [] }) {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-      {animeList.map((a) => {
+      {animeList.map((a, index) => {
         const cover = getCover(a);
         const score = Number(a?.score) || null;
         const year = Number(a?.year) || null;
 
+        // 🎖 Badge conditions
         const isTopRated = score >= 9.0;
         const isTrending = !isTopRated && score >= 8.5 && year === currentYear;
+
+        // 🪩 Fade-in animation delay
+        const delay = `${index * 50}ms`;
 
         return (
           <div
             key={a.mal_id}
-            className="relative group overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all"
+            style={{ animationDelay: delay }}
+            className="relative group overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all duration-500 animate-[fadeInUp_0.5s_ease_forwards]"
           >
-            {/* 🎞️ Clickable Cover */}
             <Link to={`/anime/${a.mal_id}`} className="block relative">
               <img
                 src={cover}
@@ -42,7 +46,7 @@ export default function AnimeGrid({ animeList = [] }) {
 
               {/* 🔥 Trending Badge */}
               {isTrending && (
-                <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 via-purple-500 to-indigo-500 text-xs font-semibold text-white shadow-[0_0_10px_rgba(255,0,128,0.6)] backdrop-blur-sm border border-white/20 animate-pulse z-20">
+                <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 via-purple-500 to-indigo-500 text-xs font-semibold text-white shadow-[0_0_12px_rgba(255,0,128,0.6)] backdrop-blur-sm border border-white/20 animate-pulse z-20">
                   🔥 Bu Sezon Popüler
                 </div>
               )}
@@ -50,17 +54,17 @@ export default function AnimeGrid({ animeList = [] }) {
               {/* ⭐ Top Rated Badge */}
               {isTopRated && (
                 <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-xs font-semibold text-black shadow-[0_0_12px_rgba(255,215,0,0.7)] backdrop-blur-sm border border-yellow-300/40 animate-pulse z-20">
-                  ⭐ En Çok Beğenilen
+                  ⭐ Beğenilenler
                 </div>
               )}
 
-              {/* ❤️ Favorite */}
+              {/* ❤️ Favorite Button */}
               <div className="absolute top-2 right-2 z-30">
                 <FavoriteButton anime={a} />
               </div>
             </Link>
 
-            {/* 🩶 Overlay Title */}
+            {/* 🩶 Info Overlay */}
             <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
               <h3 className="text-white text-sm font-semibold truncate w-full">
                 {a.title}
@@ -83,3 +87,18 @@ export default function AnimeGrid({ animeList = [] }) {
     </div>
   );
 }
+
+/* 🪄 Fade animation keyframes */
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}`;
+document.head.appendChild(style);

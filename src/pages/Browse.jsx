@@ -68,7 +68,7 @@ export default function Browse() {
             className={`relative px-5 py-2 rounded-full text-sm font-medium border transition-all duration-300 ease-out backdrop-blur-md 
             ${
               Number(id) === genre
-                ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white shadow-[0_0_15px_rgba(255,0,128,0.8)] scale-105 border-pink-300 animate-pulse'
+                ? 'bg-glassPink text-white px-6 py-2 rounded-xl shadow-glow hover:scale-[1.02] transition text-white shadow-[0_0_15px_rgba(255,0,128,0.8)] scale-105 border-pink-300 animate-pulse'
                 : 'bg-pink-500/20 text-white/80 hover:shadow-[0_0_15px_rgba(255,0,128,0.6)] hover:bg-pink-500/40 hover:text-white hover:scale-105'
             }`}
             style={{ transition: 'all 0.25s cubic-bezier(0.25, 1, 0.5, 1)' }}
