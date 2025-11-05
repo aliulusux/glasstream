@@ -43,13 +43,13 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 🩶 Background overlay */}
+          {/* 🔮 Overlay with smooth fade */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             onClick={onClose}
             className="fixed inset-0 z-[99999] flex items-center justify-center"
             style={{
@@ -61,11 +61,16 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
             {/* 🌫️ Glass Modal */}
             <motion.div
               key="modal"
-              initial={{ y: -40, opacity: 0, scale: 0.96 }}
+              initial={{ y: -30, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -30, opacity: 0, scale: 0.95 }}
-              transition={{ type: "spring", damping: 20, stiffness: 220 }}
-              onClick={(e) => e.stopPropagation()} // ✅ Prevent closing when clicking inside
+              exit={{ y: -20, opacity: 0, scale: 0.95 }}
+              transition={{
+                type: "spring",
+                damping: 20,
+                stiffness: 200,
+                duration: 0.4,
+              }}
+              onClick={(e) => e.stopPropagation()} // prevent accidental close
               className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
                          bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden"
             >
@@ -159,7 +164,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               </div>
 
               {/* Close */}
-              <div className="flex flex-col items-center mt-4 mb-4 space-y-2">
+              <div className="flex flex-col items-center mt-6 mb-5 space-y-3">
                 <button
                   onClick={onClose}
                   className="text-pink-400 hover:underline text-sm"
