@@ -62,16 +62,41 @@ export default function FavoriteButton({ anime }) {
 
   return (
     <button
-      onClick={toggle}
-      className={`p-2 rounded-full bg-black/40 hover:bg-black/50 transition 
-        ${active ? "shadow-glow" : ""}`}
-      title={active ? "Remove from My List" : "Add to My List"}
-      aria-label="Toggle favorite"
+      onClick={toggleFavorite}
+      className={`relative p-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 transition ${
+        isFavorite
+          ? "text-pink-400 animate-pulse-glow"
+          : "text-white/70 hover:text-pink-400"
+      } ${className}`}
+      title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
     >
       <Heart
         size={18}
-        className={active ? "text-glassPink fill-glassPink" : "text-white"}
+        className={`transition-all ${isFavorite ? "fill-pink-400" : ""}`}
       />
+
+      {/* Soft pink glow ring */}
+      {isFavorite && (
+        <span className="absolute inset-0 rounded-full bg-pink-500/40 blur-md animate-pulse-glow" />
+      )}
     </button>
   );
 }
+
+/* 🌸 Custom pulse animation styles (add this to your global CSS)
+-------------------------------------------------- */
+/* tailwind.config.js -> add:
+  theme: {
+    extend: {
+      keyframes: {
+        'pulse-glow': {
+          '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
+          '50%': { opacity: 1, transform: 'scale(1.15)' },
+        },
+      },
+      animation: {
+        'pulse-glow': 'pulse-glow 1.8s ease-in-out infinite',
+      },
+    },
+  },
+*/

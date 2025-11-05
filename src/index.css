@@ -26,3 +26,17 @@ body {
     box-shadow: 0 0 10px rgba(255, 20, 147, 0.4);
   }
 }
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 1.8s ease-in-out infinite;
+}
