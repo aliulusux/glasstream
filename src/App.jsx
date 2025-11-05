@@ -28,6 +28,7 @@ export default function App() {
         <Route path="/mylist" element={<MyList />} />
         <Route path="/anime/:mal_id" element={<AnimeDetail />} />
         <Route path="/anime/:mal_id" element={<Player />} />
+        <Route path="/watch/:aid/:ep" element={<WatchPage />} />
       </Routes>
     </Router>
   );
