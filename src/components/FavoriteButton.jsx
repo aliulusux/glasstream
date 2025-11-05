@@ -1,64 +1,79 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 /**
- * Minimal favorite toggler:
- * - Glowing pink when active
- * - Saves to localStorage immediately for UX
- * - If user is logged in, also upserts to Supabase table 'favorites'
- *
- * Supabase table schema suggestion:
- *   create table favorites (
- *     user_id uuid references auth.users on delete cascade,
- *     mal_id  bigint not null,
- *     title   text,
- *     cover   text,
- *     primary key (user_id, mal_id)
- *   );
+ * 💖 FavoriteButton
+ * - Uses Supabase `favorites` table instead of localStorage
+ * - Syncs with user auth
+ * - Includes glowing pulse animation when active
  */
-export default function FavoriteButton({ anime }) {
-  const key = "glassstream:favs";
-  const [active, setActive] = useState(false);
+export default function FavoriteButton({ anime, className = "" }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem(key);
-    const set = new Set(JSON.parse(raw || "[]"));
-    setActive(set.has(anime.mal_id));
-  }, [anime.mal_id]);
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+    getSession();
 
-  async function toggleFavorite() {
-    const raw = localStorage.getItem(key);
-    const set = new Set(JSON.parse(raw || "[]"));
-    const next = new Set(set);
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) =>
+      setUser(session?.user || null)
+    );
 
-    if (next.has(anime.mal_id)) next.delete(anime.mal_id);
-    else next.add(anime.mal_id);
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
 
-    localStorage.setItem(key, JSON.stringify([...next]));
-    setActive(next.has(anime.mal_id));
+  useEffect(() => {
+    if (!user) return;
+    const fetchFavorite = async () => {
+      const { data } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("mal_id", anime.mal_id)
+        .maybeSingle();
+      setIsFavorite(!!data);
+    };
+    fetchFavorite();
+  }, [user, anime.mal_id]);
 
-    // try Supabase (optional; ignore errors for now)
-    const { data: { user } = {} } = await supabase.auth.getUser();
-    if (user) {
-      if (next.has(anime.mal_id)) {
-        await supabase.from("favorites").upsert({
+  const toggleFavorite = async () => {
+    if (!user) {
+      alert("Favorilere eklemek için giriş yapmalısınız!");
+      return;
+    }
+
+    if (isFavorite) {
+      await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("mal_id", anime.mal_id);
+      setIsFavorite(false);
+    } else {
+      await supabase.from("favorites").insert([
+        {
           user_id: user.id,
           mal_id: anime.mal_id,
           title: anime.title,
-          cover:
+          image_url:
             anime?.images?.jpg?.large_image_url ||
             anime?.images?.jpg?.image_url ||
-            null,
-        });
-      } else {
-        await supabase.from("favorites").delete().match({
-          user_id: user.id,
-          mal_id: anime.mal_id,
-        });
-      }
+            anime?.image_url ||
+            "",
+          score: anime.score || null,
+        },
+      ]);
+      setIsFavorite(true);
     }
-  }
+  };
 
   return (
     <button
@@ -68,14 +83,12 @@ export default function FavoriteButton({ anime }) {
           ? "text-pink-400 animate-pulse-glow"
           : "text-white/70 hover:text-pink-400"
       } ${className}`}
-      title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+      title={isFavorite ? "Favorilerden Kaldır" : "Favorilere Ekle"}
     >
       <Heart
         size={18}
         className={`transition-all ${isFavorite ? "fill-pink-400" : ""}`}
       />
-
-      {/* Soft pink glow ring */}
       {isFavorite && (
         <span className="absolute inset-0 rounded-full bg-pink-500/40 blur-md animate-pulse-glow" />
       )}

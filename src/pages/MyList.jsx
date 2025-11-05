@@ -1,82 +1,84 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
-import AnimeGrid from "../components/AnimeGrid";
+import { Link } from "react-router-dom";
 
 export default function MyList() {
-  const [list, setList] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [favorites, setFavorites] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
+    const init = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+    init();
 
-      if (!session) {
-        navigate("/"); // Redirect home if not logged in
-        return;
-      }
-
-      setLoggedIn(true);
-      // Fetch favorites here (as before)
-    }
-
-    checkAuth();
-  }, [navigate]);
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) =>
+      setUser(session?.user || null)
+    );
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        setLoggedIn(false);
-        setLoading(false);
-        navigate("/");
-        return;
-      }
-
-      setLoggedIn(true);
-
-      // Fetch favorites from Supabase
-      const { data } = await supabase
+    if (!user) return;
+    const fetchFavorites = async () => {
+      const { data, error } = await supabase
         .from("favorites")
-        .select("mal_id,title,cover")
-        .eq("user_id", session.user.id)
-        .limit(100);
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (!error) setFavorites(data);
+    };
+    fetchFavorites();
+  }, [user]);
 
-      if (data && data.length > 0) {
-        setList(
-          data.map((d) => ({
-            mal_id: d.mal_id,
-            title: d.title,
-            images: { jpg: { large_image_url: d.cover } },
-          }))
-        );
-      } else {
-        setList([]);
-      }
+  if (!user)
+    return (
+      <div className="text-center text-white/70 mt-20">
+        Favorilerinizi görmek için giriş yapın.
+      </div>
+    );
 
-      setLoading(false);
-    }
-
-    fetchData();
-  }, [navigate]);
-
-  if (loading) {
-    return <p className="text-center mt-10 text-white/70">Loading...</p>;
-  }
+  if (favorites.length === 0)
+    return (
+      <div className="text-center text-white/70 mt-20">
+        Henüz favoriniz yok 💔
+      </div>
+    );
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">
-        My List {loggedIn ? "(Synced)" : "(Local)"}
-      </h1>
-      {list.length > 0 ? (
-        <AnimeGrid animeList={list} />
-      ) : (
-        <p className="text-white/70">No favorites yet.</p>
-      )}
-    </main>
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      <h1 className="text-2xl font-bold text-white mb-6">🎀 Favorilerim</h1>
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
+        {favorites.map((a) => (
+          <Link
+            key={a.mal_id}
+            to={`/anime/${a.mal_id}`}
+            className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all"
+          >
+            <img
+              src={a.image_url}
+              alt={a.title}
+              className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
+              <h3 className="text-white text-sm font-semibold truncate">
+                {a.title}
+              </h3>
+              {a.score && (
+                <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
+                  <span>★</span>
+                  <span>{a.score}</span>
+                </div>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
