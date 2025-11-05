@@ -42,20 +42,25 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 🩶 Fullscreen Overlay */}
+          {/* ✨ Backdrop with spotlight gradient */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.3 }}
             onClick={onClose}
-            className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-3xl flex items-center justify-center"
+            className="fixed inset-0 z-[9999] flex items-center justify-center 
+                       bg-black/90 backdrop-blur-3xl"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.9) 80%)",
+            }}
           >
-            {/* 🌫️ Centered Glass Modal */}
+            {/* 🌫️ Floating glass modal */}
             <motion.div
               key="modal"
-              initial={{ y: -50, opacity: 0, scale: 0.95 }}
+              initial={{ y: -40, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: -30, opacity: 0, scale: 0.95 }}
               transition={{
@@ -65,13 +70,14 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               }}
               onClick={(e) => e.stopPropagation()}
               className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
-                         bg-black/70 backdrop-blur-2xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden"
+                         bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden"
             >
               <div className="p-6">
                 <h2 className="text-xl font-bold mb-4 text-center">
                   {isLogin ? "Giriş Yap" : "Kayıt Ol"}
                 </h2>
 
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="text-sm text-white/70">E-posta</label>
@@ -123,10 +129,12 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                   </button>
                 </form>
 
+                {/* Divider */}
                 <div className="flex items-center justify-center my-4 text-white/60 text-sm">
                   <span className="px-2">veya</span>
                 </div>
 
+                {/* Google Login */}
                 <button
                   onClick={handleGoogle}
                   className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black 
@@ -140,6 +148,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                   Google ile Devam Et
                 </button>
 
+                {/* Switch */}
                 <p className="text-center text-sm text-white/60 mt-4">
                   {isLogin ? "Hesabın yok mu?" : "Zaten hesabın var mı?"}{" "}
                   <button
@@ -152,9 +161,10 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                 </p>
               </div>
 
+              {/* Close button */}
               <button
                 onClick={onClose}
-                className="absolute bottom-1 left-1/2 -translate-x-1/2 text-pink-400 
+                className="absolute bottom-3 left-1/2 -translate-x-1/2 text-pink-400 
                            hover:underline text-sm"
               >
                 Kapat
