@@ -1,63 +1,110 @@
-import React, { useEffect, useState } from "react";
+'use client';
+import React from "react";
 import { Link } from "react-router-dom";
+import FavoriteButton from "./FavoriteButton";
 
-export default function RelatedAnime({ mal_id }) {
-  const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
+function getCover(anime) {
+  return (
+    anime?.images?.jpg?.large_image_url ||
+    anime?.images?.jpg?.image_url ||
+    anime?.image_url ||
+    ""
+  );
+}
 
-  useEffect(() => {
-    async function fetchRelated() {
-      try {
-        const res = await fetch(`https://api.jikan.moe/v4/anime/${mal_id}/recommendations`);
-        const json = await res.json();
-        setRelated(json?.data?.slice(0, 12) || []);
-      } catch (err) {
-        console.error("Related fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
+export default function RelatedAnime({ related = [] }) {
+  if (!Array.isArray(related)) related = [];
 
-    fetchRelated();
-  }, [mal_id]);
-
-  if (loading)
-    return <p className="text-center mt-8 text-white/70">Loading related anime…</p>;
-
-  if (!related.length)
-    return <p className="text-center mt-8 text-white/70">No related anime found.</p>;
+  const currentYear = new Date().getFullYear();
 
   return (
-    <section className="mt-12">
-      <h2 className="text-xl font-semibold mb-4 border-b border-white/10 pb-2">
+    <section className="mt-10">
+      <h2 className="text-xl font-bold text-white mb-5">
         Related Anime
       </h2>
 
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-        {related.map((r) => {
-          const anime = r.entry || {};
-          const cover =
-            anime?.images?.jpg?.large_image_url ||
-            anime?.images?.jpg?.image_url ||
-            "";
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+        {related.map((a, index) => {
+          const cover = getCover(a);
+          const score = Number(a?.score) || null;
+          const year = Number(a?.year) || null;
+
+          // Badge conditions
+          const isTopRated = score >= 8.0;
+          const isTrending =
+            !isTopRated && score >= 7.7 && year === currentYear;
+
+          // Small fade animation delay
+          const delay = `${index * 60}ms`;
+
           return (
-            <Link
-              key={anime.mal_id}
-              to={`/anime/${anime.mal_id}`}
-              className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg hover:shadow-[0_0_15px_rgba(255,105,180,0.5)] transition-all duration-300"
+            <div
+              key={a.mal_id || a.title}
+              style={{ animationDelay: delay }}
+              className="relative group overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-md hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all duration-500 animate-[fadeInUp_0.5s_ease_forwards]"
             >
-              <img
-                src={cover}
-                alt={anime.title}
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+              <Link to={`/anime/${a.mal_id}`} className="block relative">
+                <img
+                  src={cover}
+                  alt={a.title}
+                  className="w-full h-60 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-500"
+                />
+
+                {/* 🔥 Trending Badge */}
+                {isTrending && (
+                  <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 via-purple-500 to-indigo-500 text-xs font-semibold text-white shadow-[0_0_12px_rgba(255,0,128,0.6)] backdrop-blur-sm border border-white/20 animate-pulse z-20">
+                    🔥 Trending Now
+                  </div>
+                )}
+
+                {/* ⭐ Top Rated Badge */}
+                {isTopRated && (
+                  <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-xs font-semibold text-black shadow-[0_0_12px_rgba(255,215,0,0.7)] backdrop-blur-sm border border-yellow-300/40 animate-pulse z-20">
+                    ⭐ Top Rated
+                  </div>
+                )}
+
+                {/* ❤️ Favorite Button */}
+                <div className="absolute top-2 right-2 z-30">
+                  <FavoriteButton anime={a} />
+                </div>
+              </Link>
+
               <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
-                <h3 className="text-sm font-semibold text-white truncate">{anime.title}</h3>
+                <h3 className="text-white text-sm font-semibold truncate w-full">
+                  {a.title}
+                </h3>
+                {score && (
+                  <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
+                    <span>★</span>
+                    <span>{score}</span>
+                    {year && (
+                      <span className="ml-auto text-[11px] text-white/60">
+                        {year}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
     </section>
   );
 }
+
+/* 🪄 Fade animation keyframes */
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}`;
+document.head.appendChild(style);

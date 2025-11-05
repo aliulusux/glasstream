@@ -1,131 +1,166 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import AnimeGrid from '../components/AnimeGrid';
-
-// 🎭 Türkçe genre dictionary
-const GENRE_MAP = {
-  1: 'Aksiyon',
-  2: 'Macera',
-  4: 'Komedi',
-  8: 'Drama',
-  10: 'Fantezi',
-  14: 'Korku',
-  22: 'Romantik',
-  24: 'Bilim Kurgu',
-  30: 'Spor',
-  36: 'Dilim Hayattan',
-  37: 'Doğaüstü',
-  38: 'Gerilim',
-  46: 'Gizem',
-  47: 'Suç',
-  48: 'Psikolojik',
-  49: 'Parodi',
-  50: 'Aile',
-  54: 'Askeri',
-};
+import React, { useState, useEffect } from "react";
+import AnimeGrid from "@/components/AnimeGrid";
+import { fetchAllAnime, fetchGenres } from "@/lib/jikan"; // ✅ make sure both exist
 
 export default function Browse() {
   const [animeList, setAnimeList] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState(null);
   const [page, setPage] = useState(1);
-  const [genre, setGenre] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [totalPages, setTotalPages] = useState(1);
-
-  // Fetch anime list per page + genre
-  const fetchAnime = async () => {
-    setLoading(true);
-    try {
-      const base = `https://api.jikan.moe/v4/anime?limit=18&page=${page}`;
-      const url = genre ? `${base}&genres=${genre}` : base;
-      const res = await fetch(url);
-      const data = await res.json();
-      setAnimeList(data.data || []);
-      setTotalPages(data.pagination?.last_visible_page || 1);
-    } catch (err) {
-      console.error('Failed to fetch anime:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [sortOption, setSortOption] = useState("popular");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    fetchAnime();
-  }, [page, genre]);
+    loadGenres();
+  }, []);
 
-  const handleGenreClick = (id) => {
-    setGenre(id === genre ? null : id);
-    setPage(1);
-  };
+  useEffect(() => {
+    loadAnime();
+  }, [page, selectedGenre, sortOption]);
+
+  async function loadGenres() {
+    try {
+      const g = await fetchGenres();
+      if (Array.isArray(g)) setGenres(g.slice(0, 18)); // limit to 18 genres
+    } catch (err) {
+      console.error("Genre fetch failed:", err);
+    }
+  }
+
+  async function loadAnime() {
+    const data = await fetchAllAnime(page, 18, selectedGenre);
+    if (!data) return;
+    let filtered = [...data];
+    const currentYear = new Date().getFullYear();
+
+    if (sortOption === "popular") {
+      filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
+    } else if (sortOption === "new") {
+      filtered = filtered.filter((a) => a.year === currentYear);
+    } else if (sortOption === "iconic") {
+      // 🏆 Extended iconic list
+      const iconicNames = [
+        "Naruto", "Naruto Shippuden", "Bleach", "One Piece", "Dragon Ball",
+        "Dragon Ball Z", "Dragon Ball Super", "Attack on Titan",
+        "Fullmetal Alchemist", "Fullmetal Alchemist: Brotherhood", "Death Note",
+        "Hunter x Hunter", "One Punch Man", "Demon Slayer", "Kimetsu no Yaiba",
+        "My Hero Academia", "Boku no Hero Academia", "Jujutsu Kaisen",
+        "Chainsaw Man", "Tokyo Ghoul", "Black Clover", "Fairy Tail", "Re:Zero",
+        "Code Geass", "Steins;Gate", "Sword Art Online", "Gintama",
+        "Mob Psycho 100", "Vinland Saga", "Spy x Family", "Your Name",
+        "A Silent Voice", "Neon Genesis Evangelion", "Cowboy Bebop",
+        "Samurai Champloo", "Trigun", "JoJo's Bizarre Adventure", "Parasyte",
+        "Made in Abyss", "Blue Exorcist", "Clannad", "Your Lie in April",
+        "Bleach: Thousand-Year Blood War", "Berserk", "Monster", "Haikyuu",
+        "Kuroko no Basket", "Overlord", "Psycho-Pass", "Hellsing Ultimate",
+        "Akira", "Ghost in the Shell", "Erased", "Toradora", "Rurouni Kenshin",
+        "Fate/Zero", "Fate/Stay Night", "D.Gray-man", "Elfen Lied", "Nana",
+      ];
+      filtered = data.filter((a) =>
+        iconicNames.some((name) =>
+          a.title.toLowerCase().includes(name.toLowerCase())
+        )
+      );
+    }
+
+    setAnimeList(filtered);
+  }
 
   return (
-    <div className="px-6 py-8 text-white">
-      {/* 🌈 Genre Bar */}
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
-        {Object.entries(GENRE_MAP).map(([id, name]) => (
-          <button
-            key={id}
-            onClick={() => handleGenreClick(id)}
-            className={`relative px-5 py-2 rounded-full text-sm font-medium border transition-all duration-300 ease-out backdrop-blur-md 
-            ${
-              Number(id) === genre
-                ? 'bg-glassPink text-white px-6 py-2 rounded-xl shadow-glow hover:scale-[1.02] transition text-white shadow-[0_0_15px_rgba(255,0,128,0.8)] scale-105 border-pink-300 animate-pulse'
-                : 'bg-pink-500/20 text-white/80 hover:shadow-[0_0_15px_rgba(255,0,128,0.6)] hover:bg-pink-500/40 hover:text-white hover:scale-105'
-            }`}
-            style={{ transition: 'all 0.25s cubic-bezier(0.25, 1, 0.5, 1)' }}
-          >
-            <span className="relative z-10">{name}</span>
-            {/* Glowing gradient ring */}
-            <span
-              className={`absolute inset-0 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 blur-md opacity-0 transition-all duration-300 ${
-                Number(id) === genre ? 'opacity-60' : 'group-hover:opacity-40'
+    <div className="p-8">
+      {/* Header: Genres + Sort */}
+      <div className="flex flex-wrap items-center justify-between mb-6">
+        <div className="flex flex-wrap gap-2 mb-4 sm:mb-0">
+          {genres.map((genre) => (
+            <button
+              key={genre.mal_id}
+              onClick={() =>
+                setSelectedGenre(selectedGenre === genre.mal_id ? null : genre.mal_id)
+              }
+              className={`px-4 py-2 text-sm font-medium rounded-full border backdrop-blur-md transition-all duration-300 shadow-[0_0_8px_rgba(255,0,128,0.2)] ${
+                selectedGenre === genre.mal_id
+                  ? "bg-pink-600/70 border-pink-400 text-white shadow-[0_0_15px_rgba(255,0,128,0.6)]"
+                  : "bg-white/10 border-white/20 text-white hover:bg-pink-500/30"
               }`}
-            ></span>
-          </button>
-        ))}
-      </div>
-
-      {/* ✨ Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 text-transparent bg-clip-text animate-pulse">
-          {genre ? `${GENRE_MAP[genre]} Anime` : 'Tüm Animeler'}
-        </h1>
-      </div>
-
-      {/* 🌀 Anime Section */}
-      {loading ? (
-        <div className="text-center py-20 text-pink-400 animate-pulse">
-          Yükleniyor...
+            >
+              {genre.name}
+            </button>
+          ))}
         </div>
-      ) : (
-        <AnimeGrid animeList={animeList} />
-      )}
 
-      {/* 📄 Pagination */}
-      <div className="flex justify-center items-center gap-6 mt-10">
+        {/* Sort Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 text-white font-medium hover:bg-white/20 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,128,0.3)]"
+          >
+            Sırala ▼
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 z-50 min-w-[180px] bg-black/60 backdrop-blur-md border border-white/20 rounded-xl shadow-lg overflow-hidden animate-fadeIn">
+              <button
+                onClick={() => {
+                  setSortOption("popular");
+                  setDropdownOpen(false);
+                }}
+                className={`block w-full text-left px-4 py-2 hover:bg-pink-500/30 text-sm ${
+                  sortOption === "popular" ? "text-pink-400" : "text-white"
+                }`}
+              >
+                ⭐ En Popüler
+              </button>
+              <button
+                onClick={() => {
+                  setSortOption("new");
+                  setDropdownOpen(false);
+                }}
+                className={`block w-full text-left px-4 py-2 hover:bg-pink-500/30 text-sm ${
+                  sortOption === "new" ? "text-pink-400" : "text-white"
+                }`}
+              >
+                🕊️ Yeni Çıkanlar
+              </button>
+              <button
+                onClick={() => {
+                  setSortOption("iconic");
+                  setDropdownOpen(false);
+                }}
+                className={`block w-full text-left px-4 py-2 hover:bg-pink-500/30 text-sm ${
+                  sortOption === "iconic" ? "text-pink-400" : "text-white"
+                }`}
+              >
+                💫 İkonik
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Section Title */}
+      <h1 className="text-2xl font-bold text-white mb-6 drop-shadow-[0_0_8px_rgba(255,0,128,0.5)]">
+        Tüm Animeler
+      </h1>
+
+      {/* Anime Grid */}
+      <AnimeGrid animeList={animeList} />
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4 mt-8">
         <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-          className={`px-5 py-2 rounded-full text-sm font-medium backdrop-blur-md border border-white/10 transition-all ${
-            page === 1
-              ? 'text-white/30 bg-white/5 cursor-not-allowed'
-              : 'hover:bg-pink-500/20 hover:text-pink-300'
+          disabled={page <= 1}
+          onClick={() => setPage(page - 1)}
+          className={`px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition ${
+            page <= 1 ? "opacity-40 cursor-not-allowed" : ""
           }`}
         >
           ← Önceki
         </button>
-
-        <span className="text-white/80 text-sm">
-          Sayfa <strong className="text-pink-400">{page}</strong> / {totalPages}
-        </span>
-
+        <span className="text-white/80 text-sm">Sayfa {page}</span>
         <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page === totalPages}
-          className={`px-5 py-2 rounded-full text-sm font-medium backdrop-blur-md border border-white/10 transition-all ${
-            page === totalPages
-              ? 'text-white/30 bg-white/5 cursor-not-allowed'
-              : 'hover:bg-pink-500/20 hover:text-pink-300'
-          }`}
+          onClick={() => setPage(page + 1)}
+          className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition"
         >
           Sonraki →
         </button>
@@ -133,3 +168,15 @@ export default function Browse() {
     </div>
   );
 }
+
+/* fadeIn animation (for dropdown) */
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}`;
+document.head.appendChild(style);

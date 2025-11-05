@@ -26,7 +26,7 @@ export default function AnimeGrid({ animeList = [] }) {
 
         // 🎖 Badge conditions
         const isTopRated = score >= 8.0;
-        const isTrending = !isTopRated && score >= 8.5 && year === currentYear;
+        const isTrending = !isTopRated && score >= 7.7 && year === currentYear;
 
         // 🪩 Fade-in animation delay
         const delay = `${index * 50}ms`;
