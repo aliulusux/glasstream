@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Search, Star, LogOut } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabaseClient";
-import AuthModal from "./AuthModal";
 import AuthSwitch from "./AuthSwitch";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [q, setQ] = useState("");
-  const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Listen for login/logout events
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user || null));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -52,11 +49,10 @@ export default function Header() {
           <Link to="/browse" className="text-white/90 hover:text-glassPink">Browse</Link>
           <Link to="/popular" className="text-white/90 hover:text-glassPink">Popular</Link>
           <Link to="/new" className="text-white/90 hover:text-glassPink">New</Link>
-          {/* Only show My List if logged in */}
           {user && <Link to="/mylist" className="text-white/90 hover:text-glassPink">My List</Link>}
         </nav>
 
-        {/* Right Side Controls */}
+        {/* Right Controls */}
         <div className="flex items-center gap-4 relative">
           {/* Search Icon */}
           <form onSubmit={submitSearch} className="relative flex items-center">
@@ -81,9 +77,15 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
-          {/* Auth Controls */}
+          {/* Auth / User Section */}
           {!user ? (
-            <AuthSwitch />
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 10 }}
+            >
+              <AuthSwitch />
+            </motion.div>
           ) : (
             <div className="relative">
               <button
@@ -103,7 +105,7 @@ export default function Header() {
                 </span>
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown */}
               <AnimatePresence>
                 {menuOpen && (
                   <motion.div
@@ -126,9 +128,6 @@ export default function Header() {
           )}
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );
 }
