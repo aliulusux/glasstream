@@ -68,12 +68,11 @@ export default function AnimeGrid({ animeList = [] }) {
                   ⭐ Top Rated
                 </div>
               )}
-
-              {/* ❤️ Favorite Button (top-right) */}
-              <div className="absolute top-2 right-2 z-30">
-                <FavoriteButton anime={a} />
-              </div>
             </Link>
+            {/* ❤️ Favorite Button (top-right) */}
+            <div className="absolute top-2 right-2 z-30">
+              <FavoriteButton anime={a} />
+            </div>
 
             {/* Title + Score + Year Overlay */}
             <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
