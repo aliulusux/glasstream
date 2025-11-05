@@ -1,40 +1,56 @@
-'use client';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FavoriteButton from "./FavoriteButton";
 
-function getCover(anime) {
-  return (
-    anime?.images?.jpg?.large_image_url ||
-    anime?.images?.jpg?.image_url ||
-    anime?.image_url ||
-    ""
-  );
-}
-
 export default function RelatedAnime({ related = [] }) {
-  if (!Array.isArray(related)) related = [];
-
+  const [fullRelated, setFullRelated] = useState([]);
   const currentYear = new Date().getFullYear();
+
+  // 🧠 Fetch missing data (covers, scores, etc.) for related anime
+  useEffect(() => {
+    async function enrichData() {
+      if (!Array.isArray(related) || related.length === 0) return;
+
+      // Only fetch those without image data
+      const enriched = await Promise.all(
+        related.map(async (a) => {
+          if (a?.images?.jpg?.large_image_url) return a;
+
+          try {
+            const res = await fetch(`https://api.jikan.moe/v4/anime/${a.mal_id}`);
+            const json = await res.json();
+            return json?.data || a;
+          } catch {
+            return a;
+          }
+        })
+      );
+
+      setFullRelated(enriched);
+    }
+
+    enrichData();
+  }, [related]);
+
+  if (!Array.isArray(fullRelated) || fullRelated.length === 0) return null;
 
   return (
     <section className="mt-10">
-      <h2 className="text-xl font-bold text-white mb-5">
-        Related Anime
-      </h2>
+      <h2 className="text-xl font-bold text-white mb-5">Related Anime</h2>
 
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-        {related.map((a, index) => {
-          const cover = getCover(a);
+        {fullRelated.map((a, index) => {
+          const cover =
+            a?.images?.jpg?.large_image_url ||
+            a?.images?.jpg?.image_url ||
+            a?.image_url ||
+            "";
           const score = Number(a?.score) || null;
           const year = Number(a?.year) || null;
 
-          // Badge conditions
           const isTopRated = score >= 8.0;
-          const isTrending =
-            !isTopRated && score >= 7.7 && year === currentYear;
+          const isTrending = !isTopRated && score >= 7.7 && year === currentYear;
 
-          // Small fade animation delay
           const delay = `${index * 60}ms`;
 
           return (
@@ -94,7 +110,7 @@ export default function RelatedAnime({ related = [] }) {
   );
 }
 
-/* 🪄 Fade animation keyframes */
+// ✨ Fade animation
 const style = document.createElement("style");
 style.innerHTML = `
 @keyframes fadeInUp {

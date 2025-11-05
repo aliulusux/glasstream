@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import FavoriteButton from "../components/FavoriteButton";
 import RelatedAnime from "../components/RelatedAnime";
 import EpisodesScrollable from "../components/EpisodesScrollable";
@@ -8,18 +8,28 @@ export default function AnimeDetail() {
   const { mal_id } = useParams();
   const [anime, setAnime] = useState(null);
   const [episodes, setEpisodes] = useState([]);
+  const [related, setRelated] = useState([]); // ✅ new
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [animeRes, epRes] = await Promise.all([
+        const [animeRes, epRes, relRes] = await Promise.all([
           fetch(`https://api.jikan.moe/v4/anime/${mal_id}`).then((r) => r.json()),
           fetch(`https://api.jikan.moe/v4/anime/${mal_id}/episodes`).then((r) => r.json()),
+          fetch(`https://api.jikan.moe/v4/anime/${mal_id}/relations`).then((r) => r.json()), // ✅ related
         ]);
 
         setAnime(animeRes.data);
         setEpisodes(epRes.data || []);
+
+        // ✅ Extract related anime from the “relations” endpoint
+        if (relRes.data && Array.isArray(relRes.data)) {
+          const flattened = relRes.data
+            .flatMap((group) => group.entry || [])
+            .filter((a) => a.type === "anime");
+          setRelated(flattened);
+        }
       } catch (err) {
         console.error("AnimeDetail fetch error:", err);
       } finally {
@@ -74,13 +84,15 @@ export default function AnimeDetail() {
         <h2 className="text-xl font-semibold mb-4 border-b border-white/10 pb-2">
           Bölümler
         </h2>
-
         <EpisodesScrollable episodes={episodes} />
-        <div className="mt-12">
-          <RelatedAnime mal_id={mal_id} />
-        </div>
       </section>
-      
+
+      {/* ✅ Related Section Restored */}
+      {related.length > 0 && (
+        <div className="mt-12">
+          <RelatedAnime related={related} />
+        </div>
+      )}
     </main>
   );
 }
