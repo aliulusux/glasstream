@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabaseClient";
 import AuthModal from "./AuthModal";
+import AuthSwitch from "./AuthSwitch";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
@@ -82,13 +83,7 @@ export default function Header() {
 
           {/* Auth Controls */}
           {!user ? (
-            <button
-              onClick={() => setAuthOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1 bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 transition"
-            >
-              <Star size={16} className="text-glassPink" />
-              <span className="text-white text-sm">Login / Register</span>
-            </button>
+            <AuthSwitch />
           ) : (
             <div className="relative">
               <button
