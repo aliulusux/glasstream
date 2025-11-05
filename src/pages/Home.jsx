@@ -29,7 +29,7 @@ export default function Home() {
       <section className="max-w-6xl mx-auto mt-12 px-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">✨ This Season’s Highlights</h2>
-          <a href="/browse" className="text-sm text-white/70 hover:text-glassPink">
+          <Link to="/browse" className="text-white/90 hover:text-glassPink">See all</Link>
             See all
           </a>
         </div>
