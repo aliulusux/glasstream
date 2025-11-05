@@ -31,13 +31,26 @@ export default function Header() {
 
         {/* Center: Nav */}
         <nav className="flex items-center gap-6 text-sm font-medium text-white/90">
-          <Link to="/" className="hover:text-pink-400 transition">Home</Link>
-          <Link to="/browse" className="hover:text-pink-400 transition">Browse</Link>
-          <Link to="/popular" className="hover:text-pink-400 transition">Popular</Link>
-          <Link to="/new" className="hover:text-pink-400 transition">New</Link>
-          {session && (
-            <Link to="/mylist" className="hover:text-pink-400 transition">My List</Link>
-          )}
+          {[
+            { name: "Home", path: "/" },
+            { name: "Browse", path: "/browse" },
+            { name: "Popular", path: "/popular" },
+            { name: "New", path: "/new" },
+          ]
+            .concat(session ? [{ name: "My List", path: "/mylist" }] : [])
+            .map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className="relative group overflow-hidden"
+              >
+                <span className="transition-colors group-hover:text-pink-400">
+                  {item.name}
+                </span>
+                {/* underline animation */}
+                <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-pink-500 group-hover:w-full transition-all duration-300 ease-out rounded-full" />
+              </Link>
+            ))}
         </nav>
 
         {/* Right: Search + Auth */}

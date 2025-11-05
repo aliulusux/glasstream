@@ -25,16 +25,15 @@ export default function AnimeGrid({ animeList = [] }) {
           />
 
           {/* top overlay for title/score (glassy) */}
-          <div className="absolute inset-x-0 bottom-0 p-3">
-            <div className="backdrop-blur-md bg-black/30 rounded-xl p-2">
-              <div className="font-semibold text-sm line-clamp-1">{a.title}</div>
-              {a.score && (
-                <div className="mt-1 flex items-center gap-1 text-xs text-pink-300">
-                  <span>★</span>
-                  <span>{a.score}</span>
-                </div>
-              )}
-            </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-md px-3 py-2 flex flex-col items-start rounded-b-2xl">
+            <h3 className="text-sm font-medium text-white truncate w-full">{a.title}</h3>
+
+            {a.score && (
+              <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
+                <span>★</span>
+                <span>{a.score}</span>
+              </div>
+            )}
           </div>
 
           {/* favorite */}
