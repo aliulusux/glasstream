@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import FavoriteButton from "./FavoriteButton";
 
-// Helper to get cover image
 function getCover(anime) {
   return (
     anime?.images?.jpg?.large_image_url ||
@@ -33,7 +32,7 @@ export default function AnimeGrid({ animeList = [] }) {
             key={a.mal_id}
             className="relative group overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all"
           >
-            {/* Anime Cover */}
+            {/* 🎞️ Clickable Cover */}
             <Link to={`/anime/${a.mal_id}`} className="block relative">
               <img
                 src={cover}
@@ -41,40 +40,27 @@ export default function AnimeGrid({ animeList = [] }) {
                 className="w-full h-64 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-500"
               />
 
-              {/* 🔥 Trending Badge (new anime only) */}
+              {/* 🔥 Trending Badge */}
               {isTrending && (
-                <div
-                  className="absolute top-2 left-2 px-3 py-1 rounded-full 
-                             bg-gradient-to-r from-pink-600 via-purple-500 to-indigo-500 
-                             text-xs font-semibold text-white 
-                             shadow-[0_0_10px_rgba(255,0,128,0.6)] 
-                             backdrop-blur-sm border border-white/20 
-                             animate-pulse z-20"
-                >
-                  🔥 Trending Now
+                <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 via-purple-500 to-indigo-500 text-xs font-semibold text-white shadow-[0_0_10px_rgba(255,0,128,0.6)] backdrop-blur-sm border border-white/20 animate-pulse z-20">
+                  🔥 Bu Sezon Popüler
                 </div>
               )}
 
               {/* ⭐ Top Rated Badge */}
               {isTopRated && (
-                <div
-                  className="absolute top-2 left-2 px-3 py-1 rounded-full 
-                             bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 
-                             text-xs font-semibold text-black 
-                             shadow-[0_0_12px_rgba(255,215,0,0.7)] 
-                             backdrop-blur-sm border border-yellow-300/40 
-                             animate-pulse z-20"
-                >
-                  ⭐ Top Rated
+                <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-xs font-semibold text-black shadow-[0_0_12px_rgba(255,215,0,0.7)] backdrop-blur-sm border border-yellow-300/40 animate-pulse z-20">
+                  ⭐ En Çok Beğenilen
                 </div>
               )}
-            </Link>
-            {/* ❤️ Favorite Button (top-right) */}
-            <div className="absolute top-2 right-2 z-30">
-              <FavoriteButton anime={a} />
-            </div>
 
-            {/* Title + Score + Year Overlay */}
+              {/* ❤️ Favorite */}
+              <div className="absolute top-2 right-2 z-30">
+                <FavoriteButton anime={a} />
+              </div>
+            </Link>
+
+            {/* 🩶 Overlay Title */}
             <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
               <h3 className="text-white text-sm font-semibold truncate w-full">
                 {a.title}
@@ -91,9 +77,6 @@ export default function AnimeGrid({ animeList = [] }) {
                 </div>
               )}
             </div>
-
-            {/* Hover Glow */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-pink-500/10 rounded-2xl"></div>
           </div>
         );
       })}

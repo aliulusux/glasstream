@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import AnimeGrid from '../components/AnimeGrid';
+import AnimeGrid from '@/components/AnimeGrid';
 
 // 🎭 Türkçe genre dictionary
 const GENRE_MAP = {
@@ -31,7 +31,7 @@ export default function Browse() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch anime list (Jikan API)
+  // Fetch anime list per page + genre
   const fetchAnime = async () => {
     setLoading(true);
     try {
@@ -52,40 +52,46 @@ export default function Browse() {
     fetchAnime();
   }, [page, genre]);
 
-  // Handle genre change
   const handleGenreClick = (id) => {
-    setGenre(id === genre ? null : id); // deselect if same genre
+    setGenre(id === genre ? null : id);
     setPage(1);
   };
 
   return (
     <div className="px-6 py-8 text-white">
-      {/* 🏷️ Genre Bar */}
+      {/* 🌈 Genre Bar */}
       <div className="flex flex-wrap justify-center gap-3 mb-8">
         {Object.entries(GENRE_MAP).map(([id, name]) => (
           <button
             key={id}
             onClick={() => handleGenreClick(id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md border transition-all
-              ${
-                Number(id) === genre
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-[0_0_10px_rgba(255,0,128,0.6)]'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white'
-              }`}
+            className={`relative px-5 py-2 rounded-full text-sm font-medium border transition-all duration-300 ease-out backdrop-blur-md 
+            ${
+              Number(id) === genre
+                ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white shadow-[0_0_15px_rgba(255,0,128,0.8)] scale-105 border-pink-300 animate-pulse'
+                : 'bg-pink-500/20 text-white/80 hover:shadow-[0_0_15px_rgba(255,0,128,0.6)] hover:bg-pink-500/40 hover:text-white hover:scale-105'
+            }`}
+            style={{ transition: 'all 0.25s cubic-bezier(0.25, 1, 0.5, 1)' }}
           >
-            {name}
+            <span className="relative z-10">{name}</span>
+            {/* Glowing gradient ring */}
+            <span
+              className={`absolute inset-0 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 blur-md opacity-0 transition-all duration-300 ${
+                Number(id) === genre ? 'opacity-60' : 'group-hover:opacity-40'
+              }`}
+            ></span>
           </button>
         ))}
       </div>
 
-      {/* 🌀 Header */}
+      {/* ✨ Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 text-transparent bg-clip-text animate-pulse">
           {genre ? `${GENRE_MAP[genre]} Anime` : 'Tüm Animeler'}
         </h1>
       </div>
 
-      {/* 📺 Anime Grid */}
+      {/* 🌀 Anime Section */}
       {loading ? (
         <div className="text-center py-20 text-pink-400 animate-pulse">
           Yükleniyor...
