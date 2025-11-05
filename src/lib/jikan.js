@@ -7,68 +7,41 @@
 // ----------------------------------------------
 export async function fetchAllAnime(page = 1, limit = 18, genreId = null, sortType = "popular") {
   try {
-    // Base endpoint
     let url = `https://api.jikan.moe/v4/anime?page=${page}&limit=${limit}`;
+
+    const currentYear = new Date().getFullYear();
 
     // Sorting logic
     if (sortType === "popular") {
       url += "&order_by=score&sort=desc";
     } else if (sortType === "new") {
-      url += "&order_by=start_date&sort=desc";
+      // only anime that started in the current year
+      url += `&start_date=${currentYear}-01-01&end_date=${currentYear}-12-31&order_by=start_date&sort=desc`;
     } else if (sortType === "iconic") {
-      // iconic = fixed list of legendary anime IDs
       const iconicIds = [
-        5114, // Fullmetal Alchemist: Brotherhood
-        11061, // Hunter x Hunter
-        20, // Naruto
-        1735, // Naruto: Shippuden
-        269, // Bleach
-        31964, // One Punch Man
-        16498, // Attack on Titan
-        1, // Cowboy Bebop
-        918, // Gintama
-        9969, // Fairy Tail
-        11061, // Hunter x Hunter (2011)
-        30, // Neon Genesis Evangelion
-        1535, // Death Note
-        50265, // Jujutsu Kaisen
-        21, // One Piece
-        11061, // Hunter x Hunter
-        820, // Dragon Ball Z
-        813, // Dragon Ball
-        199, // Naruto (2002)
-        223, // Dragon Ball GT
-        34134, // Boku no Hero Academia
-        3588, // Code Geass
-        11757, // Sword Art Online
-        6547, // Angel Beats!
-        28891, // Kuroko no Basket
-        32935, // Haikyuu!!
-        32281, // One Punch Man
-        9253, // Steins;Gate
-        28805, // Shigatsu wa Kimi no Uso
-        5114, // Fullmetal Brotherhood (for redundancy)
-        38408 // Demon Slayer
+        5114, 11061, 20, 1735, 269, 31964, 16498, 1, 918, 9969, 30,
+        1535, 50265, 21, 820, 813, 199, 223, 34134, 3588, 11757, 6547,
+        28891, 32935, 32281, 9253, 28805, 38408
       ];
-      // build IDs string
-      const ids = iconicIds.slice(0, limit).join(",");
-      url = `https://api.jikan.moe/v4/anime?sfw=true&limit=${limit}&q=&ids=${ids}`;
+      const ids = iconicIds.slice((page - 1) * limit, page * limit).join(",");
+      url = `https://api.jikan.moe/v4/anime?sfw=true&q=&ids=${ids}`;
     }
 
-    // Add genre if selected
     if (genreId && sortType !== "iconic") {
       url += `&genres=${genreId}`;
     }
 
     const res = await fetch(url);
     const data = await res.json();
+    if (!data || !data.data) return [];
 
-    if (!data || !data.data) {
-      console.warn("⚠️ No anime data returned from API.");
-      return [];
+    // Filter out unreleased anime (for "new" mode)
+    let result = data.data;
+    if (sortType === "new") {
+      result = result.filter((a) => a.year === currentYear);
     }
 
-    return data.data.map((a) => ({
+    return result.map((a) => ({
       mal_id: a.mal_id,
       title: a.title,
       year: a.year,

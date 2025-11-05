@@ -45,35 +45,49 @@ export default function Browse() {
           Tüm Animeler
         </h2>
 
-        {/* Sort dropdown */}
+        {/* Sort Dropdown */}
         <div className="relative">
-          <select
-            value={sortType}
-            onChange={handleSortChange}
-            className="bg-white/10 backdrop-blur-md text-pink-300 font-semibold rounded-xl px-4 py-2 shadow-md hover:shadow-pink-500/40 border border-white/10 transition focus:outline-none focus:shadow-pink-400/50"
-          >
-            <option value="popular">En Popüler</option>
-            <option value="new">Yeni Çıkanlar</option>
-            <option value="iconic">İkonik</option>
-          </select>
+          <div className="relative inline-block">
+            <select
+              value={sortType}
+              onChange={handleSortChange}
+              className="appearance-none bg-gradient-to-r from-pink-600/30 via-purple-700/20 to-transparent 
+                        backdrop-blur-md border border-white/10 text-pink-200 font-semibold 
+                        rounded-xl px-6 py-2 pr-8 shadow-[0_0_20px_rgba(255,20,147,0.3)] 
+                        focus:outline-none hover:shadow-pink-500/40 transition-all cursor-pointer"
+            >
+              <option value="popular" className="bg-[#1a1a1a] text-white">En Popüler</option>
+              <option value="new" className="bg-[#1a1a1a] text-white">Yeni Çıkanlar</option>
+              <option value="iconic" className="bg-[#1a1a1a] text-white">İkonik</option>
+            </select>
+            <span className="absolute right-3 top-2.5 text-pink-300 pointer-events-none">
+              ▼
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Genre section */}
-      <div className="flex flex-wrap gap-3 mb-10">
-        {genres.map((g) => (
-          <button
-            key={g.mal_id}
-            onClick={() => handleGenreClick(g.mal_id)}
-            className={`px-5 py-2 rounded-full text-sm font-medium backdrop-blur-lg border border-white/10 transition-all duration-200 ${
-              selectedGenre === g.mal_id
-                ? "bg-pink-500/40 text-white shadow-lg shadow-pink-500/50"
-                : "bg-white/10 text-pink-200 hover:bg-pink-400/20 hover:shadow-pink-500/30"
-            }`}
-          >
-            {g.name}
-          </button>
-        ))}
+      <div
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 mb-10"
+      >
+        {genres
+          .sort(() => Math.random() - 0.5) // randomize order
+          .map((g) => (
+            <button
+              key={g.mal_id}
+              onClick={() => handleGenreClick(g.mal_id)}
+              className={`w-full px-5 py-2 text-center rounded-full text-sm font-medium backdrop-blur-lg 
+                          border border-white/10 transition-all duration-200
+                          ${
+                            selectedGenre === g.mal_id
+                              ? "bg-pink-500/40 text-white shadow-lg shadow-pink-500/50"
+                              : "bg-white/10 text-pink-200 hover:bg-pink-400/20 hover:shadow-pink-500/30"
+                          }`}
+            >
+              {g.name}
+            </button>
+          ))}
       </div>
 
       {/* Anime grid or loading */}
