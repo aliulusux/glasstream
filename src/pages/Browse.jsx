@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import AnimeGrid from "@/components/AnimeGrid";
-import { fetchAllAnime, fetchGenres } from "@/lib/jikan";
+import AnimeGrid from "../components/AnimeGrid";
+import { fetchAllAnime, fetchGenres } from "../lib/jikan";
 
 export default function Browse() {
   const [animeList, setAnimeList] = useState([]);
