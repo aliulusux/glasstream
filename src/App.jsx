@@ -11,6 +11,7 @@ import Popular from "./pages/Popular";
 import New from "./pages/New";
 import MyList from "./pages/MyList";
 import Player from "./pages/Player";
+import AnimeDetail from "./pages/AnimeDetail";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/popular" element={<Popular />} />
         <Route path="/new" element={<New />} />
         <Route path="/mylist" element={<MyList />} />
+        <Route path="/anime/:mal_id" element={<AnimeDetail />} />
         <Route path="/anime/:mal_id" element={<Player />} />
       </Routes>
     </Router>
