@@ -7,23 +7,17 @@ export default function AuthSwitch() {
   const [isOpen, setIsOpen] = useState(false);
   const modalRef = useRef(null);
 
-  const toggleMode = () => setMode((prev) => (prev === "login" ? "register" : "login"));
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
-  // 🧠 Click outside to close
   useEffect(() => {
     function handleClickOutside(event) {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         closeModal();
       }
     }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   return (
@@ -48,7 +42,7 @@ export default function AuthSwitch() {
         ))}
       </div>
 
-      {/* Modal directly below switch */}
+      {/* Modal below switch */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -57,7 +51,7 @@ export default function AuthSwitch() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="absolute right-0 mt-4 w-72 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg shadow-pink-500/20 p-4 z-50"
+            className="absolute right-0 mt-4 w-80 bg-black/60 backdrop-blur-3xl rounded-2xl border border-white/20 shadow-[0_0_25px_rgba(255,0,128,0.3)] p-5 z-50"
           >
             <AuthModal isOpen={isOpen} onClose={closeModal} mode={mode} />
           </motion.div>

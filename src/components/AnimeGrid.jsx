@@ -23,11 +23,6 @@ export default function AnimeGrid({ animeList = [] }) {
           "";
         const score = Number(a?.score) || null;
 
-        {/* favorite */}
-            <div className="absolute top-2 right-2">
-              <FavoriteButton anime={a} />
-            </div>
-
         return (
           <Link
             key={a.mal_id}
@@ -40,6 +35,11 @@ export default function AnimeGrid({ animeList = [] }) {
               alt={a.title}
               className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
             />
+
+          </Link>
+          
+          {/* Favorite Button on top of image but outside link */}
+          <FavoriteButton anime={a} className="absolute top-2 right-2 z-20" />
 
             {/* Title + Score Overlay */}
             <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2 flex flex-col items-start">
@@ -57,7 +57,7 @@ export default function AnimeGrid({ animeList = [] }) {
 
             {/* Hover Glow */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-pink-500/10 rounded-2xl"></div>
-          </Link>
+          
    
         );
       })}

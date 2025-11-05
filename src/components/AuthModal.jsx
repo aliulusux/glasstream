@@ -2,55 +2,47 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
-function translateError(message) {
-  const lower = message.toLowerCase();
-  if (lower.includes("invalid login")) return "Geçersiz e-posta veya şifre.";
-  if (lower.includes("email not confirmed")) return "E-posta adresinizi doğrulamanız gerekiyor.";
-  if (lower.includes("password")) return "Şifre en az 6 karakter olmalıdır.";
-  if (lower.includes("rate limit")) return "Çok fazla deneme yaptınız. Lütfen bekleyin.";
-  if (lower.includes("already registered")) return "Bu e-posta adresi zaten kayıtlı.";
-  if (lower.includes("network")) return "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.";
-  return "Bir hata oluştu. Lütfen tekrar deneyin.";
-}
-
 export default function AuthModal({ isOpen, onClose, mode }) {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setMessage("");
+    setLoading(true);
 
     try {
-      if (mode === "login") {
+      if (mode === "register") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { username },
+          },
+        });
+        if (error) throw error;
+        setMessage("Kayıt başarılı! E-posta adresinizi doğrulayın.");
+      } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMessage("Giriş başarılı! 🎉");
-      } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setMessage("Kayıt başarılı! E-posta adresinizi doğrulayın.");
       }
       onClose();
     } catch (err) {
-      setMessage(translateError(err.message));
+      setMessage(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogle = async () => {
-    try {
-      await supabase.auth.signInWithOAuth({ provider: "google" });
-    } catch (err) {
-      setMessage(translateError(err.message));
-    }
+    await supabase.auth.signInWithOAuth({ provider: "google" });
   };
 
   return (
@@ -60,6 +52,20 @@ export default function AuthModal({ isOpen, onClose, mode }) {
       </h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-left">
+        {mode === "register" && (
+          <div>
+            <label className="block text-sm mb-1 text-white/80">Kullanıcı Adı</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full p-2 rounded-lg bg-white/10 border border-white/20 focus:border-pink-500 outline-none text-sm"
+              placeholder="örnek: aliulusux"
+              required
+            />
+          </div>
+        )}
+
         <div>
           <label className="block text-sm mb-1 text-white/80">E-posta</label>
           <input
