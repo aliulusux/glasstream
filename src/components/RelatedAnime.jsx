@@ -4,35 +4,45 @@ import FavoriteButton from "./FavoriteButton";
 
 export default function RelatedAnime({ related = [] }) {
   const [fullRelated, setFullRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
 
-  // 🧠 Fetch missing data (covers, scores, etc.) for related anime
   useEffect(() => {
     async function enrichData() {
-      if (!Array.isArray(related) || related.length === 0) return;
+      if (!Array.isArray(related) || related.length === 0) {
+        setLoading(false);
+        return;
+      }
 
-      // Only fetch those without image data
-      const enriched = await Promise.all(
-        related.map(async (a) => {
-          if (a?.images?.jpg?.large_image_url) return a;
+      const enriched = [];
+      for (const [i, a] of related.entries()) {
+        try {
+          // 👇 Add short delay to avoid Jikan rate limit
+          await new Promise((r) => setTimeout(r, 200 * i));
 
-          try {
-            const res = await fetch(`https://api.jikan.moe/v4/anime/${a.mal_id}`);
-            const json = await res.json();
-            return json?.data || a;
-          } catch {
-            return a;
-          }
-        })
-      );
+          const res = await fetch(`https://api.jikan.moe/v4/anime/${a.mal_id}`);
+          const json = await res.json();
+          if (json.data) enriched.push(json.data);
+        } catch (err) {
+          console.warn("Failed fetching related anime:", a.title, err);
+        }
+      }
 
       setFullRelated(enriched);
+      setLoading(false);
     }
 
     enrichData();
   }, [related]);
 
-  if (!Array.isArray(fullRelated) || fullRelated.length === 0) return null;
+  if (loading)
+    return (
+      <div className="text-center text-white/70 mt-6 animate-pulse">
+        Loading related anime...
+      </div>
+    );
+
+  if (!fullRelated.length) return null;
 
   return (
     <section className="mt-10">
@@ -47,11 +57,11 @@ export default function RelatedAnime({ related = [] }) {
             "";
           const score = Number(a?.score) || null;
           const year = Number(a?.year) || null;
+          const delay = `${index * 60}ms`;
 
           const isTopRated = score >= 8.0;
-          const isTrending = !isTopRated && score >= 7.7 && year === currentYear;
-
-          const delay = `${index * 60}ms`;
+          const isTrending =
+            !isTopRated && score >= 7.7 && year === currentYear;
 
           return (
             <div
@@ -63,6 +73,7 @@ export default function RelatedAnime({ related = [] }) {
                 <img
                   src={cover}
                   alt={a.title}
+                  onError={(e) => (e.target.style.display = "none")}
                   className="w-full h-60 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-500"
                 />
 
@@ -88,7 +99,7 @@ export default function RelatedAnime({ related = [] }) {
 
               <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
                 <h3 className="text-white text-sm font-semibold truncate w-full">
-                  {a.title}
+                  {a.title || "Untitled"}
                 </h3>
                 {score && (
                   <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
