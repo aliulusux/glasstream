@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import AuthModal from "./AuthModal";
 
-export default function AuthModal({ isOpen, onClose, mode }) {
-  if (!isOpen) return null;
+export default function AuthSwitch() {
+  const [mode, setMode] = useState("login");
+  const [isOpen, setIsOpen] = useState(false);
+  const modalRef = useRef(null);
+
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
 
   // 🚀 Google OAuth login
   const handleGoogleLogin = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID; // your Google client ID
+    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI; // e.g. http://localhost:3000/auth/callback
     const scope = "email profile openid";
     const responseType = "token";
 
@@ -17,82 +23,53 @@ export default function AuthModal({ isOpen, onClose, mode }) {
   };
 
   return (
-    <div className="text-white space-y-4">
-      {/* Title */}
-      <motion.h2
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl font-semibold text-center bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent drop-shadow-md"
-      >
-        {mode === "login" ? "Welcome Back!" : "Create Account"}
-      </motion.h2>
+    <div className="relative">
+      {/* Switch buttons */}
+      <div className="flex items-center bg-white/10 rounded-full px-1 py-1 text-sm backdrop-blur-md border border-white/10 shadow-glow">
+        {["login", "register"].map((item) => (
+          <motion.button
+            key={item}
+            onClick={() => {
+              setMode(item);
+              openModal();
+            }}
+            className={`px-3 py-1 rounded-full transition font-medium ${
+              mode === item
+                ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-[0_0_10px_rgba(255,0,128,0.8)]"
+                : "text-white/80 hover:text-white"
+            }`}
+          >
+            {item === "login" ? "Login" : "Register"}
+          </motion.button>
+        ))}
+      </div>
 
-      {/* Inputs */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="space-y-3"
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full bg-white/5 text-white placeholder-white/50 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400/40 backdrop-blur-md"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full bg-white/5 text-white placeholder-white/50 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400/40 backdrop-blur-md"
-        />
-      </motion.div>
+      {/* Modal */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            ref={modalRef}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="absolute right-0 mt-4 w-80 bg-black/60 backdrop-blur-3xl rounded-2xl border border-white/20 shadow-[0_0_25px_rgba(255,0,128,0.3)] p-5 z-50"
+          >
+            {/* Auth Modal */}
+            <AuthModal isOpen={isOpen} onClose={closeModal} mode={mode} />
 
-      {/* Submit button */}
-      <motion.button
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
-        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 rounded-lg shadow-[0_0_15px_rgba(255,0,128,0.5)] hover:opacity-90 transition"
-      >
-        {mode === "login" ? "Login" : "Register"}
-      </motion.button>
-
-      {/* Divider */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex items-center gap-3 my-4"
-      >
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-xs text-white/60">or</span>
-        <div className="h-px flex-1 bg-white/10" />
-      </motion.div>
-
-      {/* Google login */}
-      <motion.button
-        onClick={handleGoogleLogin}
-        whileHover={{
-          scale: 1.05,
-          boxShadow: "0 0 20px rgba(255,0,128,0.6)",
-        }}
-        whileTap={{ scale: 0.97 }}
-        transition={{ type: "spring", stiffness: 300 }}
-        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500/40 to-purple-600/40 text-white font-medium py-2 rounded-lg border border-white/20 backdrop-blur-md hover:from-pink-500/60 hover:to-purple-600/60 transition"
-      >
-        <img
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-          alt="Google"
-          className="w-5 h-5"
-        />
-        Sign in with Google
-      </motion.button>
-
-      {/* Close */}
-      <motion.button
-        onClick={onClose}
-        className="block mx-auto text-xs text-white/50 hover:text-white/70 mt-2 transition"
-      >
-        Close
-      </motion.button>
+            {/* Google Login Button */}
+            {mode === "login" && (
+              <button
+                onClick={handleGoogleLogin}
+                className="mt-4 w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium py-2 rounded-lg hover:opacity-90 transition shadow-[0_0_15px_rgba(255,0,128,0.5)]"
+              >
+                Sign in with Google
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
