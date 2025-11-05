@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import AnimeGrid from "../components/AnimeGrid";
 import ContinueWatching from "../components/ContinueWatching";
+import LatestEpisodes from '@/components/LatestEpisodes';
 
 export default function Home() {
   const [anime, setAnime] = useState([]);
@@ -43,6 +44,7 @@ export default function Home() {
         ) : (
           <AnimeGrid animeList={anime} />
         )}
+        <LatestEpisodes />
       </section>
     </main>
   );

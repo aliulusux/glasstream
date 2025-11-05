@@ -49,6 +49,7 @@ export default function Header() {
           <Link to="/browse" className="text-white/90 hover:text-glassPink">Browse</Link>
           <Link to="/popular" className="text-white/90 hover:text-glassPink">Popular</Link>
           <Link to="/new" className="text-white/90 hover:text-glassPink">New</Link>
+          <Link to="/new" className="text-white/90 hover:text-glassPink">New</Link>
           {user && <Link to="/mylist" className="text-white/90 hover:text-glassPink">My List</Link>}
         </nav>
 
