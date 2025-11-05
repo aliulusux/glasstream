@@ -16,13 +16,20 @@ function getCover(anime) {
 export default function AnimeGrid({ animeList = [] }) {
   if (!Array.isArray(animeList)) animeList = [];
 
+  const currentYear = new Date().getFullYear(); // e.g., 2025
+
   return (
     <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-      {animeList.map((a, i) => {
+      {animeList.map((a) => {
         const cover = getCover(a);
         const score = Number(a?.score) || null;
+        const year = Number(a?.year) || null;
+
+        // ⭐ Top Rated: always
         const isTopRated = score >= 9.0;
-        const isTrending = score >= 8.5 && !isTopRated; // trending if high but not top rated
+
+        // 🔥 Trending: only if new this year
+        const isTrending = !isTopRated && score >= 8.5 && year === currentYear;
 
         return (
           <div
@@ -37,7 +44,7 @@ export default function AnimeGrid({ animeList = [] }) {
                 className="w-full h-64 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-500"
               />
 
-              {/* 🔥 Trending Badge */}
+              {/* 🔥 Trending Badge (new anime only) */}
               {isTrending && (
                 <div
                   className="absolute top-2 left-2 px-3 py-1 rounded-full 
@@ -51,7 +58,7 @@ export default function AnimeGrid({ animeList = [] }) {
                 </div>
               )}
 
-              {/* ⭐ Top Rated Badge */}
+              {/* ⭐ Top Rated Badge (any year) */}
               {isTopRated && (
                 <div
                   className="absolute top-2 left-2 px-3 py-1 rounded-full 
@@ -78,6 +85,11 @@ export default function AnimeGrid({ animeList = [] }) {
                 <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
                   <span>★</span>
                   <span>{score}</span>
+                  {year && (
+                    <span className="ml-auto text-[11px] text-white/60">
+                      {year}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

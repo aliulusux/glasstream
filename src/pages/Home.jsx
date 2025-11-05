@@ -30,9 +30,16 @@ export default function Home() {
       <section className="max-w-6xl mx-auto mt-12 px-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">✨ This Season’s Highlights</h2>
-          <a href="/browse" className="text-sm text-white/70 hover:text-glassPink">
-            See all
-          </a>
+          <Link
+            to="/browse?sort=recent"
+            className="px-4 py-1.5 rounded-full text-sm font-medium text-white 
+            bg-gradient-to-r from-pink-500 to-purple-600 
+            shadow-[0_0_10px_rgba(255,0,128,0.6)] 
+            hover:shadow-[0_0_20px_rgba(255,0,128,0.9)] 
+            transition-all duration-300"
+          >
+            Tümünü Gör
+          </Link>
         </div>
 
         {loading ? (
