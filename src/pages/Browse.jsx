@@ -46,24 +46,63 @@ export default function Browse() {
         </h2>
 
         {/* Sort Dropdown */}
-        <div className="relative">
-          <div className="relative inline-block">
+        <div className="relative inline-block">
+          <div className="relative">
             <select
               value={sortType}
               onChange={handleSortChange}
-              className="appearance-none bg-gradient-to-r from-pink-600/30 via-purple-700/20 to-transparent 
-                        backdrop-blur-md border border-white/10 text-pink-200 font-semibold 
-                        rounded-xl px-6 py-2 pr-8 shadow-[0_0_20px_rgba(255,20,147,0.3)] 
-                        focus:outline-none hover:shadow-pink-500/40 transition-all cursor-pointer"
+              className="appearance-none bg-gradient-to-r from-pink-500/40 to-pink-400/20 
+                        backdrop-blur-xl text-white font-semibold rounded-2xl 
+                        px-6 py-2 pr-10 border border-white/20 shadow-[0_0_20px_rgba(255,20,147,0.4)] 
+                        focus:outline-none focus:ring-2 focus:ring-pink-400/70 
+                        hover:shadow-[0_0_25px_rgba(255,105,180,0.6)] transition-all duration-300 cursor-pointer"
+              style={{
+                WebkitAppearance: "none",
+                MozAppearance: "none",
+              }}
             >
-              <option value="popular" className="bg-[#1a1a1a] text-white">En Popüler</option>
-              <option value="new" className="bg-[#1a1a1a] text-white">Yeni Çıkanlar</option>
-              <option value="iconic" className="bg-[#1a1a1a] text-white">İkonik</option>
+              <option
+                value="popular"
+                className="bg-[#18181b]/70 backdrop-blur-md text-white font-medium"
+              >
+                En Popüler
+              </option>
+              <option
+                value="new"
+                className="bg-[#18181b]/70 backdrop-blur-md text-white font-medium"
+              >
+                Yeni Çıkanlar
+              </option>
+              <option
+                value="iconic"
+                className="bg-[#18181b]/70 backdrop-blur-md text-white font-medium"
+              >
+                İkonik
+              </option>
             </select>
-            <span className="absolute right-3 top-2.5 text-pink-300 pointer-events-none">
+
+            {/* ▼ Arrow */}
+            <span className="absolute right-4 top-2.5 text-pink-200 pointer-events-none text-sm">
               ▼
             </span>
           </div>
+
+          {/* Custom style for open dropdown menu */}
+          <style jsx>{`
+            select::-ms-expand {
+              display: none;
+            }
+            select option {
+              background: rgba(20, 20, 24, 0.7);
+              backdrop-filter: blur(12px);
+              border-radius: 10px;
+              color: white;
+              transition: all 0.2s ease;
+            }
+            select option:hover {
+              background: rgba(255, 105, 180, 0.2);
+            }
+          `}</style>
         </div>
       </div>
 
