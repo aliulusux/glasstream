@@ -39,6 +39,16 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     }
   };
 
+  // 🪄 macOS-style close animation trigger
+  const [closing, setClosing] = useState(false);
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setClosing(false);
+      onClose();
+    }, 350); // matches animation timing
+  };
+
   return createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -57,15 +67,12 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
         >
           <motion.div
             key="modal"
-            initial={{ y: -30, opacity: 0, scale: 0.96 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -20, opacity: 0, scale: 0.95 }}
-            transition={{
-              type: "spring",
-              damping: 20,
-              stiffness: 220,
-              duration: 0.35,
-            }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={
+              closing
+                ? { opacity: 0, scale: 0.75, y: 30, transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } }
+                : { opacity: 1, scale: 1, y: 0, transition: { duration: 0.35, ease: [0.2, 0, 0, 1] } }
+            }
             className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
                        bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden pointer-events-auto"
           >
@@ -158,11 +165,11 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               </p>
             </div>
 
-            {/* Only Kapat button */}
+            {/* macOS-style close button */}
             <div className="flex flex-col items-center mt-6 mb-5 space-y-3">
               <button
-                onClick={onClose}
-                className="text-pink-400 hover:underline text-sm"
+                onClick={handleClose}
+                className="text-pink-400 hover:text-pink-300 hover:scale-105 transition-all duration-300 text-sm"
               >
                 Kapat
               </button>
