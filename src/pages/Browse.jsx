@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import AnimeGrid from '../components/AnimeGrid';
+import AnimeGrid from '@/components/AnimeGrid';
 
 // 🎭 Türkçe genre dictionary
 const GENRE_MAP = {
