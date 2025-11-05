@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import FavoriteButton from "./FavoriteButton"
+import FavoriteButton from "./FavoriteButton";
 
 /**
  * 🔹 AnimeGrid Component
@@ -42,7 +42,9 @@ export default function AnimeGrid({ animeList = [] }) {
 
             {/* Title + Score Overlay */}
             <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
-              <h3 className="text-white text-sm font-semibold truncate w-full">{a.title}</h3>
+              <h3 className="text-white text-sm font-semibold truncate w-full">
+                {a.title}
+              </h3>
               {score && (
                 <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
                   <span>★</span>
@@ -54,8 +56,8 @@ export default function AnimeGrid({ animeList = [] }) {
             {/* Hover Glow */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-pink-500/10 rounded-2xl"></div>
           </div>
+        );
+      })}
+    </div>
   );
 }
-
-
-
