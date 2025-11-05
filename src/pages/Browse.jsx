@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import AnimeGrid from "../components/AnimeGrid";
 import { fetchAllAnime, fetchGenres } from "../lib/jikan";
+import GlassDropdown from "../components/GlassDropdown";
 
 export default function Browse() {
   const [animeList, setAnimeList] = useState([]);
@@ -44,66 +45,9 @@ export default function Browse() {
         <h2 className="text-3xl font-bold text-pink-400 tracking-tight drop-shadow-[0_0_15px_rgba(255,192,203,0.3)]">
           Tüm Animeler
         </h2>
+        <GlassDropdown value={sortType} onChange={setSortType} />
 
-        {/* Sort Dropdown */}
-        <div className="relative inline-block">
-          <div className="relative">
-            <select
-              value={sortType}
-              onChange={handleSortChange}
-              className="appearance-none
-                        backdrop-blur-xl text-white font-semibold rounded-2xl 
-                        px-6 py-2 pr-10
-                        focus:outline-none focus:ring-2 focus:ring-pink-400/70 
-                        hover:shadow-[0_0_25px_rgba(255,105,180,0.6)] transition-all duration-300 cursor-pointer"
-              style={{
-                WebkitAppearance: "none",
-                MozAppearance: "none",
-              }}
-            >
-              <option
-                value="popular"
-                className="bg-[#18181b]/70 backdrop-blur-md text-white font-medium"
-              >
-                En Popüler
-              </option>
-              <option
-                value="new"
-                className="bg-[#18181b]/70 backdrop-blur-md text-white font-medium"
-              >
-                Yeni Çıkanlar
-              </option>
-              <option
-                value="iconic"
-                className="bg-[#18181b]/70 backdrop-blur-md text-white font-medium"
-              >
-                İkonik
-              </option>
-            </select>
-
-            {/* ▼ Arrow */}
-            <span className="absolute right-4 top-2.5 text-pink-200 pointer-events-none text-sm">
-              ▼
-            </span>
-          </div>
-
-          {/* Custom style for open dropdown menu */}
-          <style jsx>{`
-            select::-ms-expand {
-              display: none;
-            }
-            select option {
-              background: rgba(20, 20, 24, 0.7);
-              backdrop-filter: blur(12px);
-              border-radius: 10px;
-              color: white;
-              transition: all 0.2s ease;
-            }
-            select option:hover {
-              background: rgba(255, 105, 180, 0.2);
-            }
-          `}</style>
-        </div>
+        
       </div>
 
       {/* Genre section */}
