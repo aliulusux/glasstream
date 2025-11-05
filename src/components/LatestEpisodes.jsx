@@ -1,75 +1,135 @@
-'use client';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-
-// 🔥 Fetch latest added episodes from Jikan API
-async function fetchLatestEpisodes() {
-  const res = await fetch('https://api.jikan.moe/v4/watch/episodes');
-  const data = await res.json();
-  return data.data || [];
+// 🔥 Fetch latest episodes from Jikan API
+async function fetchLatestEpisodes(page = 1) {
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/watch/episodes?page=${page}`);
+    if (!res.ok) throw new Error("Failed to fetch latest episodes");
+    const data = await res.json();
+    return data.data || [];
+  } catch (err) {
+    console.error("fetchLatestEpisodes error:", err);
+    return [];
+  }
 }
 
 export default function LatestEpisodes() {
   const [episodes, setEpisodes] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      const ep = await fetchLatestEpisodes();
-      setEpisodes(ep.slice(0, 12)); // limit to 12
-    })();
-  }, []);
+    const loadEpisodes = async () => {
+      setLoading(true);
+      const eps = await fetchLatestEpisodes(page);
+      setEpisodes(eps.slice(0, 12)); // show only 12
+      setLoading(false);
+    };
+    loadEpisodes();
+  }, [page]);
+
+  const nextPage = () => setPage((prev) => prev + 1);
+  const prevPage = () => setPage((prev) => (prev > 1 ? prev - 1 : 1));
 
   return (
-    <section className="mt-12">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
+    <section className="mt-16 px-4 sm:px-8 relative">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
           🎬 <span>Son Çıkan Bölümler</span>
         </h2>
+
+        {/* Glowing “Tümünü Gör” Button */}
         <Link
-          href="/browse?sort=recent"
-          className="text-sm text-white/70 hover:text-pink-400 transition"
+          to="/browse?sort=recent"
+          className="px-4 py-1.5 rounded-full text-sm font-medium text-white 
+                     bg-gradient-to-r from-pink-500 to-purple-600 
+                     shadow-[0_0_10px_rgba(255,0,128,0.6)] 
+                     hover:shadow-[0_0_20px_rgba(255,0,128,0.9)] 
+                     transition-all duration-300"
         >
           Tümünü Gör
         </Link>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-        {episodes.map((ep, i) => {
-          const anime = ep.entry?.[0];
-          if (!anime) return null;
-          const cover =
-            anime.images?.jpg?.large_image_url ||
-            anime.images?.jpg?.image_url ||
-            '';
+      {/* Loading */}
+      {loading ? (
+        <p className="text-center text-white/60">Yükleniyor...</p>
+      ) : (
+        <>
+          {/* Episode Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
+            {episodes.map((ep, index) => {
+              const anime = ep.entry?.[0];
+              if (!anime) return null;
 
-          return (
-            <Link
-              key={i}
-              href={`/anime/${anime.mal_id}`}
-              className="group relative rounded-xl overflow-hidden bg-white/5 
-                         backdrop-blur-sm border border-white/10 hover:border-pink-500/50 
-                         shadow-md hover:shadow-pink-500/20 transition-all duration-300"
+              const cover =
+                anime.images?.jpg?.large_image_url ||
+                anime.images?.jpg?.image_url ||
+                "";
+              const episodeNumber =
+                ep.episodes?.[0]?.mal_id || ep.episodes?.[0]?.episode || "?";
+
+              return (
+                <Link
+                  key={index}
+                  to={`/anime/${anime.mal_id}`}
+                  className="group relative rounded-xl overflow-hidden 
+                             bg-white/5 backdrop-blur-md border border-white/10 
+                             hover:border-pink-500/40 transition-all duration-300 
+                             shadow-md hover:shadow-pink-500/20"
+                >
+                  <div className="relative w-full aspect-[3/4]">
+                    <img
+                      src={cover}
+                      alt={anime.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
+                    <p className="text-sm font-medium truncate">{anime.title}</p>
+                    <p className="text-xs text-pink-400 mt-1">
+                      Bölüm {episodeNumber}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Floating Pagination Bar */}
+          <div
+            className="sticky bottom-6 flex justify-center items-center gap-4 mt-10 
+                       mx-auto w-fit px-6 py-3 rounded-2xl 
+                       bg-black/50 backdrop-blur-xl border border-white/10 
+                       shadow-[0_0_20px_rgba(255,0,128,0.2)] 
+                       hover:shadow-[0_0_25px_rgba(255,0,128,0.4)] 
+                       transition-all duration-500"
+          >
+            <button
+              onClick={prevPage}
+              disabled={page === 1}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
+                page === 1
+                  ? "text-white/30 cursor-not-allowed"
+                  : "text-white hover:text-pink-400"
+              }`}
             >
-              <div className="relative w-full aspect-[3/4]">
-                <Image
-                  src={cover}
-                  alt={anime.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
-                <p className="text-sm font-medium truncate">{anime.title}</p>
-                <p className="text-xs text-pink-400 mt-1">
-                  Bölüm {ep.episodes?.[0]?.mal_id || '—'}
-                </p>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+              ← Önceki
+            </button>
+
+            <span className="text-white/70 text-sm">Sayfa {page}</span>
+
+            <button
+              onClick={nextPage}
+              className="text-white hover:text-pink-400 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300"
+            >
+              Sonraki →
+            </button>
+          </div>
+        </>
+      )}
     </section>
   );
 }
