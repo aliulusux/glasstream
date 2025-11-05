@@ -53,7 +53,7 @@ export default function Browse() {
               onChange={handleSortChange}
               className="appearance-none
                         backdrop-blur-xl text-white font-semibold rounded-2xl 
-                        px-6 py-2 pr-10 border border-white/20 shadow-[0_0_20px_rgba(255,20,147,0.4)] 
+                        px-6 py-2 pr-10
                         focus:outline-none focus:ring-2 focus:ring-pink-400/70 
                         hover:shadow-[0_0_25px_rgba(255,105,180,0.6)] transition-all duration-300 cursor-pointer"
               style={{
