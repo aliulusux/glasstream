@@ -154,7 +154,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
 
               <button
                 onClick={onClose}
-                className="absolute bottom-3 left-1/2 -translate-x-1/2 text-pink-400 
+                className="absolute bottom-1 left-1/2 -translate-x-1/2 text-pink-400 
                            hover:underline text-sm"
               >
                 Kapat
