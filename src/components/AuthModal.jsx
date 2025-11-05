@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 const supabase = createClient(
@@ -38,11 +39,12 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     }
   };
 
-  return (
+  // ✅ Use portal so modal renders at root level (above header)
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* ✨ Backdrop with spotlight gradient */}
+          {/* 🩶 Fullscreen overlay — now on top of all */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -50,11 +52,11 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={onClose}
-            className="fixed inset-0 z-[9999] flex items-center justify-center 
-                       bg-black/90 backdrop-blur-3xl"
+            className="fixed inset-0 z-[99999] flex items-center justify-center"
             style={{
-              backgroundImage:
-                "radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.9) 80%)",
+              background:
+                "radial-gradient(circle at center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.95) 80%)",
+              backdropFilter: "blur(18px)",
             }}
           >
             {/* 🌫️ Floating glass modal */}
@@ -63,11 +65,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
               initial={{ y: -40, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: -30, opacity: 0, scale: 0.95 }}
-              transition={{
-                type: "spring",
-                damping: 18,
-                stiffness: 220,
-              }}
+              transition={{ type: "spring", damping: 20, stiffness: 220 }}
               onClick={(e) => e.stopPropagation()}
               className="relative w-[90%] max-w-sm text-white rounded-2xl border border-white/10 
                          bg-black/80 backdrop-blur-3xl shadow-[0_0_40px_rgba(255,0,255,0.3)] overflow-hidden"
@@ -161,7 +159,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                 </p>
               </div>
 
-              {/* Close button */}
+              {/* Close */}
               <button
                 onClick={onClose}
                 className="absolute bottom-3 left-1/2 -translate-x-1/2 text-pink-400 
@@ -173,6 +171,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
