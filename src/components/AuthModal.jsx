@@ -14,6 +14,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(mode === "login");
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("";)
 
   if (!isOpen) return null;
 
