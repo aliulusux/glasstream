@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import AnimeGrid from "@/components/AnimeGrid";
-import { fetchAllAnime, fetchGenres } from "@/lib/jikan"; // ✅ make sure both exist
+import { fetchAllAnime, fetchGenres } from "@/lib/jikan";
 
 export default function Browse() {
   const [animeList, setAnimeList] = useState([]);
@@ -20,12 +20,8 @@ export default function Browse() {
   }, [page, selectedGenre, sortOption]);
 
   async function loadGenres() {
-    try {
-      const g = await fetchGenres();
-      if (Array.isArray(g)) setGenres(g.slice(0, 18)); // limit to 18 genres
-    } catch (err) {
-      console.error("Genre fetch failed:", err);
-    }
+    const g = await fetchGenres();
+    if (Array.isArray(g)) setGenres(g);
   }
 
   async function loadAnime() {
@@ -39,7 +35,6 @@ export default function Browse() {
     } else if (sortOption === "new") {
       filtered = filtered.filter((a) => a.year === currentYear);
     } else if (sortOption === "iconic") {
-      // 🏆 Extended iconic list
       const iconicNames = [
         "Naruto", "Naruto Shippuden", "Bleach", "One Piece", "Dragon Ball",
         "Dragon Ball Z", "Dragon Ball Super", "Attack on Titan",
@@ -57,6 +52,7 @@ export default function Browse() {
         "Akira", "Ghost in the Shell", "Erased", "Toradora", "Rurouni Kenshin",
         "Fate/Zero", "Fate/Stay Night", "D.Gray-man", "Elfen Lied", "Nana",
       ];
+
       filtered = data.filter((a) =>
         iconicNames.some((name) =>
           a.title.toLowerCase().includes(name.toLowerCase())
