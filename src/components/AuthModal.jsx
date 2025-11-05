@@ -166,4 +166,3 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     </AnimatePresence>
   );
 }
-m
