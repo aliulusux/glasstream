@@ -76,9 +76,11 @@ export default function AnimeDetail() {
         </h2>
 
         <EpisodesScrollable episodes={episodes} />
-
+        <div className="mt-12">
+          <RelatedAnime related={related} />
+        </div>
       </section>
-      <RelatedAnime mal_id={mal_id} />
+      
     </main>
   );
 }
