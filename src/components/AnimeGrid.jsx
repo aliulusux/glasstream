@@ -24,6 +24,10 @@ export default function AnimeGrid({ animeList = [] }) {
         const score = Number(a?.score) || null;
 
         return (
+          {/* favorite */}
+            <div className="absolute top-2 right-2">
+              <FavoriteButton anime={a} />
+            </div>
           <Link
             key={a.mal_id}
             to={`/anime/${a.mal_id}`}
@@ -53,10 +57,7 @@ export default function AnimeGrid({ animeList = [] }) {
             {/* Hover Glow */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-pink-500/10 rounded-2xl"></div>
           </Link>
-          {/* favorite */}
-            <div className="absolute top-2 right-2">
-              <FavoriteButton anime={a} />
-            </div>
+   
         );
       })}
     </div>
