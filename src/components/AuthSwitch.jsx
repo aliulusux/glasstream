@@ -10,15 +10,6 @@ export default function AuthSwitch() {
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        closeModal();
-      }
-    }
-    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
 
   return (
     <div className="relative">
