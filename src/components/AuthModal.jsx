@@ -42,7 +42,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* ✨ Fullscreen overlay (always above header) */}
+          {/* 🩶 Fullscreen Overlay */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -50,14 +50,14 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             onClick={onClose}
-            className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-3xl flex items-start justify-center overflow-y-auto pt-24"
+            className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-3xl flex items-center justify-center"
           >
-            {/* 🌫️ Floating modal box */}
+            {/* 🌫️ Centered Glass Modal */}
             <motion.div
               key="modal"
-              initial={{ y: -60, opacity: 0, scale: 0.95 }}
+              initial={{ y: -50, opacity: 0, scale: 0.95 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -40, opacity: 0, scale: 0.95 }}
+              exit={{ y: -30, opacity: 0, scale: 0.95 }}
               transition={{
                 type: "spring",
                 damping: 18,
@@ -152,7 +152,6 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
                 </p>
               </div>
 
-              {/* Close button */}
               <button
                 onClick={onClose}
                 className="absolute bottom-3 left-1/2 -translate-x-1/2 text-pink-400 
@@ -167,3 +166,4 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     </AnimatePresence>
   );
 }
+m
