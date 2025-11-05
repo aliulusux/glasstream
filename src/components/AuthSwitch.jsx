@@ -1,26 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-// 🧠 İngilizce → Türkçe hata mesajı dönüştürme fonksiyonu
-function translateError(message) {
-  const lower = message.toLowerCase();
-
-  if (lower.includes("invalid login credentials"))
-    return "Geçersiz e-posta veya şifre.";
-  if (lower.includes("email not confirmed"))
-    return "E-posta adresinizi doğrulamanız gerekiyor.";
-  if (lower.includes("password"))
-    return "Şifre en az 6 karakter olmalıdır.";
-  if (lower.includes("rate limit"))
-    return "Çok fazla deneme yaptınız. Lütfen birkaç dakika bekleyin.";
-  if (lower.includes("already registered"))
-    return "Bu e-posta adresi zaten kayıtlı.";
-  if (lower.includes("network"))
-    return "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.";
-
-  return "Bir hata oluştu. Lütfen tekrar deneyin.";
-}
-
 export default function AuthModal({ isOpen, onClose, mode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +9,7 @@ export default function AuthModal({ isOpen, onClose, mode }) {
 
   if (!isOpen) return null;
 
-  // 🔑 E-posta + Şifre Girişi
+  // 🔑 Email/Password Auth
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -37,34 +17,28 @@ export default function AuthModal({ isOpen, onClose, mode }) {
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        setMessage("Giriş başarılı! 🎉");
+        setMessage("Login successful!");
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setMessage("Kayıt başarılı! E-posta adresinizi doğrulayın.");
+        setMessage("Account created! Please check your email.");
       }
       onClose();
     } catch (err) {
-      setMessage(translateError(err.message));
+      setMessage(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🌐 Google ile giriş
+  // 🌐 Google Login
   const handleGoogle = async () => {
     try {
       await supabase.auth.signInWithOAuth({ provider: "google" });
     } catch (err) {
-      setMessage(translateError(err.message));
+      setMessage(err.message);
     }
   };
 
@@ -74,12 +48,10 @@ export default function AuthModal({ isOpen, onClose, mode }) {
         {mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
       </h2>
 
-      {/* E-posta + Şifre Formu */}
+      {/* Email + Password Form */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-left">
         <div>
-          <label className="block text-sm mb-1 text-white/80">
-            Kullanıcı Adı / E-posta
-          </label>
+          <label className="block text-sm mb-1 text-white/80">Kullanıcı Adı / Email</label>
           <input
             type="email"
             value={email}
@@ -89,7 +61,6 @@ export default function AuthModal({ isOpen, onClose, mode }) {
             required
           />
         </div>
-
         <div>
           <label className="block text-sm mb-1 text-white/80">Şifre</label>
           <input
@@ -101,23 +72,18 @@ export default function AuthModal({ isOpen, onClose, mode }) {
             required
           />
         </div>
-
         <button
           type="submit"
           disabled={loading}
           className="w-full mt-2 bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white py-2 rounded-lg font-semibold hover:opacity-90 transition"
         >
-          {loading
-            ? "Bekleyin..."
-            : mode === "login"
-            ? "Giriş Yap"
-            : "Kayıt Ol"}
+          {loading ? "Bekleyin..." : mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
         </button>
       </form>
 
       <div className="my-4 text-white/50 text-sm">veya</div>
 
-      {/* Google ile giriş butonu */}
+      {/* Google Button */}
       <button
         onClick={handleGoogle}
         className="flex items-center justify-center gap-2 w-full bg-white text-black py-2 rounded-lg font-medium hover:bg-gray-200 transition"
@@ -130,7 +96,7 @@ export default function AuthModal({ isOpen, onClose, mode }) {
         Google ile Devam Et
       </button>
 
-      {/* Kapat butonu */}
+      {/* Close */}
       <button
         onClick={onClose}
         className="mt-4 text-pink-400 text-sm hover:text-pink-300 transition"
