@@ -18,8 +18,15 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
 
   if (!isOpen) return null;
 
-  const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+const handleGoogleLogin = () => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID; // your Google client ID
+    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI; // e.g. http://localhost:3000/auth/callback
+    const scope = "email profile openid";
+    const responseType = "token";
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&prompt=select_account`;
+
+    window.location.href = authUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -138,7 +145,7 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
 
               {/* Google login */}
               <button
-                onClick={handleGoogle}
+                onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black 
                            rounded-lg hover:bg-gray-200 transition font-medium"
               >
