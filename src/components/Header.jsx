@@ -8,6 +8,22 @@ export default function Header() {
   const [session, setSession] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  function HeaderSearch() {
+  const [expanded, setExpanded] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (inputRef.current && !inputRef.current.contains(e.target)) {
+        setExpanded(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
@@ -44,7 +60,7 @@ export default function Header() {
                 to={item.path}
                 className="relative group overflow-hidden"
               >
-                <span className="transition-colors group-hover:text-pink-400">
+                <span className="transition-colors group-hover:text-pink-400 hover-glow">
                   {item.name}
                 </span>
                 {/* underline animation */}
@@ -55,13 +71,29 @@ export default function Header() {
 
         {/* Right: Search + Auth */}
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search size={18} className="absolute left-2 top-2.5 text-white/50" />
-            <input
-              type="text"
-              placeholder="Search anime..."
-              className="bg-white/10 text-sm pl-8 pr-3 py-1.5 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-pink-400"
-            />
+          <div
+            ref={inputRef}
+            className={`flex items-center transition-all duration-300 ease-in-out ${
+              expanded ? "w-56 sm:w-64 md:w-80" : "w-9"
+            } bg-white/10 rounded-lg overflow-hidden`}
+          >
+            <button
+              onClick={() => setExpanded((prev) => !prev)}
+              className="p-2 text-white/70 hover:text-pink-400 transition"
+            >
+              {expanded ? <X size={18} /> : <Search size={18} />}
+            </button>
+
+            {expanded && (
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search anime..."
+                autoFocus
+                className="flex-1 bg-transparent text-sm text-white placeholder:text-white/50 focus:outline-none px-2"
+              />
+            )}
           </div>
 
           {session ? (

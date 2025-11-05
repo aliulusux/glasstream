@@ -14,3 +14,12 @@ body {
 .glass {
   @apply bg-white/5 border border-white/10 backdrop-blur-md;
 }
+
+@layer utilities {
+  .hover-glow {
+    transition: all 0.3s ease;
+  }
+  .hover-glow:hover {
+    text-shadow: 0 0 8px rgba(255, 105, 180, 0.8);
+  }
+}
