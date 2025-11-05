@@ -40,13 +40,6 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
     }
   };
 
-  // ✅ Close only when clicking *outside* modal
-  const handleOverlayClick = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      onClose();
-    }
-  };
-
   return createPortal(
     <AnimatePresence>
       {isOpen && (
