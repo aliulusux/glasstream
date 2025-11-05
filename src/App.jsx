@@ -12,6 +12,7 @@ import New from "./pages/New";
 import MyList from "./pages/MyList";
 import Player from "./pages/Player";
 import AnimeDetail from "./pages/AnimeDetail";
+import WatchPage from "./pages/WatchPage";
 
 export default function App() {
   return (
