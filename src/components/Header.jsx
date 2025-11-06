@@ -11,17 +11,16 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
-  const notifRef = useRef(null);
 
-  // Handle Google redirect fragment
+  // 🧩 Handle Google redirect (restore session)
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash && hash.includes("access_token")) {
+    if (hash.includes("access_token")) {
       const params = new URLSearchParams(hash.substring(1));
       const access_token = params.get("access_token");
       const refresh_token = params.get("refresh_token");
+      const expires_in = params.get("expires_in");
 
       if (access_token) {
         supabase.auth
@@ -29,40 +28,64 @@ export default function Header() {
           .then(({ data, error }) => {
             if (!error && data.session) {
               localStorage.setItem("google_user", JSON.stringify(data.session.user));
+              localStorage.setItem("google_token", access_token);
               setUser(data.session.user);
-              window.history.replaceState({}, document.title, "/"); // clean up URL
+              window.history.replaceState({}, document.title, "/"); // clean the URL
             }
           });
       }
     }
   }, []);
 
-  // Recover user session
+  // 🧠 Load current session or from localStorage
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession();
+
       if (data?.session?.user) {
         setUser(data.session.user);
       } else {
-        const googleUser = localStorage.getItem("google_user");
-        if (googleUser) setUser(JSON.parse(googleUser));
+        const stored = localStorage.getItem("google_user");
+        if (stored) {
+          setUser(JSON.parse(stored));
+        }
       }
     }
     loadSession();
 
+    // Listen for Supabase auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+      if (session?.user) {
+        localStorage.setItem("google_user", JSON.stringify(session.user));
+        setUser(session.user);
+      } else {
+        localStorage.removeItem("google_user");
+        setUser(null);
+      }
     });
+
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
+  // 🔄 Force UI update when localStorage changes
+  useEffect(() => {
+    const checkLocal = setInterval(() => {
+      const stored = localStorage.getItem("google_user");
+      if (stored && !user) setUser(JSON.parse(stored));
+    }, 1000);
+    return () => clearInterval(checkLocal);
+  }, [user]);
+
+  // 🚪 Logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem("google_user");
+    localStorage.removeItem("google_token");
     setUser(null);
     navigate("/");
   };
 
+  // 🔍 Search
   const submitSearch = (e) => {
     e.preventDefault();
     if (!q.trim()) return;
@@ -79,18 +102,12 @@ export default function Header() {
           <span className="text-white">tream</span>
         </Link>
 
-        {/* Navigation */}
+        {/* Nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link to="/" className="text-white/90 hover:text-glassPink transition">
-            Home
-          </Link>
-          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">
-            Browse
-          </Link>
+          <Link to="/" className="text-white/90 hover:text-glassPink transition">Home</Link>
+          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">Browse</Link>
           {user && (
-            <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">
-              My List
-            </Link>
+            <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">My List</Link>
           )}
         </nav>
 
@@ -119,43 +136,18 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
+          {/* Auth or User */}
           {!user ? (
             <AuthSwitch />
           ) : (
             <div className="flex items-center gap-4 relative">
               {/* 🔔 Bell */}
-              <div className="relative" ref={notifRef}>
-                <Bell
-                  size={20}
-                  onClick={() => setNotifOpen(!notifOpen)}
-                  className="text-white/90 hover:text-glassPink transition cursor-pointer"
-                />
-                <AnimatePresence>
-                  {notifOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
-                      className="absolute right-0 top-8 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl w-72 shadow-lg overflow-hidden"
-                    >
-                      {notifications.length === 0 ? (
-                        <div className="p-4 text-center text-white/70 text-sm">
-                          No new notifications
-                        </div>
-                      ) : (
-                        notifications.map((n) => (
-                          <div key={n.id} className="px-4 py-2 border-b border-white/10 text-sm text-white/80">
-                            {n.title}
-                          </div>
-                        ))
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <Bell
+                size={20}
+                className="text-white/90 hover:text-glassPink transition cursor-pointer"
+              />
 
-              {/* 👤 User */}
+              {/* 👤 User dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -182,7 +174,7 @@ export default function Header() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.25 }}
-                      className="absolute right-0 top-12 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden min-w-[150px] shadow-[0_0_20px_rgba(255,77,216,0.4)]"
+                      className="absolute right-0 top-12 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden min-w-[160px] shadow-[0_0_20px_rgba(255,77,216,0.3)]"
                     >
                       <Link
                         to="/mylist"
