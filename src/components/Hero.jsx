@@ -9,7 +9,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-5xl font-extrabold"
         >
-          Yeni rutinini keşfet <span className="text-glassPink">Anime</span>
+          Yeni <span className="text-glassPink">Anime</span> rutinini keşfet 
         </motion.h1>
         <p className="text-white/70 mt-3">
           Temiz, düzenli ve anlaşılabilir.

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, LogOut, Bell } from "lucide-react";
+import { Search, LogOut, Bell, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabaseClient";
@@ -11,109 +11,82 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+
   const [notifications, setNotifications] = useState([]);
   const [loadingNotif, setLoadingNotif] = useState(true);
+
+  // ✅ success UI after "mark all as read"
+  const [justCleared, setJustCleared] = useState(false);
+
   const navigate = useNavigate();
   const notifRef = useRef(null);
 
-  // 🧠 Handle Google redirect from OAuth
+  // ✅ Session-safe auth handling
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes("access_token")) {
-      const params = new URLSearchParams(hash.substring(1));
-      const access_token = params.get("access_token");
-      const refresh_token = params.get("refresh_token");
-
-      if (access_token) {
-        supabase.auth
-          .setSession({ access_token, refresh_token })
-          .then(({ data, error }) => {
-            if (!error && data.session) {
-              localStorage.setItem("google_user", JSON.stringify(data.session.user));
-              localStorage.setItem("google_token", access_token);
-              setUser(data.session.user);
-              window.history.replaceState({}, document.title, "/");
-            }
-          });
-      }
-    }
-  }, []);
-
-  // 🧩 Load Supabase or Local user
-  useEffect(() => {
-    async function loadSession() {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session?.user) {
-        setUser(data.session.user);
-      } else {
-        const stored = localStorage.getItem("google_user");
-        if (stored) setUser(JSON.parse(stored));
-      }
-    }
-    loadSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        localStorage.setItem("google_user", JSON.stringify(session.user));
-        setUser(session.user);
-      } else {
-        localStorage.removeItem("google_user");
-        setUser(null);
-      }
+    supabase.auth.getSession().then(({ data }) => {
+      if (data?.session?.user) setUser(data.session.user);
     });
-
+    const { data: listener } = supabase.auth.onAuthStateChange((_evt, session) => {
+      setUser(session?.user || null);
+    });
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  // 🔍 Search submission
+  // 🔍 search
   const submitSearch = (e) => {
     e.preventDefault();
     if (!q.trim()) return;
     navigate(`/browse?q=${encodeURIComponent(q.trim())}`);
   };
 
-  // 🚪 Logout
+  // 🚪 logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    localStorage.removeItem("google_user");
-    localStorage.removeItem("google_token");
     setUser(null);
     navigate("/");
   };
 
-  // 🔔 Fetch live notifications (new airing anime)
+  // 🔔 Jikan notifications
   useEffect(() => {
     async function fetchNotifications() {
       try {
         setLoadingNotif(true);
         const res = await fetch("https://api.jikan.moe/v4/seasons/now");
         const data = await res.json();
-
         if (data?.data?.length > 0) {
-          const newAnime = data.data.slice(0, 5).map((a) => ({
+          const list = data.data.slice(0, 5).map((a) => ({
             id: a.mal_id,
             title: a.title,
-            message: `New episode just released!`,
+            message: "New episode just released!",
             cover:
               a.images?.jpg?.image_url ||
               a.images?.webp?.image_url ||
               "https://cdn.myanimelist.net/img/sp/icon/apple-touch-icon-256.png",
             read: false,
           }));
-          setNotifications(newAnime);
+          setNotifications(list);
         } else {
           setNotifications([]);
         }
-      } catch (err) {
-        console.error("Error fetching notifications:", err);
+      } catch (e) {
+        console.error("Notification fetch error:", e);
         setNotifications([]);
       } finally {
         setLoadingNotif(false);
       }
     }
-
     fetchNotifications();
   }, []);
+
+  // 🔘 mark all read + success animation
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setJustCleared(true);
+    // hide success after a moment
+    setTimeout(() => setJustCleared(false), 1600);
+  };
+
+  const anyUnread = notifications.some((n) => !n.read);
 
   return (
     <header className="sticky top-0 z-40 px-6 md:px-8 py-4 bg-glassDark/60 backdrop-blur-md border-b border-white/10">
@@ -125,17 +98,14 @@ export default function Header() {
           <span className="text-white">tream</span>
         </Link>
 
-        {/* Navigation */}
+        {/* Nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link to="/" className="text-white/90 hover:text-glassPink transition">
-            Anasayfa
-          </Link>
-          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">
-            Keşfet
-          </Link>
+          <Link to="/" className="text-white/90 hover:text-glassPink transition">Anasayfa</Link>
+          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">Keşfet</Link>
+          {user && <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">My List</Link>}
         </nav>
 
-        {/* Right Controls */}
+        {/* Right controls */}
         <div className="flex items-center gap-4 relative">
           {/* Search */}
           <form onSubmit={submitSearch} className="relative flex items-center">
@@ -153,14 +123,13 @@ export default function Header() {
                   transition={{ duration: 0.25 }}
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search anime..."
+                  placeholder="Anime ara..."
                   className="ml-2 px-3 py-1 rounded-lg bg-white/10 text-white placeholder:text-white/60 outline-none border border-white/10"
                 />
               )}
             </AnimatePresence>
           </form>
 
-          {/* Authenticated or Login/Register */}
           {!user ? (
             <AuthSwitch />
           ) : (
@@ -169,22 +138,21 @@ export default function Header() {
               <div className="relative" ref={notifRef}>
                 <div
                   onClick={() => {
-                    setNotifOpen(!notifOpen);
-                    if (notifications.some((n) => !n.read)) {
-                      setNotifications((prev) =>
-                        prev.map((n) => ({ ...n, read: true }))
-                      );
+                    setNotifOpen((o) => !o);
+                    if (anyUnread) {
+                      // you can auto-mark on open if you want:
+                      // setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
                     }
                   }}
                   className={`relative cursor-pointer transition ${
-                    notifications.some((n) => !n.read)
+                    anyUnread
                       ? "text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.9)] animate-pulse"
                       : "text-white/90 hover:text-glassPink"
                   }`}
                 >
                   <Bell size={20} />
-                  {notifications.some((n) => !n.read) && (
-                    <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+                  {anyUnread && (
+                    <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-pink-500 animate-ping" />
                   )}
                 </div>
 
@@ -195,21 +163,58 @@ export default function Header() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
+                      transition={{ duration: 0.22 }}
                       className="absolute right-0 top-8 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl w-80 shadow-lg overflow-hidden"
                     >
+                      {/* Header row */}
+                      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5">
+                        <span className="text-white/80 text-sm font-medium">Notifications</span>
+
+                        {/* success / action area */}
+                        <div className="h-6 flex items-center">
+                          <AnimatePresence mode="wait">
+                            {justCleared ? (
+                              <motion.div
+                                key="cleared"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.18 }}
+                                className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-glassPink/20 text-pink-200 border border-pink-400/40 shadow-[0_0_12px_rgba(255,77,216,0.35)]"
+                              >
+                                <Check size={14} />
+                                All caught up!
+                              </motion.div>
+                            ) : notifications.length > 0 ? (
+                              <motion.button
+                                key="markbtn"
+                                onClick={markAllAsRead}
+                                whileTap={{ scale: 0.96 }}
+                                className="flex items-center gap-1 text-xs text-glassPink hover:text-white px-2 py-1 rounded-md border border-white/10 hover:bg-white/10 transition"
+                              >
+                                <Check size={14} />
+                                Mark all as read
+                              </motion.button>
+                            ) : null}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+
+                      {/* Content */}
                       {loadingNotif ? (
                         <div className="p-4 text-center text-white/70 text-sm">
-                          Bildirimler yükleniyor...
+                          Loading notifications...
                         </div>
                       ) : notifications.length === 0 ? (
                         <div className="p-4 text-center text-white/70 text-sm">
-                          Genüz yeni bildiriminiz yok.
+                          No new notifications found.
                         </div>
                       ) : (
                         notifications.map((n) => (
-                          <div
+                          <Link
                             key={n.id}
+                            to={`/anime/${n.id}`}
+                            onClick={() => setNotifOpen(false)}
                             className="flex items-center gap-3 px-4 py-3 border-b border-white/10 text-sm text-white/90 hover:bg-white/20 transition"
                           >
                             <img
@@ -218,14 +223,15 @@ export default function Header() {
                               className="w-10 h-14 rounded-md object-cover border border-white/10"
                             />
                             <div className="flex-1 leading-tight">
-                              <span className="block text-white/90 font-medium">
-                                {n.title}
-                              </span>
-                              <span className="block text-xs text-white/60">
-                                {n.message}
-                              </span>
+                              <span className="block text-white/90 font-medium">{n.title}</span>
+                              <span className="block text-xs text-white/60">{n.message}</span>
                             </div>
-                          </div>
+                            {!n.read && (
+                              <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-pink-200 bg-pink-500/20 border border-pink-400/30 px-2 py-0.5 rounded-full">
+                                New
+                              </span>
+                            )}
+                          </Link>
                         ))
                       )}
                     </motion.div>
@@ -233,34 +239,33 @@ export default function Header() {
                 </AnimatePresence>
               </div>
 
-              {/* 👤 User */}
+              {/* 👤 User menu */}
               <div className="relative">
                 <button
-                  onClick={() => setMenuOpen(!menuOpen)}
+                  onClick={() => setMenuOpen((o) => !o)}
                   className="flex items-center gap-2 hover:opacity-90 transition"
                 >
                   <img
                     src={
-                      user.user_metadata?.avatar_url ||
-                      user.picture ||
+                      user?.user_metadata?.avatar_url ||
+                      user?.picture ||
                       "https://api.dicebear.com/7.x/avataaars/svg?seed=glasstream"
                     }
                     alt="avatar"
                     className="w-8 h-8 rounded-full border border-white/20"
                   />
                   <span className="hidden sm:inline-block text-white/80 text-sm font-medium">
-                    {user.user_metadata?.name || user.name || "User"}
+                    {user?.user_metadata?.name || user?.name || "User"}
                   </span>
                 </button>
 
-                {/* Dropdown */}
                 <AnimatePresence>
                   {menuOpen && (
                     <motion.div
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.25 }}
+                      transition={{ duration: 0.22 }}
                       className="absolute right-0 top-12 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden min-w-[160px] shadow-[0_0_20px_rgba(255,77,216,0.3)]"
                     >
                       <Link
@@ -268,20 +273,20 @@ export default function Header() {
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        Listem
+                        My List
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        Ayarlar
+                        Settings
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        <LogOut size={16} /> Çıkış yap
+                        <LogOut size={16} /> Logout
                       </button>
                     </motion.div>
                   )}
