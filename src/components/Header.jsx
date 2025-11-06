@@ -224,7 +224,7 @@ export default function Header() {
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        <FolderHeart size={16}/>
+                        <FolderHeart size={16}/> Listem
                       </Link>
                       <Link
                         to="/settings"
