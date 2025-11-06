@@ -1,18 +1,15 @@
 // src/lib/supabaseClient.js
 import { createClient } from "@supabase/supabase-js";
 
-// ✅ Make sure your .env variables are correct for React/Vite:
-// VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// 🚀 Create ONE shared client with persistent session storage
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// 🧠 One single client instance — shared everywhere
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storage: localStorage,
+    storage: localStorage, // ensures session persists in browser
   },
 });
