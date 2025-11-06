@@ -18,13 +18,14 @@ import TestEnv from "./TestEnv";
 
 export default function App() {
   return (
-    <TestEnv />
+    
     <Router>
       {/* Global Header (always visible) */}
       <Header />
 
       {/* Page Routes */}
       <Routes>
+        <TestEnv />
         <Route path="/" element={<Home />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/browse" element={<Browse />} />
