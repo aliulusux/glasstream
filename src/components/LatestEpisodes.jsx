@@ -115,37 +115,6 @@ export default function LatestEpisodes() {
             })}
           </div>
 
-          {/* Floating Pagination Bar }
-          <div
-            className="sticky bottom-6 flex justify-center items-center gap-4 mt-10 
-                       mx-auto w-fit px-6 py-3 rounded-2xl 
-                       bg-black/50 backdrop-blur-xl border border-white/10 
-                       shadow-[0_0_20px_rgba(255,0,128,0.2)] 
-                       hover:shadow-[0_0_25px_rgba(255,0,128,0.4)] 
-                       transition-all duration-500"
-          >
-            <button
-              onClick={prevPage}
-              disabled={page === 1}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-                page === 1
-                  ? "text-white/30 cursor-not-allowed"
-                  : "text-white hover:text-pink-400"
-              }`}
-            >
-              ← Önceki
-            </button>
-
-            <span className="text-white/70 text-sm">Sayfa {page}</span>
-
-            <button
-              onClick={nextPage}
-              className="text-white hover:text-pink-400 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300"
-            >
-              Sonraki →
-            </button>
-          </div> */
-          
         </>
       )}
     </section>
