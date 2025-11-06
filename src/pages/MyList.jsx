@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabase } from "../lib/supabaseClient";
 import AnimeGrid from "../components/AnimeGrid";
 
 export default function MyList() {
@@ -7,6 +7,8 @@ export default function MyList() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const supabase = getSupabase();
+  
   useEffect(() => {
     async function fetchUser() {
       // Try Supabase session first

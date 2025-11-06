@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabase } from "../lib/supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Star } from "lucide-react";
 
@@ -40,6 +40,8 @@ export default function AuthPage() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const supabase = getSupabase();
 
   // if user already logged in, redirect
   useEffect(() => {

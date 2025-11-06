@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabase } from "../lib/supabaseClient";
 
 /**
  * 💖 FavoriteButton
@@ -13,6 +13,8 @@ import { supabase } from "../lib/supabaseClient";
 export default function FavoriteButton({ anime, className = "" }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [user, setUser] = useState(null);
+
+  const supabase = getSupabase();
 
   useEffect(() => {
     const getSession = async () => {

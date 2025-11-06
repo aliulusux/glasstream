@@ -1,4 +1,6 @@
-import { supabase } from "./supabaseClient";
+import { getSupabase } from "./supabaseClient";
+
+const supabase = getSupabase();
 
 // 🧠 Save watch progress
 export async function saveWatchProgress({ mal_id, episode, progress }) {
