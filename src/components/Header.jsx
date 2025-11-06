@@ -33,7 +33,7 @@ export default function Header() {
     // Correct Supabase v2 subscription format
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.handleGoogleLogin((_event, session) => {
       console.log(
         "%c[AuthState]",
         "color:#ff77ff;font-weight:bold",
