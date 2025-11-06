@@ -2,11 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
-import { getSupabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 
 
- const supabase = getSupabase();
- 
 /**
  * 💖 FavoriteButton
  * - Uses Supabase `favorites` table instead of localStorage

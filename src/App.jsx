@@ -15,9 +15,6 @@ import Player from "./pages/Player";
 import AnimeDetail from "./pages/AnimeDetail";
 import WatchPage from "./pages/WatchPage";
 
-console.log("✅ SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
-console.log("✅ SUPABASE_KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY ? "Loaded ✅" : "Missing ❌");
-
 export default function App() {
   return (
     

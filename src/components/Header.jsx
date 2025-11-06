@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Search, LogOut, Bell } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { getSupabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import AuthSwitch from "./AuthSwitch";
-
-const supabase = getSupabase();
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);

@@ -1,11 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getSupabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Star } from "lucide-react";
-
-const supabase = getSupabase();
 
 /* 🧩 Header (same style as your main site) */
 function Header() {

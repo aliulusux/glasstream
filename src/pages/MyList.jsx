@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSupabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import AnimeGrid from "../components/AnimeGrid";
 
 const supabase = getSupabase();
