@@ -30,7 +30,7 @@ export default function Home() {
       <ContinueWatching />
       <section className="max-w-6xl mx-auto mt-12 px-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">✨ This Season’s Highlights</h2>
+          <h2 className="text-xl font-semibold">✨ Bu Sezon Popüler</h2>
           <Link
             to="/browse?sort=recent"
             className="px-4 py-1.5 rounded-full text-sm font-medium text-white 

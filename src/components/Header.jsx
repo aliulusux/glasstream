@@ -11,15 +11,12 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: "🎬 New episode: Spy x Family Season 3" },
-    { id: 2, title: "🔥 Attack on Titan finale is now streaming" },
-  ]);
-
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotif, setLoadingNotif] = useState(true);
   const navigate = useNavigate();
   const notifRef = useRef(null);
 
-  // 🧩 Handle Google redirect (restore session)
+  // 🧠 Handle Google redirect from OAuth
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
@@ -35,14 +32,14 @@ export default function Header() {
               localStorage.setItem("google_user", JSON.stringify(data.session.user));
               localStorage.setItem("google_token", access_token);
               setUser(data.session.user);
-              window.history.replaceState({}, document.title, "/"); // Clean URL
+              window.history.replaceState({}, document.title, "/");
             }
           });
       }
     }
   }, []);
 
-  // 🧠 Load user from Supabase or localStorage
+  // 🧩 Load Supabase or Local user
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession();
@@ -55,7 +52,6 @@ export default function Header() {
     }
     loadSession();
 
-    // Listen for Supabase auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         localStorage.setItem("google_user", JSON.stringify(session.user));
@@ -69,14 +65,12 @@ export default function Header() {
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  // 🔁 Ensure re-render if localStorage user exists
-  useEffect(() => {
-    const checkLocal = setInterval(() => {
-      const stored = localStorage.getItem("google_user");
-      if (stored && !user) setUser(JSON.parse(stored));
-    }, 1000);
-    return () => clearInterval(checkLocal);
-  }, [user]);
+  // 🔍 Search submission
+  const submitSearch = (e) => {
+    e.preventDefault();
+    if (!q.trim()) return;
+    navigate(`/browse?q=${encodeURIComponent(q.trim())}`);
+  };
 
   // 🚪 Logout
   const handleLogout = async () => {
@@ -87,12 +81,39 @@ export default function Header() {
     navigate("/");
   };
 
-  // 🔍 Search
-  const submitSearch = (e) => {
-    e.preventDefault();
-    if (!q.trim()) return;
-    navigate(`/browse?q=${encodeURIComponent(q.trim())}`);
-  };
+  // 🔔 Fetch live notifications (new airing anime)
+  useEffect(() => {
+    async function fetchNotifications() {
+      try {
+        setLoadingNotif(true);
+        const res = await fetch("https://api.jikan.moe/v4/seasons/now");
+        const data = await res.json();
+
+        if (data?.data?.length > 0) {
+          const newAnime = data.data.slice(0, 5).map((a) => ({
+            id: a.mal_id,
+            title: a.title,
+            message: `New episode just released!`,
+            cover:
+              a.images?.jpg?.image_url ||
+              a.images?.webp?.image_url ||
+              "https://cdn.myanimelist.net/img/sp/icon/apple-touch-icon-256.png",
+            read: false,
+          }));
+          setNotifications(newAnime);
+        } else {
+          setNotifications([]);
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+        setNotifications([]);
+      } finally {
+        setLoadingNotif(false);
+      }
+    }
+
+    fetchNotifications();
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 px-6 md:px-8 py-4 bg-glassDark/60 backdrop-blur-md border-b border-white/10">
@@ -107,16 +128,16 @@ export default function Header() {
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link to="/" className="text-white/90 hover:text-glassPink transition">
-            Home
+            Anasayfa
           </Link>
           <Link to="/browse" className="text-white/90 hover:text-glassPink transition">
-            Browse
+            Keşfet
           </Link>
         </nav>
 
-        {/* Right side controls */}
+        {/* Right Controls */}
         <div className="flex items-center gap-4 relative">
-          {/* 🔍 Search */}
+          {/* Search */}
           <form onSubmit={submitSearch} className="relative flex items-center">
             <Search
               onClick={() => setShowSearch((s) => !s)}
@@ -139,23 +160,30 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
-          {/* Auth */}
+          {/* Authenticated or Login/Register */}
           {!user ? (
             <AuthSwitch />
           ) : (
             <div className="flex items-center gap-4 relative">
-              {/* 🔔 Bell */}
+              {/* 🔔 Notifications */}
               <div className="relative" ref={notifRef}>
                 <div
-                  onClick={() => setNotifOpen(!notifOpen)}
+                  onClick={() => {
+                    setNotifOpen(!notifOpen);
+                    if (notifications.some((n) => !n.read)) {
+                      setNotifications((prev) =>
+                        prev.map((n) => ({ ...n, read: true }))
+                      );
+                    }
+                  }}
                   className={`relative cursor-pointer transition ${
-                    notifications.length > 0
+                    notifications.some((n) => !n.read)
                       ? "text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.9)] animate-pulse"
                       : "text-white/90 hover:text-glassPink"
                   }`}
                 >
                   <Bell size={20} />
-                  {notifications.length > 0 && (
+                  {notifications.some((n) => !n.read) && (
                     <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
                   )}
                 </div>
@@ -168,19 +196,35 @@ export default function Header() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.25 }}
-                      className="absolute right-0 top-8 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl w-72 shadow-lg overflow-hidden"
+                      className="absolute right-0 top-8 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl w-80 shadow-lg overflow-hidden"
                     >
-                      {notifications.length === 0 ? (
+                      {loadingNotif ? (
                         <div className="p-4 text-center text-white/70 text-sm">
-                          No new notifications
+                          Bildirimler yükleniyor...
+                        </div>
+                      ) : notifications.length === 0 ? (
+                        <div className="p-4 text-center text-white/70 text-sm">
+                          Genüz yeni bildiriminiz yok.
                         </div>
                       ) : (
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className="px-4 py-2 border-b border-white/10 text-sm text-white/80 hover:bg-white/20 transition"
+                            className="flex items-center gap-3 px-4 py-3 border-b border-white/10 text-sm text-white/90 hover:bg-white/20 transition"
                           >
-                            {n.title}
+                            <img
+                              src={n.cover}
+                              alt={n.title}
+                              className="w-10 h-14 rounded-md object-cover border border-white/10"
+                            />
+                            <div className="flex-1 leading-tight">
+                              <span className="block text-white/90 font-medium">
+                                {n.title}
+                              </span>
+                              <span className="block text-xs text-white/60">
+                                {n.message}
+                              </span>
+                            </div>
                           </div>
                         ))
                       )}
@@ -189,7 +233,7 @@ export default function Header() {
                 </AnimatePresence>
               </div>
 
-              {/* 👤 User avatar + dropdown */}
+              {/* 👤 User */}
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -224,20 +268,20 @@ export default function Header() {
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        My List
+                        Listem
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        Settings
+                        Ayarlar
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        <LogOut size={16} /> Logout
+                        <LogOut size={16} /> Çıkış yap
                       </button>
                     </motion.div>
                   )}

@@ -115,7 +115,7 @@ export default function LatestEpisodes() {
             })}
           </div>
 
-          {/* Floating Pagination Bar */}
+          {/* Floating Pagination Bar }
           <div
             className="sticky bottom-6 flex justify-center items-center gap-4 mt-10 
                        mx-auto w-fit px-6 py-3 rounded-2xl 
@@ -144,7 +144,8 @@ export default function LatestEpisodes() {
             >
               Sonraki →
             </button>
-          </div>
+          </div> */
+          
         </>
       )}
     </section>
