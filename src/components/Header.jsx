@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getSupabase } from "../lib/supabaseClient"; // ✅ FIXED import (capital G)
 import AuthSwitch from "./AuthSwitch";
 
+
+const supabase = getSupabase(); // ✅ lazy-initialized client
+
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [q, setQ] = useState("");
@@ -15,7 +18,7 @@ export default function Header() {
   const [loadingNotif, setLoadingNotif] = useState(true);
   const [justCleared, setJustCleared] = useState(false);
 
-  const supabase = getSupabase(); // ✅ lazy-initialized client
+
   const navigate = useNavigate();
   const notifRef = useRef(null);
 

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { getSupabase } from "../lib/supabaseClient";
 import AnimeGrid from "../components/AnimeGrid";
 
+const supabase = getSupabase();
+
 export default function MyList() {
   const [user, setUser] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const supabase = getSupabase();
+
   
   useEffect(() => {
     async function fetchUser() {

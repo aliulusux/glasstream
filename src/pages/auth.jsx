@@ -5,6 +5,8 @@ import { getSupabase } from "../lib/supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Star } from "lucide-react";
 
+const supabase = getSupabase();
+
 /* 🧩 Header (same style as your main site) */
 function Header() {
   return (
@@ -41,7 +43,6 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const supabase = getSupabase();
 
   // if user already logged in, redirect
   useEffect(() => {

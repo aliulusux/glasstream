@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { getSupabase } from "../lib/supabaseClient";
 
+
+ const supabase = getSupabase();
+ 
 /**
  * 💖 FavoriteButton
  * - Uses Supabase `favorites` table instead of localStorage
@@ -14,7 +17,7 @@ export default function FavoriteButton({ anime, className = "" }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [user, setUser] = useState(null);
 
-  const supabase = getSupabase();
+ 
 
   useEffect(() => {
     const getSession = async () => {
