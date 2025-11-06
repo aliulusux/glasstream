@@ -2,8 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // ✅ Read from .env (Vite style)
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_KEY;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 🚨 Check variables before creating client
 if (!SUPABASE_URL || !SUPABASE_KEY) {
