@@ -11,16 +11,28 @@ export default function AuthSwitch() {
   const closeModal = () => setIsOpen(false);
 
   // 🚀 Google OAuth login
-  const handleGoogleLogin = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID; // your Google client ID
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI; // e.g. http://localhost:3000/auth/callback
-    const scope = "email profile openid";
-    const responseType = "token";
+const handleGoogleLogin = async () => {
+  try {
+    const redirectTo =
+      import.meta.env.VITE_PRODUCTION_URL ||
+      import.meta.env.VITE_SITE_URL ||
+      window.location.origin;
 
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&prompt=select_account`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo, // Supabase will redirect back to your site
+      },
+    });
 
-    window.location.href = authUrl;
-  };
+    if (error) {
+      console.error("Google login error:", error);
+      alert("Google login failed. Check console for details.");
+    }
+  } catch (err) {
+    console.error("Unexpected login error:", err);
+  }
+};
 
   return (
     <div className="relative">
