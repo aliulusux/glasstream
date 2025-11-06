@@ -20,22 +20,33 @@ export default function Header() {
 
   /* ---------------- AUTH STATE ---------------- */
   useEffect(() => {
-    // Load existing session
+    let mounted = true;
+
     const loadSession = async () => {
       const { data } = await supabase.auth.getSession();
-      if (data?.session?.user) setUser(data.session.user);
+      if (mounted && data?.session?.user) {
+        setUser(data.session.user);
+      }
     };
     loadSession();
 
-    // Subscribe to auth changes
+    // Correct Supabase v2 subscription format
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_evt, session) => {
-      setUser(session?.user || null);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log(
+        "%c[AuthState]",
+        "color:#ff77ff;font-weight:bold",
+        _event,
+        session?.user?.email || "no user"
+      );
+      if (mounted) setUser(session?.user || null);
     });
 
-    // Cleanup
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   /* ---------------- SEARCH ---------------- */
