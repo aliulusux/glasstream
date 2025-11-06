@@ -222,16 +222,16 @@ export default function Header() {
                       <Link
                         to="/mylist"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
                         <FolderHeart size={16}/>
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                       <Cog size={16} className="CorsAnim" /> Ayarlar
+                       <Cog size={16} className="hover: transform: rotate(90deg) transition-all duration-200" /> Ayarlar
                       </Link>
                       <button
                         onClick={handleLogout}

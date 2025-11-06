@@ -95,6 +95,6 @@ body {
   border-radius: 9999px;
 }
 
-.corsAnim {
+.corsAnim:hover  {
   transform: rotate(90deg);
 }
