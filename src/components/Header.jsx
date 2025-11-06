@@ -11,44 +11,50 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-
   const [notifications, setNotifications] = useState([]);
   const [loadingNotif, setLoadingNotif] = useState(true);
-
-  // ✅ success UI after "mark all as read"
   const [justCleared, setJustCleared] = useState(false);
 
   const navigate = useNavigate();
   const notifRef = useRef(null);
 
-  // ✅ Session-safe auth handling
+  /* ---------------- AUTH STATE ---------------- */
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    // Load existing session
+    const loadSession = async () => {
+      const { data } = await supabase.auth.getSession();
       if (data?.session?.user) setUser(data.session.user);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_evt, session) => {
+    };
+    loadSession();
+
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_evt, session) => {
       setUser(session?.user || null);
     });
-    return () => listener?.subscription?.unsubscribe();
+
+    // Cleanup
+    return () => subscription.unsubscribe();
   }, []);
 
-  // 🔍 search
+  /* ---------------- SEARCH ---------------- */
   const submitSearch = (e) => {
     e.preventDefault();
     if (!q.trim()) return;
     navigate(`/browse?q=${encodeURIComponent(q.trim())}`);
   };
 
-  // 🚪 logout
+  /* ---------------- LOGOUT ---------------- */
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
     navigate("/");
   };
 
-  // 🔔 Jikan notifications
+  /* ---------------- NOTIFICATIONS ---------------- */
   useEffect(() => {
-    async function fetchNotifications() {
+    const fetchNotifications = async () => {
       try {
         setLoadingNotif(true);
         const res = await fetch("https://api.jikan.moe/v4/seasons/now");
@@ -68,41 +74,63 @@ export default function Header() {
         } else {
           setNotifications([]);
         }
-      } catch (e) {
-        console.error("Notification fetch error:", e);
+      } catch (err) {
+        console.error("Notification fetch error:", err);
         setNotifications([]);
       } finally {
         setLoadingNotif(false);
       }
-    }
+    };
     fetchNotifications();
   }, []);
 
-  // 🔘 mark all read + success animation
+  /* ---------------- MARK ALL AS READ ---------------- */
   const markAllAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setJustCleared(true);
-    // hide success after a moment
     setTimeout(() => setJustCleared(false), 1600);
   };
 
   const anyUnread = notifications.some((n) => !n.read);
 
+  /* ---------------- HEADER ---------------- */
   return (
     <header className="sticky top-0 z-40 px-6 md:px-8 py-4 bg-glassDark/60 backdrop-blur-md border-b border-white/10">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-extrabold tracking-tight select-none">
+        <Link
+          to="/"
+          className="text-2xl font-extrabold tracking-tight select-none"
+        >
           <span className="text-white">glas</span>
-          <span className="text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.8)]">S</span>
+          <span className="text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.8)]">
+            S
+          </span>
           <span className="text-white">tream</span>
         </Link>
 
         {/* Nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link to="/" className="text-white/90 hover:text-glassPink transition">Anasayfa</Link>
-          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">Keşfet</Link>
-          {user && <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">My List</Link>}
+          <Link
+            to="/"
+            className="text-white/90 hover:text-glassPink transition"
+          >
+            Anasayfa
+          </Link>
+          <Link
+            to="/browse"
+            className="text-white/90 hover:text-glassPink transition"
+          >
+            Keşfet
+          </Link>
+          {user && (
+            <Link
+              to="/mylist"
+              className="text-white/90 hover:text-glassPink transition"
+            >
+              My List
+            </Link>
+          )}
         </nav>
 
         {/* Right controls */}
@@ -130,20 +158,15 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
+          {/* Auth */}
           {!user ? (
-            <AuthSwitch />
+            <AuthSwitch onAuthSuccess={() => supabase.auth.getSession().then(({ data }) => setUser(data?.session?.user))} />
           ) : (
             <div className="flex items-center gap-4 relative">
               {/* 🔔 Notifications */}
               <div className="relative" ref={notifRef}>
                 <div
-                  onClick={() => {
-                    setNotifOpen((o) => !o);
-                    if (anyUnread) {
-                      // you can auto-mark on open if you want:
-                      // setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-                    }
-                  }}
+                  onClick={() => setNotifOpen((o) => !o)}
                   className={`relative cursor-pointer transition ${
                     anyUnread
                       ? "text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.9)] animate-pulse"
@@ -168,9 +191,9 @@ export default function Header() {
                     >
                       {/* Header row */}
                       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5">
-                        <span className="text-white/80 text-sm font-medium">Notifications</span>
-
-                        {/* success / action area */}
+                        <span className="text-white/80 text-sm font-medium">
+                          Notifications
+                        </span>
                         <div className="h-6 flex items-center">
                           <AnimatePresence mode="wait">
                             {justCleared ? (
@@ -223,8 +246,12 @@ export default function Header() {
                               className="w-10 h-14 rounded-md object-cover border border-white/10"
                             />
                             <div className="flex-1 leading-tight">
-                              <span className="block text-white/90 font-medium">{n.title}</span>
-                              <span className="block text-xs text-white/60">{n.message}</span>
+                              <span className="block text-white/90 font-medium">
+                                {n.title}
+                              </span>
+                              <span className="block text-xs text-white/60">
+                                {n.message}
+                              </span>
                             </div>
                             {!n.read && (
                               <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-pink-200 bg-pink-500/20 border border-pink-400/30 px-2 py-0.5 rounded-full">
@@ -239,7 +266,7 @@ export default function Header() {
                 </AnimatePresence>
               </div>
 
-              {/* 👤 User menu */}
+              {/* 👤 User Menu */}
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen((o) => !o)}
