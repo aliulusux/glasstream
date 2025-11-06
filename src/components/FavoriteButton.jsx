@@ -46,37 +46,51 @@ export default function FavoriteButton({ anime, className = "" }) {
     fetchFavorite();
   }, [user, anime.mal_id]);
 
-  // ✅ Toggle favorite with toast
   const toggleFavorite = async () => {
-    if (!user) {
-      showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
-      return;
-    }
+    try {
+      // 🔐 If user not logged in
+      if (!user) {
+        showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
+        return;
+      }
 
-    if (isFavorite) {
-      await supabase
-        .from("favorites")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("mal_id", anime.mal_id);
-      setIsFavorite(false);
-      showToast("❌ Favorilerden kaldırıldı.", "error");
-    } else {
-      await supabase.from("favorites").insert([
-        {
-          user_id: user.id,
-          mal_id: anime.mal_id,
-          title: anime.title,
-          image_url:
-            anime?.images?.jpg?.large_image_url ||
-            anime?.images?.jpg?.image_url ||
-            anime?.image_url ||
-            "",
-          score: anime.score || null,
-        },
-      ]);
-      setIsFavorite(true);
-      showToast("💖 Favorilere eklendi!", "success");
+      // 💖 Already favorited → remove
+      if (isFavorite) {
+        const { error } = await supabase
+          .from("favorites")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("mal_id", anime.mal_id);
+
+        if (error) throw error;
+
+        setIsFavorite(false);
+        showToast("❌ Favorilerden kaldırıldı.", "error");
+      } 
+      // 💾 Add new favorite
+      else {
+        const { error } = await supabase.from("favorites").insert([
+          {
+            user_id: user.id,
+            mal_id: anime.mal_id,
+            title: anime.title,
+            image_url:
+              anime?.images?.jpg?.large_image_url ||
+              anime?.images?.jpg?.image_url ||
+              anime?.image_url ||
+              "",
+            score: anime.score || null,
+          },
+        ]);
+
+        if (error) throw error;
+
+        setIsFavorite(true);
+        showToast("💖 Favorilere eklendi!", "success");
+      }
+    } catch (err) {
+      console.error("Favorite toggle error:", err.message);
+      showToast("⚠️ Favori işlemi başarısız oldu!", "error");
     }
   };
 
