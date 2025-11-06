@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 
 // 🗂️ Pages
+import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
 import Browse from "./pages/Browse";
 import Popular from "./pages/Popular";
@@ -23,6 +24,7 @@ export default function App() {
       {/* Page Routes */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/popular" element={<Popular />} />
         <Route path="/new" element={<New />} />
