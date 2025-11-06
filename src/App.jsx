@@ -14,7 +14,9 @@ import MyList from "./pages/MyList";
 import Player from "./pages/Player";
 import AnimeDetail from "./pages/AnimeDetail";
 import WatchPage from "./pages/WatchPage";
-import TestEnv from "./TestEnv";
+
+console.log("✅ SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
+console.log("✅ SUPABASE_KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY ? "Loaded ✅" : "Missing ❌");
 
 export default function App() {
   return (
@@ -22,10 +24,9 @@ export default function App() {
     <Router>
       {/* Global Header (always visible) */}
       <Header />
-
+      
       {/* Page Routes */}
       <Routes>
-        <TestEnv />
         <Route path="/" element={<Home />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/browse" element={<Browse />} />
