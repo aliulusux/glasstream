@@ -1,13 +1,8 @@
 import React, { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { Eye, EyeOff } from "lucide-react";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-);
 
 export default function AuthModal({ isOpen, onClose, mode = "login" }) {
   const [email, setEmail] = useState("");

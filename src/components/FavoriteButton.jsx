@@ -2,12 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { Heart, AlertTriangle, Check } from "lucide-react";
 import { useSupabase } from "../context/SupabaseProvider";
+import { useToast } from "../context/ToastContext";
 
 // 💖 Favorite Button — works with Supabase + glassy toasts
 export default function FavoriteButton({ anime, className = "" }) {
   const { user, supabase, loading } = useSupabase();
   const [isFavorite, setIsFavorite] = useState(false);
   const [toast, setToast] = useState(null);
+  const showToast = useToast();
 
   // 🔄 Load favorite status
   useEffect(() => {
@@ -32,40 +34,35 @@ export default function FavoriteButton({ anime, className = "" }) {
 
   // ❤️ Toggle favorite (add/remove)
   const toggleFavorite = async () => {
-    if (loading) return;
     if (!user) {
-      showToast("Favorilere eklemek için giriş yapmalısınız!", "error");
+      showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
       return;
     }
 
-    try {
-      if (isFavorite) {
-        await supabase.from("favorites")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("mal_id", anime.mal_id);
-        setIsFavorite(false);
-        showToast("Favorilerden kaldırıldı 💔", "removed");
-      } else {
-        await supabase.from("favorites").insert([
-          {
-            user_id: user.id,
-            mal_id: anime.mal_id,
-            title: anime.title,
-            image_url:
-              anime?.images?.jpg?.large_image_url ||
-              anime?.images?.jpg?.image_url ||
-              anime?.image_url ||
-              "",
-            score: anime.score || null,
-          },
-        ]);
-        setIsFavorite(true);
-        showToast("Favorilere eklendi 💖", "success");
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("Bir hata oluştu", "error");
+    if (isFavorite) {
+      await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("mal_id", anime.mal_id);
+      setIsFavorite(false);
+      showToast("❌ Favorilerden kaldırıldı.", "error");
+    } else {
+      await supabase.from("favorites").insert([
+        {
+          user_id: user.id,
+          mal_id: anime.mal_id,
+          title: anime.title,
+          image_url:
+            anime?.images?.jpg?.large_image_url ||
+            anime?.images?.jpg?.image_url ||
+            anime?.image_url ||
+            "",
+          score: anime.score || null,
+        },
+      ]);
+      setIsFavorite(true);
+      showToast("💖 Favorilere eklendi!", "success");
     }
   };
 
