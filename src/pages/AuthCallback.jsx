@@ -5,21 +5,30 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Extract token from URL hash
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.replace("#", "?"));
     const token = params.get("access_token");
 
     if (token) {
-      // Store token locally (optional)
       localStorage.setItem("google_token", token);
       console.log("Google token:", token);
 
-      // Redirect to homepage (or dashboard)
-      navigate("/");
+      // ✅ Fetch user info from Google API
+      fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((user) => {
+          console.log("Google user:", user);
+          localStorage.setItem("google_user", JSON.stringify(user));
+          navigate("/"); // redirect home
+        })
+        .catch((err) => {
+          console.error("User fetch failed:", err);
+          navigate("/");
+        });
     } else {
-      console.error("No token found in callback URL");
-      navigate("/login"); // fallback
+      navigate("/login");
     }
   }, [navigate]);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, LogOut } from "lucide-react";
+import { Search, LogOut, Bell, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabaseClient";
@@ -75,11 +75,17 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
-          {/* Auth */}
+          {/* Auth Section */}
           {!user ? (
             <AuthSwitch />
           ) : (
-            <div className="relative">
+            <div className="flex items-center gap-4 relative">
+              {/* Bell Icon */}
+              <button className="text-white/90 hover:text-glassPink transition">
+                <Bell size={20} />
+              </button>
+
+              {/* Profile Button */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 hover:opacity-90"
@@ -97,6 +103,7 @@ export default function Header() {
                 </span>
               </button>
 
+              {/* Dropdown */}
               <AnimatePresence>
                 {menuOpen && (
                   <motion.div
@@ -104,11 +111,25 @@ export default function Header() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden min-w-[150px] shadow-glow"
+                    className="absolute right-0 top-12 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden min-w-[160px] shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                   >
+                    <Link
+                      to="/mylist"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
+                    >
+                      My List
+                    </Link>
+                    <Link
+                      to="/settings"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
+                    >
+                      Settings
+                    </Link>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm hover:bg-white/20"
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                     >
                       <LogOut size={16} /> Logout
                     </button>
