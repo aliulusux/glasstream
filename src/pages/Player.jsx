@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { saveWatchProgress } from "../lib/watchHistory";
-import { getSupabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Player() {
   const { mal_id } = useParams();
@@ -11,8 +11,6 @@ export default function Player() {
   const videoRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [anime, setAnime] = useState(null);
-
-  const supabase = getSupabase();
 
   // Fetch anime info from Jikan
   useEffect(() => {
