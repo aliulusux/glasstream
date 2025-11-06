@@ -107,16 +107,11 @@ export default function Header() {
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link to="/" className="text-white/90 hover:text-glassPink transition">
-            Home
+            Anasayfa
           </Link>
           <Link to="/browse" className="text-white/90 hover:text-glassPink transition">
-            Browse
+            Keşfet
           </Link>
-          {user && (
-            <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">
-              My List
-            </Link>
-          )}
         </nav>
 
         {/* Right side controls */}
@@ -177,7 +172,7 @@ export default function Header() {
                     >
                       {notifications.length === 0 ? (
                         <div className="p-4 text-center text-white/70 text-sm">
-                          No new notifications
+                          Yeni bildiriminiz yok...
                         </div>
                       ) : (
                         notifications.map((n) => (
@@ -229,20 +224,20 @@ export default function Header() {
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        My List
+                        Listem
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        Settings
+                        Ayarlar
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        <LogOut size={16} /> Logout
+                        <LogOut size={16} /> Çıkış yap
                       </button>
                     </motion.div>
                   )}
