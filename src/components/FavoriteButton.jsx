@@ -5,7 +5,7 @@ import { Heart, AlertTriangle, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 /**
- * 💖 FavoriteButton — stable, glassy, no redirect, no false login errors
+ * 💖 FavoriteButton — macOS-style toast, smooth, glassy, no redirect
  */
 export default function FavoriteButton({ anime, className = "" }) {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -13,7 +13,7 @@ export default function FavoriteButton({ anime, className = "" }) {
   const [loadingUser, setLoadingUser] = useState(true);
   const [toast, setToast] = useState(null);
 
-  // Load Supabase user session safely
+  // 🔹 Load Supabase session safely
   useEffect(() => {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -29,7 +29,7 @@ export default function FavoriteButton({ anime, className = "" }) {
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  // Fetch favorite state when user changes
+  // 🔹 Fetch favorite state
   useEffect(() => {
     if (!user) return;
     const fetchFavorite = async () => {
@@ -44,15 +44,15 @@ export default function FavoriteButton({ anime, className = "" }) {
     fetchFavorite();
   }, [user, anime.mal_id]);
 
-  // Toast helper
+  // 🔹 Toast helper
   const showToast = (msg, type = "info") => {
     setToast({ msg, type });
-    setTimeout(() => setToast(null), 2200);
+    setTimeout(() => setToast(null), 2300);
   };
 
-  // Toggle favorite handler
+  // 🔹 Toggle favorite
   const toggleFavorite = async () => {
-    if (loadingUser) return; // Wait for user load
+    if (loadingUser) return;
     if (!user) {
       showToast("Favorilere eklemek için giriş yapmalısınız!", "error");
       return;
@@ -113,10 +113,10 @@ export default function FavoriteButton({ anime, className = "" }) {
         )}
       </button>
 
-      {/* ✅ Glassy toast */}
+      {/* 🌸 Toast Notification */}
       {toast && (
         <div
-          className={`fixed top-8 left-1/2 -translate-x-1/2 z-[9999] px-4 py-2 rounded-2xl text-sm font-medium shadow-lg border backdrop-blur-lg transition-all duration-300 ${
+          className={`fixed top-10 left-1/2 -translate-x-1/2 z-[9999] px-5 py-2.5 rounded-2xl text-sm font-medium shadow-lg border backdrop-blur-xl transition-all duration-500 animate-toastSlide ${
             toast.type === "error"
               ? "bg-red-500/30 border-red-400/40 text-red-100"
               : toast.type === "success"
@@ -125,7 +125,6 @@ export default function FavoriteButton({ anime, className = "" }) {
               ? "bg-white/20 border-white/20 text-white/90"
               : "bg-white/10 border-white/10 text-white"
           }`}
-          style={{ animation: "fadeIn 0.3s ease" }}
         >
           <div className="flex items-center gap-2">
             {toast.type === "error" && <AlertTriangle size={16} />}

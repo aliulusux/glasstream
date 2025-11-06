@@ -41,16 +41,35 @@ body {
   animation: pulse-glow 1.8s ease-in-out infinite;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes toastSlide {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
 }
-.animate-pulse-glow {
-  animation: pulseGlow 1.4s infinite alternate;
+
+.animate-toastSlide {
+  animation: toastSlide 2.3s ease forwards;
 }
+
 @keyframes pulseGlow {
   from { opacity: 0.6; }
   to { opacity: 1; box-shadow: 0 0 8px rgba(255, 77, 216, 0.7); }
+}
+.animate-pulse-glow {
+  animation: pulseGlow 1.4s infinite alternate;
 }
 
 /* Frosted glass list container */
