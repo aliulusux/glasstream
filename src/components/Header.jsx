@@ -11,7 +11,13 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "🎬 New episode: Spy x Family Season 3" },
+    { id: 2, title: "🔥 Attack on Titan finale is now streaming" },
+  ]);
+
   const navigate = useNavigate();
+  const notifRef = useRef(null);
 
   // 🧩 Handle Google redirect (restore session)
   useEffect(() => {
@@ -20,7 +26,6 @@ export default function Header() {
       const params = new URLSearchParams(hash.substring(1));
       const access_token = params.get("access_token");
       const refresh_token = params.get("refresh_token");
-      const expires_in = params.get("expires_in");
 
       if (access_token) {
         supabase.auth
@@ -30,25 +35,22 @@ export default function Header() {
               localStorage.setItem("google_user", JSON.stringify(data.session.user));
               localStorage.setItem("google_token", access_token);
               setUser(data.session.user);
-              window.history.replaceState({}, document.title, "/"); // clean the URL
+              window.history.replaceState({}, document.title, "/"); // Clean URL
             }
           });
       }
     }
   }, []);
 
-  // 🧠 Load current session or from localStorage
+  // 🧠 Load user from Supabase or localStorage
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession();
-
       if (data?.session?.user) {
         setUser(data.session.user);
       } else {
         const stored = localStorage.getItem("google_user");
-        if (stored) {
-          setUser(JSON.parse(stored));
-        }
+        if (stored) setUser(JSON.parse(stored));
       }
     }
     loadSession();
@@ -67,7 +69,7 @@ export default function Header() {
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  // 🔄 Force UI update when localStorage changes
+  // 🔁 Ensure re-render if localStorage user exists
   useEffect(() => {
     const checkLocal = setInterval(() => {
       const stored = localStorage.getItem("google_user");
@@ -102,18 +104,19 @@ export default function Header() {
           <span className="text-white">tream</span>
         </Link>
 
-        {/* Nav */}
+        {/* Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link to="/" className="text-white/90 hover:text-glassPink transition">Home</Link>
-          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">Browse</Link>
-          {user && (
-            <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">My List</Link>
-          )}
+          <Link to="/" className="text-white/90 hover:text-glassPink transition">
+            Home
+          </Link>
+          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">
+            Browse
+          </Link>
         </nav>
 
-        {/* Right side */}
+        {/* Right side controls */}
         <div className="flex items-center gap-4 relative">
-          {/* Search */}
+          {/* 🔍 Search */}
           <form onSubmit={submitSearch} className="relative flex items-center">
             <Search
               onClick={() => setShowSearch((s) => !s)}
@@ -136,18 +139,57 @@ export default function Header() {
             </AnimatePresence>
           </form>
 
-          {/* Auth or User */}
+          {/* Auth */}
           {!user ? (
             <AuthSwitch />
           ) : (
             <div className="flex items-center gap-4 relative">
               {/* 🔔 Bell */}
-              <Bell
-                size={20}
-                className="text-white/90 hover:text-glassPink transition cursor-pointer"
-              />
+              <div className="relative" ref={notifRef}>
+                <div
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className={`relative cursor-pointer transition ${
+                    notifications.length > 0
+                      ? "text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.9)] animate-pulse"
+                      : "text-white/90 hover:text-glassPink"
+                  }`}
+                >
+                  <Bell size={20} />
+                  {notifications.length > 0 && (
+                    <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+                  )}
+                </div>
 
-              {/* 👤 User dropdown */}
+                {/* Dropdown */}
+                <AnimatePresence>
+                  {notifOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.25 }}
+                      className="absolute right-0 top-8 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl w-72 shadow-lg overflow-hidden"
+                    >
+                      {notifications.length === 0 ? (
+                        <div className="p-4 text-center text-white/70 text-sm">
+                          No new notifications
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className="px-4 py-2 border-b border-white/10 text-sm text-white/80 hover:bg-white/20 transition"
+                          >
+                            {n.title}
+                          </div>
+                        ))
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* 👤 User avatar + dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -167,6 +209,7 @@ export default function Header() {
                   </span>
                 </button>
 
+                {/* Dropdown */}
                 <AnimatePresence>
                   {menuOpen && (
                     <motion.div

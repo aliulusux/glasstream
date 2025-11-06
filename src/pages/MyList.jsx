@@ -1,84 +1,65 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Link } from "react-router-dom";
+import AnimeGrid from "../components/AnimeGrid";
 
 export default function MyList() {
-  const [favorites, setFavorites] = useState([]);
   const [user, setUser] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    init();
+    async function fetchUser() {
+      // Try Supabase session first
+      const { data } = await supabase.auth.getSession();
+      let currentUser = data?.session?.user || null;
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) =>
-      setUser(session?.user || null)
-    );
-    return () => listener?.subscription?.unsubscribe();
+      // Fallback to localStorage
+      if (!currentUser) {
+        const stored = localStorage.getItem("google_user");
+        if (stored) currentUser = JSON.parse(stored);
+      }
+
+      setUser(currentUser);
+      setLoading(false);
+    }
+    fetchUser();
   }, []);
 
   useEffect(() => {
     if (!user) return;
-    const fetchFavorites = async () => {
-      const { data, error } = await supabase
-        .from("favorites")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      if (!error) setFavorites(data);
-    };
-    fetchFavorites();
+
+    // Fetch favorites from localStorage or Supabase
+    const storedFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
+    setFavorites(storedFavs);
   }, [user]);
 
-  if (!user)
+  if (loading) {
     return (
-      <div className="text-center text-white/70 mt-20">
+      <div className="min-h-screen flex items-center justify-center text-white/60 text-sm">
+        Loading your list...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white/70 text-lg">
         Favorilerinizi görmek için giriş yapın.
       </div>
     );
-
-  if (favorites.length === 0)
-    return (
-      <div className="text-center text-white/70 mt-20">
-        Henüz favoriniz yok 💔
-      </div>
-    );
+  }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold text-white mb-6">🎀 Favorilerim</h1>
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
-        {favorites.map((a) => (
-          <Link
-            key={a.mal_id}
-            to={`/anime/${a.mal_id}`}
-            className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_15px_rgba(255,0,128,0.4)] transition-all"
-          >
-            <img
-              src={a.image_url}
-              alt={a.title}
-              className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-md p-2">
-              <h3 className="text-white text-sm font-semibold truncate">
-                {a.title}
-              </h3>
-              {a.score && (
-                <div className="mt-1 flex items-center gap-1 text-xs text-pink-400">
-                  <span>★</span>
-                  <span>{a.score}</span>
-                </div>
-              )}
-            </div>
-          </Link>
-        ))}
-      </div>
+    <div className="min-h-screen px-6 md:px-12 py-8 text-white">
+      <h1 className="text-3xl font-bold mb-6">
+        {user.user_metadata?.name || user.name || "User"}’s Favorite Anime
+      </h1>
+
+      {favorites.length > 0 ? (
+        <AnimeGrid animeList={favorites} />
+      ) : (
+        <div className="text-white/60 text-sm">Henüz favori eklemediniz.</div>
+      )}
     </div>
   );
 }
