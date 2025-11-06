@@ -1,19 +1,39 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Heart, AlertTriangle, Check } from "lucide-react";
-import { useSupabase } from "../context/SupabaseProvider";
+import { Heart } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
 import { useToast } from "../context/ToastContext";
 
-// 💖 Favorite Button — works with Supabase + glassy toasts
 export default function FavoriteButton({ anime, className = "" }) {
-  const { user, supabase, loading } = useSupabase();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [user, setUser] = useState(null);
   const showToast = useToast();
 
-  // 🔄 Load favorite status
+  // ✅ Always keep Supabase session in sync
   useEffect(() => {
-    if (!user || loading) return;
+    const init = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) setUser(session.user);
+
+      // Realtime auth listener
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setUser(session?.user || null);
+        }
+      );
+
+      return () => listener.subscription.unsubscribe();
+    };
+
+    init();
+  }, []);
+
+  // ✅ Fetch favorite status once user is known
+  useEffect(() => {
+    if (!user) return;
     const fetchFavorite = async () => {
       const { data } = await supabase
         .from("favorites")
@@ -24,9 +44,9 @@ export default function FavoriteButton({ anime, className = "" }) {
       setIsFavorite(!!data);
     };
     fetchFavorite();
-  }, [user, loading, anime.mal_id, supabase]);
+  }, [user, anime.mal_id]);
 
-  // ❤️ Toggle favorite (add/remove)
+  // ✅ Toggle favorite with toast
   const toggleFavorite = async () => {
     if (!user) {
       showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
@@ -61,45 +81,22 @@ export default function FavoriteButton({ anime, className = "" }) {
   };
 
   return (
-    <>
-      <button
-        onClick={toggleFavorite}
-        disabled={loading}
-        className={`relative p-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 transition ${
-          isFavorite ? "text-pink-400 animate-pulse-glow" : "text-white/70 hover:text-pink-400"
-        } ${className}`}
-        title={isFavorite ? "Favorilerden Kaldır" : "Favorilere Ekle"}
-      >
-        <Heart size={18} className={`transition-all ${isFavorite ? "fill-pink-400" : ""}`} />
-        {isFavorite && (
-          <span className="absolute inset-0 rounded-full bg-pink-500/40 blur-md animate-pulse-glow" />
-        )}
-      </button>
-
-      {/* 🌸 Glass Toast */}
-      {toast && (
-        <div
-          className={`fixed top-16 left-1/2 -translate-x-1/2 z-[9999] px-5 py-2.5 rounded-2xl text-sm font-medium shadow-lg border backdrop-blur-xl transition-all duration-500 animate-fadeSlide ${
-            toast.type === "error"
-              ? "bg-red-500/20 border-red-400/30 text-red-100"
-              : toast.type === "success"
-              ? "bg-pink-500/25 border-pink-400/40 text-pink-100"
-              : toast.type === "removed"
-              ? "bg-gray-500/20 border-gray-400/30 text-gray-100"
-              : "bg-white/10 border-white/20 text-white"
-          }`}
-          style={{
-            boxShadow: "0 0 30px rgba(255, 77, 216, 0.2)",
-            backdropFilter: "blur(12px)",
-          }}
-        >
-          <div className="flex items-center gap-2">
-            {toast.type === "error" && <AlertTriangle size={16} />}
-            {toast.type === "success" && <Check size={16} />}
-            {toast.msg}
-          </div>
-        </div>
+    <button
+      onClick={toggleFavorite}
+      className={`relative p-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 transition ${
+        isFavorite
+          ? "text-pink-400 animate-pulse-glow"
+          : "text-white/70 hover:text-pink-400"
+      } ${className}`}
+      title={isFavorite ? "Favorilerden Kaldır" : "Favorilere Ekle"}
+    >
+      <Heart
+        size={18}
+        className={`transition-all ${isFavorite ? "fill-pink-400" : ""}`}
+      />
+      {isFavorite && (
+        <span className="absolute inset-0 rounded-full bg-pink-500/40 blur-md animate-pulse-glow" />
       )}
-    </>
+    </button>
   );
 }
