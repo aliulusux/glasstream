@@ -5,7 +5,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 🚨 Check variables before creating client
-if (!SUPABASE_URL || !SUPABASE_KEY) {
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error("❌ Supabase environment variables are missing!");
   console.error("Check your .env file — it must contain:");
   console.error("VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
@@ -16,7 +16,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 function getSupabaseSingleton() {
   const g = globalThis || window;
   if (!g.__GLASSTREAM_SUPABASE__) {
-    g.__GLASSTREAM_SUPABASE__ = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    g.__GLASSTREAM_SUPABASE__ = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
         storageKey: "glasstream.auth",
