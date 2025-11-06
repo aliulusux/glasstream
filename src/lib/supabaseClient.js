@@ -1,32 +1,32 @@
 import { createClient } from "@supabase/supabase-js";
 
-// ✅ Read from .env (Vite style)
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+let supabase = null;
 
-// 🚨 Check variables before creating client
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error("❌ Supabase environment variables are missing!");
-  console.error("Check your .env file — it must contain:");
-  console.error("VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
-  throw new Error("Supabase credentials missing — see console above.");
-}
+export function getSupabase() {
+  if (supabase) return supabase;
 
-// ✅ Create a single Supabase client per browser tab
-function getSupabaseSingleton() {
-  const g = globalThis || window;
-  if (!g.__GLASSTREAM_SUPABASE__) {
-    g.__GLASSTREAM_SUPABASE__ = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        storageKey: "glasstream.auth",
-        autoRefreshToken: true,
-        detectSessionInUrl: true, // handles OAuth redirect tokens
-      },
-    });
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    console.error("❌ Missing Supabase credentials!");
+    console.error("VITE_SUPABASE_URL:", url);
+    console.error("VITE_SUPABASE_ANON_KEY:", key ? "Loaded ✅" : "Missing ❌");
+    throw new Error("Supabase credentials missing — check your .env");
   }
-  return g.__GLASSTREAM_SUPABASE__;
+
+  supabase = createClient(url, key, {
+    auth: {
+      persistSession: true,
+      storageKey: "glasstream.auth",
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
+
+  console.log("✅ Supabase client initialized!");
+  return supabase;
 }
 
-// ✅ Export the client
-export const supabase = getSupabaseSingleton();
+// Default export (auto)
+export { supabase };

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Search, LogOut, Bell, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabase } from "../lib/supabaseClient"; // ✅ FIXED import (capital G)
 import AuthSwitch from "./AuthSwitch";
 
 export default function Header() {
@@ -15,6 +15,7 @@ export default function Header() {
   const [loadingNotif, setLoadingNotif] = useState(true);
   const [justCleared, setJustCleared] = useState(false);
 
+  const supabase = getSupabase(); // ✅ lazy-initialized client
   const navigate = useNavigate();
   const notifRef = useRef(null);
 
@@ -24,16 +25,12 @@ export default function Header() {
 
     const loadSession = async () => {
       const { data } = await supabase.auth.getSession();
-      if (mounted && data?.session?.user) {
-        setUser(data.session.user);
-      }
+      if (mounted && data?.session?.user) setUser(data.session.user);
     };
     loadSession();
 
-    // Correct Supabase v2 subscription format
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    // ✅ Correct Supabase v2 subscription format
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log(
         "%c[AuthState]",
         "color:#ff77ff;font-weight:bold",
@@ -45,9 +42,9 @@ export default function Header() {
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   /* ---------------- SEARCH ---------------- */
   const submitSearch = (e) => {
@@ -82,9 +79,7 @@ export default function Header() {
             read: false,
           }));
           setNotifications(list);
-        } else {
-          setNotifications([]);
-        }
+        } else setNotifications([]);
       } catch (err) {
         console.error("Notification fetch error:", err);
         setNotifications([]);
@@ -109,36 +104,22 @@ export default function Header() {
     <header className="sticky top-0 z-40 px-6 md:px-8 py-4 bg-glassDark/60 backdrop-blur-md border-b border-white/10">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link
-          to="/"
-          className="text-2xl font-extrabold tracking-tight select-none"
-        >
+        <Link to="/" className="text-2xl font-extrabold tracking-tight select-none">
           <span className="text-white">glas</span>
-          <span className="text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.8)]">
-            S
-          </span>
+          <span className="text-glassPink drop-shadow-[0_0_10px_rgba(255,77,216,0.8)]">S</span>
           <span className="text-white">tream</span>
         </Link>
 
         {/* Nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link
-            to="/"
-            className="text-white/90 hover:text-glassPink transition"
-          >
+          <Link to="/" className="text-white/90 hover:text-glassPink transition">
             Anasayfa
           </Link>
-          <Link
-            to="/browse"
-            className="text-white/90 hover:text-glassPink transition"
-          >
+          <Link to="/browse" className="text-white/90 hover:text-glassPink transition">
             Keşfet
           </Link>
           {user && (
-            <Link
-              to="/mylist"
-              className="text-white/90 hover:text-glassPink transition"
-            >
+            <Link to="/mylist" className="text-white/90 hover:text-glassPink transition">
               My List
             </Link>
           )}
@@ -171,13 +152,11 @@ export default function Header() {
 
           {/* Auth */}
           {!user ? (
-              <AuthSwitch
-                onAuthSuccess={() =>
-                  supabase.auth.getSession().then(({ data }) =>
-                    setUser(data?.session?.user)
-                  )
-                }
-              />
+            <AuthSwitch
+              onAuthSuccess={() =>
+                supabase.auth.getSession().then(({ data }) => setUser(data?.session?.user))
+              }
+            />
           ) : (
             <div className="flex items-center gap-4 relative">
               {/* 🔔 Notifications */}
@@ -208,9 +187,7 @@ export default function Header() {
                     >
                       {/* Header row */}
                       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5">
-                        <span className="text-white/80 text-sm font-medium">
-                          Notifications
-                        </span>
+                        <span className="text-white/80 text-sm font-medium">Notifications</span>
                         <div className="h-6 flex items-center">
                           <AnimatePresence mode="wait">
                             {justCleared ? (
@@ -263,12 +240,8 @@ export default function Header() {
                               className="w-10 h-14 rounded-md object-cover border border-white/10"
                             />
                             <div className="flex-1 leading-tight">
-                              <span className="block text-white/90 font-medium">
-                                {n.title}
-                              </span>
-                              <span className="block text-xs text-white/60">
-                                {n.message}
-                              </span>
+                              <span className="block text-white/90 font-medium">{n.title}</span>
+                              <span className="block text-xs text-white/60">{n.message}</span>
                             </div>
                             {!n.read && (
                               <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-pink-200 bg-pink-500/20 border border-pink-400/30 px-2 py-0.5 rounded-full">
