@@ -26,12 +26,6 @@ export default function FavoriteButton({ anime, className = "" }) {
     fetchFavorite();
   }, [user, loading, anime.mal_id, supabase]);
 
-  // 🌈 Show floating glassy toast
-  const showToast = (msg, type = "info") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2200);
-  };
-
   // ❤️ Toggle favorite (add/remove)
   const toggleFavorite = async () => {
     if (!user) {
