@@ -18,7 +18,7 @@ import TestEnv from "./TestEnv";
 
 export default function App() {
   return (
-    <TestEnv />;
+    <TestEnv />
     <Router>
       {/* Global Header (always visible) */}
       <Header />
