@@ -160,7 +160,13 @@ export default function Header() {
 
           {/* Auth */}
           {!user ? (
-            <AuthSwitch onAuthSuccess={() => supabase.auth.getSession().then(({ data }) => setUser(data?.session?.user))} />
+              <AuthSwitch
+                onAuthSuccess={() =>
+                  supabase.auth.getSession().then(({ data }) =>
+                    setUser(data?.session?.user)
+                  )
+                }
+              />
           ) : (
             <div className="flex items-center gap-4 relative">
               {/* 🔔 Notifications */}

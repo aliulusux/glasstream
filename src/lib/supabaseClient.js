@@ -1,32 +1,33 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
-// Read from either Vite or Next style envs
-const SUPABASE_URL =
-  import.meta?.env?.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY =
-  import.meta?.env?.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// ✅ Read from .env (Vite style)
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  // Helps catch mis-config early rather than silently failing auth
-  // eslint-disable-next-line no-console
-  console.error('Supabase env vars are missing.');
+// 🚨 Check variables before creating client
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error("❌ Supabase environment variables are missing!");
+  console.error("Check your .env file — it must contain:");
+  console.error("VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
+  throw new Error("Supabase credentials missing — see console above.");
 }
 
-// ✅ Create exactly one client per browser tab
+// ✅ Create a single Supabase client per browser tab
 function getSupabaseSingleton() {
   const g = globalThis || window;
   if (!g.__GLASSTREAM_SUPABASE__) {
-    g.__GLASSTREAM_SUPABASE__ = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    g.__GLASSTREAM_SUPABASE__ = createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: {
-        // Persist to localStorage
         persistSession: true,
-        storageKey: 'glasstream.auth',
+        storageKey: "glasstream.auth",
         autoRefreshToken: true,
-        detectSessionInUrl: true, // picks up #access_token after OAuth redirect
+        detectSessionInUrl: true, // handles OAuth redirect tokens
       },
     });
   }
   return g.__GLASSTREAM_SUPABASE__;
 }
 
+// ✅ Export the client
 export const supabase = getSupabaseSingleton();
