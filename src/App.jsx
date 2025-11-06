@@ -14,9 +14,11 @@ import MyList from "./pages/MyList";
 import Player from "./pages/Player";
 import AnimeDetail from "./pages/AnimeDetail";
 import WatchPage from "./pages/WatchPage";
+import TestEnv from "./TestEnv";
 
 export default function App() {
   return (
+    <TestEnv />;
     <Router>
       {/* Global Header (always visible) */}
       <Header />
