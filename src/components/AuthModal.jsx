@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { supabase } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { Eye, EyeOff } from "lucide-react";
