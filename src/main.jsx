@@ -7,4 +7,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
+  console.log("✅ VITE_SUPABASE_URL =", import.meta.env.VITE_SUPABASE_URL);
+  console.log("✅ VITE_SUPABASE_ANON_KEY =", import.meta.env.VITE_SUPABASE_ANON_KEY ? "Loaded" : "Missing");
 );
