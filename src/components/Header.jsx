@@ -224,14 +224,14 @@ export default function Header() {
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        Listem
+                        <FolderHeart size={16}/>
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-white/90 hover:bg-white/20 transition"
                       >
-                        Ayarlar
+                       <Cog size={16}/ className="CorsAnim"> Ayarlar
                       </Link>
                       <button
                         onClick={handleLogout}

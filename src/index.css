@@ -94,3 +94,7 @@ body {
   background: linear-gradient(180deg, #ff7acbAA, #b388ffAA);
   border-radius: 9999px;
 }
+
+.corsAnim {
+  transform: rotate(90deg);
+}
