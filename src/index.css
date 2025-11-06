@@ -42,11 +42,15 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
+  from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fadeIn {
-  animation: fadeIn 0.25s ease-out;
+.animate-pulse-glow {
+  animation: pulseGlow 1.4s infinite alternate;
+}
+@keyframes pulseGlow {
+  from { opacity: 0.6; }
+  to { opacity: 1; box-shadow: 0 0 8px rgba(255, 77, 216, 0.7); }
 }
 
 /* Frosted glass list container */

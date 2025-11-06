@@ -1,36 +1,35 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, AlertTriangle, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 /**
- * 💖 FavoriteButton
- * - Uses Supabase `favorites` table
- * - Syncs with user auth
- * - Shows popup feedback instead of redirect/alert
+ * 💖 FavoriteButton — stable, glassy, no redirect, no false login errors
  */
 export default function FavoriteButton({ anime, className = "" }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [user, setUser] = useState(null);
-  const [popup, setPopup] = useState(null); // ✅ message popup
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [toast, setToast] = useState(null);
 
+  // Load Supabase user session safely
   useEffect(() => {
     const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      const { data } = await supabase.auth.getSession();
+      setUser(data?.session?.user || null);
+      setLoadingUser(false);
     };
     getSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) =>
-      setUser(session?.user || null)
-    );
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user || null);
+    });
 
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
+  // Fetch favorite state when user changes
   useEffect(() => {
     if (!user) return;
     const fetchFavorite = async () => {
@@ -45,26 +44,30 @@ export default function FavoriteButton({ anime, className = "" }) {
     fetchFavorite();
   }, [user, anime.mal_id]);
 
-  const showPopup = (msg, type = "info") => {
-    setPopup({ msg, type });
-    setTimeout(() => setPopup(null), 2000);
+  // Toast helper
+  const showToast = (msg, type = "info") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 2200);
   };
 
+  // Toggle favorite handler
   const toggleFavorite = async () => {
+    if (loadingUser) return; // Wait for user load
     if (!user) {
-      showPopup("⚠️ Favorilere eklemek için giriş yapmalısınız!", "error");
+      showToast("Favorilere eklemek için giriş yapmalısınız!", "error");
       return;
     }
 
     try {
       if (isFavorite) {
-        await supabase
+        const { error } = await supabase
           .from("favorites")
           .delete()
           .eq("user_id", user.id)
           .eq("mal_id", anime.mal_id);
+        if (error) throw error;
         setIsFavorite(false);
-        showPopup("❌ Favorilerden kaldırıldı");
+        showToast("Favorilerden kaldırıldı", "removed");
       } else {
         const { error } = await supabase.from("favorites").insert([
           {
@@ -81,18 +84,19 @@ export default function FavoriteButton({ anime, className = "" }) {
         ]);
         if (error) throw error;
         setIsFavorite(true);
-        showPopup("💖 Başarıyla favorilere eklendi!");
+        showToast("Favorilere eklendi 💖", "success");
       }
     } catch (err) {
       console.error(err);
-      showPopup("⚠️ Bir hata oluştu", "error");
+      showToast("Bir hata oluştu", "error");
     }
   };
 
   return (
-    <div className="relative inline-block">
+    <>
       <button
         onClick={toggleFavorite}
+        disabled={loadingUser}
         className={`relative p-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 transition ${
           isFavorite
             ? "text-pink-400 animate-pulse-glow"
@@ -109,18 +113,27 @@ export default function FavoriteButton({ anime, className = "" }) {
         )}
       </button>
 
-      {/* ✅ Popup message */}
-      {popup && (
+      {/* ✅ Glassy toast */}
+      {toast && (
         <div
-          className={`absolute left-1/2 -translate-x-1/2 -top-10 px-3 py-1.5 text-sm rounded-md shadow-lg backdrop-blur-md border border-white/10 ${
-            popup.type === "error"
-              ? "bg-red-500/30 text-red-100"
-              : "bg-pink-500/30 text-pink-100"
-          } animate-fadeIn`}
+          className={`fixed top-8 left-1/2 -translate-x-1/2 z-[9999] px-4 py-2 rounded-2xl text-sm font-medium shadow-lg border backdrop-blur-lg transition-all duration-300 ${
+            toast.type === "error"
+              ? "bg-red-500/30 border-red-400/40 text-red-100"
+              : toast.type === "success"
+              ? "bg-pink-500/30 border-pink-400/40 text-pink-100"
+              : toast.type === "removed"
+              ? "bg-white/20 border-white/20 text-white/90"
+              : "bg-white/10 border-white/10 text-white"
+          }`}
+          style={{ animation: "fadeIn 0.3s ease" }}
         >
-          {popup.msg}
+          <div className="flex items-center gap-2">
+            {toast.type === "error" && <AlertTriangle size={16} />}
+            {toast.type === "success" && <Check size={16} />}
+            {toast.msg}
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
