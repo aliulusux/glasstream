@@ -48,27 +48,22 @@ export default function FavoriteButton({ anime, className = "" }) {
 
   const toggleFavorite = async () => {
     try {
-      // 🔐 If user not logged in
       if (!user) {
         showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
         return;
       }
 
-      // 💖 Already favorited → remove
       if (isFavorite) {
         const { error } = await supabase
           .from("favorites")
           .delete()
           .eq("user_id", user.id)
           .eq("mal_id", anime.mal_id);
-
         if (error) throw error;
 
         setIsFavorite(false);
         showToast("❌ Favorilerden kaldırıldı.", "error");
-      } 
-      // 💾 Add new favorite
-      else {
+      } else {
         const { error } = await supabase.from("favorites").insert([
           {
             user_id: user.id,
@@ -82,14 +77,13 @@ export default function FavoriteButton({ anime, className = "" }) {
             score: anime.score || null,
           },
         ]);
-
         if (error) throw error;
 
         setIsFavorite(true);
         showToast("💖 Favorilere eklendi!", "success");
       }
     } catch (err) {
-      console.error("Favorite toggle error:", err.message);
+      console.error("Favorite toggle error:", err);
       showToast("⚠️ Favori işlemi başarısız oldu!", "error");
     }
   };
