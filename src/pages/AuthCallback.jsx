@@ -1,52 +1,41 @@
+// src/pages/AuthCallback.jsx
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleAuthRedirect = async () => {
+    const handleCallback = async () => {
       try {
-        // Supabase automatically handles hash (#access_token) when detectSessionInUrl = true
-        const { data, error } = await supabase.auth.getSession();
+        // ✅ handle the redirect result from Supabase
+        const { data, error } = await supabase.auth.getSessionFromUrl({
+          storeSession: true,
+        });
 
-        if (error) throw error;
-
-        if (data?.session) {
-          console.log("✅ Session restored:", data.session);
+        if (error) {
+          console.error("Auth callback error:", error.message);
+          alert("Giriş başarısız: " + error.message);
           navigate("/", { replace: true });
-        } else {
-          // If session isn't ready yet, wait and check again briefly
-          setTimeout(async () => {
-            const retry = await supabase.auth.getSession();
-            if (retry?.data?.session) {
-              console.log("✅ Session restored on retry:", retry.data.session);
-              navigate("/", { replace: true });
-            } else {
-              console.warn("⚠️ No session found after redirect");
-              navigate("/login", { replace: true });
-            }
-          }, 1000);
+          return;
         }
+
+        console.log("Login success:", data.session);
+        navigate("/", { replace: true });
       } catch (err) {
-        console.error("❌ Auth redirect error:", err);
+        console.error("Unexpected callback error:", err.message);
         navigate("/", { replace: true });
       }
     };
 
-    handleAuthRedirect();
+    handleCallback();
   }, [navigate]);
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen bg-black/80 text-white text-lg"
-      style={{
-        fontFamily: "Inter, sans-serif",
-        backdropFilter: "blur(20px)",
-      }}
-    >
-      Google ile giriş yapılıyor, lütfen bekleyin...
+    <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+      <h2 className="text-2xl font-bold mb-4">Giriş yapılıyor...</h2>
+      <p className="text-gray-400 text-sm">Lütfen bekleyin 🌀</p>
     </div>
   );
 }
