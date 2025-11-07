@@ -13,16 +13,27 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
 
   if (!isOpen) return null;
 
-const handleGoogleLogin = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID; // your Google client ID
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI; // e.g. http://localhost:3000/auth/callback
-    const scope = "email profile openid";
-    const responseType = "token";
+const handleGoogleLogin = async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin, // 👈 ensures Supabase redirects back to your app
+      },
+    });
 
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&prompt=select_account`;
+    if (error) {
+      console.error("Google login error:", error.message);
+      showToast("⚠️ Google ile giriş başarısız oldu.", "error");
+    } else {
+      showToast("🔑 Google ile giriş yapılıyor...", "info");
+    }
+  } catch (err) {
+    console.error("Unexpected Google login error:", err);
+    showToast("❌ Giriş işlemi sırasında hata oluştu.", "error");
+  }
+};
 
-    window.location.href = authUrl;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

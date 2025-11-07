@@ -15,6 +15,15 @@ import Player from "./pages/Player";
 import AnimeDetail from "./pages/AnimeDetail";
 import WatchPage from "./pages/WatchPage";
 
+useEffect(() => {
+  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    console.log("Auth event:", _event, session);
+    if (session) window.location.reload(); // auto-refresh to update UI
+  });
+
+  return () => listener.subscription.unsubscribe();
+}, []);
+
 export default function App() {
   return (
     
