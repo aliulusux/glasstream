@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { supabase } from "./lib/supabaseClient";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 
@@ -17,12 +18,19 @@ import AnimeDetail from "./pages/AnimeDetail";
 import WatchPage from "./pages/WatchPage";
 
 useEffect(() => {
+  if (!supabase) {
+    console.error("Supabase client not initialized!");
+    return;
+  }
+
   const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
     console.log("Auth event:", _event, session);
-    if (session) window.location.reload(); // auto-refresh to update UI
+    if (session) window.location.reload(); // Refresh UI on login
   });
 
-  return () => listener.subscription.unsubscribe();
+  return () => {
+    listener?.subscription?.unsubscribe();
+  };
 }, []);
 
 export default function App() {
