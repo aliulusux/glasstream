@@ -4,51 +4,49 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function AuthModal({ onClose }) {
-  const [isLogin, setIsLogin] = useState(true);
+export default function AuthModal({ isOpen, onClose, mode = "login" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLogin, setIsLogin] = useState(mode === "login");
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  // 🌐 Google login
-  const handleGoogleLogin = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) throw error;
-      console.log("Google login redirecting...", data);
-    } catch (err) {
-      console.error("Google login error:", err.message);
-      alert("Google ile giriş yapılamadı: " + err.message);
+const handleGoogleLogin = async () => {
+  try {
+    // Initiate the Google OAuth login with Supabase
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`, // must match your Supabase redirect URL
+      },
+    });
+
+    if (error) {
+      console.error("Google login error:", error.message);
+      alert("Google ile giriş yapılamadı. Lütfen tekrar deneyin.");
+    } else {
+      console.log("Google login started:", data);
     }
-  };
+  } catch (err) {
+    console.error("Unexpected Google login error:", err);
+  }
+};
 
 
-  // 🔑 Email / Password auth
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      let res;
       if (isLogin) {
-        res = await supabase.auth.signInWithPassword({ email, password });
+        await supabase.auth.signInWithPassword({ email, password });
       } else {
-        res = await supabase.auth.signUp({ email, password });
+        await supabase.auth.signUp({ email, password });
       }
-
-      if (res.error) throw res.error;
-
-      alert(isLogin ? "Giriş başarılı!" : "Kayıt başarılı! Lütfen e-postanızı kontrol edin.");
       onClose();
     } catch (err) {
-      console.error("Auth error:", err);
-      alert("Bir hata oluştu: " + err.message);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -154,10 +152,11 @@ export default function AuthModal({ onClose }) {
               {/* Google login */}
               <button
                 onClick={handleGoogleLogin}
-                className="w-full mt-3 flex items-center justify-center gap-2 bg-white text-gray-900 font-medium py-2 rounded-md hover:bg-gray-100 transition"
+                className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black 
+                           rounded-lg hover:bg-gray-200 transition font-medium"
               >
                 <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  src="https://developers.google.com/identity/images/g-logo.png"
                   alt="Google"
                   className="w-5 h-5"
                 />
