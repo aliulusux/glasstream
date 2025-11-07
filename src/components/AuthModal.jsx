@@ -15,22 +15,22 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
 
 const handleGoogleLogin = async () => {
   try {
+    // Initiate the Google OAuth login with Supabase
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin, // 👈 ensures Supabase redirects back to your app
+        redirectTo: `${window.location.origin}/auth/callback`, // must match your Supabase redirect URL
       },
     });
 
     if (error) {
       console.error("Google login error:", error.message);
-      showToast("⚠️ Google ile giriş başarısız oldu.", "error");
+      alert("Google ile giriş yapılamadı. Lütfen tekrar deneyin.");
     } else {
-      showToast("🔑 Google ile giriş yapılıyor...", "info");
+      console.log("Google login started:", data);
     }
   } catch (err) {
     console.error("Unexpected Google login error:", err);
-    showToast("❌ Giriş işlemi sırasında hata oluştu.", "error");
   }
 };
 
