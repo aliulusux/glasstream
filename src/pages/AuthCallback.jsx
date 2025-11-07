@@ -6,28 +6,28 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleRedirect = async () => {
+    const handleAuthRedirect = async () => {
       try {
-        // Supabase automatically parses the URL hash fragment (?code=...)
+        // Supabase automatically handles hash (#access_token) when detectSessionInUrl = true
         const { data, error } = await supabase.auth.getSession();
 
-        // If there's no session in storage, try to recover it from the URL
-        if (!data.session) {
-          const { data: { session }, error: recoverError } =
-            await supabase.auth.exchangeCodeForSession(window.location.href);
+        if (error) throw error;
 
-          if (recoverError) throw recoverError;
-
-          if (session) {
-            console.log("✅ Session restored from redirect:", session);
-            navigate("/", { replace: true });
-          } else {
-            console.warn("⚠️ No session found after redirect");
-            navigate("/login", { replace: true });
-          }
-        } else {
-          console.log("✅ Active session found:", data.session);
+        if (data?.session) {
+          console.log("✅ Session restored:", data.session);
           navigate("/", { replace: true });
+        } else {
+          // If session isn't ready yet, wait and check again briefly
+          setTimeout(async () => {
+            const retry = await supabase.auth.getSession();
+            if (retry?.data?.session) {
+              console.log("✅ Session restored on retry:", retry.data.session);
+              navigate("/", { replace: true });
+            } else {
+              console.warn("⚠️ No session found after redirect");
+              navigate("/login", { replace: true });
+            }
+          }, 1000);
         }
       } catch (err) {
         console.error("❌ Auth redirect error:", err);
@@ -35,7 +35,7 @@ export default function AuthCallback() {
       }
     };
 
-    handleRedirect();
+    handleAuthRedirect();
   }, [navigate]);
 
   return (
@@ -46,7 +46,7 @@ export default function AuthCallback() {
         backdropFilter: "blur(20px)",
       }}
     >
-      Giriş yapılıyor, lütfen bekleyin...
+      Google ile giriş yapılıyor, lütfen bekleyin...
     </div>
   );
 }
