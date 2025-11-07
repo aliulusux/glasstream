@@ -1,11 +1,10 @@
-// src/components/AuthSwitch.jsx
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import AuthModal from "./AuthModal";
 
 export default function AuthSwitch({ children }) {
   const [session, setSession] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -18,28 +17,31 @@ export default function AuthSwitch({ children }) {
       setSession(session);
     });
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
+
+  if (!session && !showAuth) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-white">
+        <h1 className="text-3xl font-bold mb-4">You need to login</h1>
+        <button
+          onClick={() => setShowAuth(true)}
+          className="px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded-lg transition-all font-semibold"
+        >
+          Login / Register
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
-      {session ? (
-        children
-      ) : (
-        <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
-          <h2 className="text-2xl font-semibold mb-6">
-            Giriş yapmanız gerekiyor 🔒
-          </h2>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-pink-500 px-6 py-2 rounded-lg hover:bg-pink-600 transition"
-          >
-            Giriş Yap
-          </button>
-
-          {showModal && <AuthModal onClose={() => setShowModal(false)} />}
-        </div>
+      {showAuth && (
+        <AuthModal onClose={() => setShowAuth(false)} onAuth={setSession} />
       )}
+      {session && children}
     </>
   );
 }

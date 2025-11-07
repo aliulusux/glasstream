@@ -1,94 +1,100 @@
-// src/components/AuthModal.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { X } from "lucide-react";
 
-export default function AuthModal({ onClose }) {
-  const [user, setUser] = useState(null);
+export default function AuthModal({ onClose, onAuth }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isRegister, setIsRegister] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data?.session?.user ?? null);
-    };
-    loadSession();
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  const handleGoogleLogin = async () => {
     try {
-      const redirectUrl =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5173/auth/callback"
-          : "https://glasstream.vercel.app/auth/callback";
+      let response;
+      if (isRegister) {
+        response = await supabase.auth.signUp({ email, password });
+      } else {
+        response = await supabase.auth.signInWithPassword({ email, password });
+      }
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: redirectUrl,
-        },
-      });
+      if (response.error) throw response.error;
 
-      if (error) throw error;
+      onAuth && onAuth(response.data.session);
+      onClose();
     } catch (err) {
-      console.error("Google login failed:", err.message);
-      alert("Google girişi başarısız: " + err.message);
+      console.error("Auth error:", err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center backdrop-blur-md z-50">
-      <div className="bg-black/60 text-white backdrop-blur-xl p-8 rounded-2xl shadow-xl w-[380px] relative border border-white/10">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-zinc-900 text-white rounded-2xl p-6 shadow-lg w-[90%] max-w-md relative border border-white/10">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 bg-red-500 w-4 h-4 rounded-full hover:scale-110 transition"
-        />
+          className="absolute top-2 right-3 text-gray-400 hover:text-pink-400 text-xl"
+        >
+          ×
+        </button>
 
-        <h2 className="text-2xl font-bold text-center mb-4">
-          {user ? "Hesabım" : "Giriş Yap"}
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          {isRegister ? "Register" : "Login"}
         </h2>
 
-        {user ? (
-          <div className="flex flex-col items-center space-y-4">
-            <img
-              src={user.user_metadata?.avatar_url}
-              alt="Avatar"
-              className="w-16 h-16 rounded-full border border-pink-400"
+        <form onSubmit={handleAuth} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-white/10 focus:border-pink-500 outline-none"
             />
-            <p className="text-lg">{user.user_metadata?.full_name}</p>
-            <p className="text-sm text-white/60">{user.email}</p>
-            <button
-              onClick={handleLogout}
-              className="bg-pink-600 hover:bg-pink-700 transition px-4 py-2 rounded-xl"
-            >
-              Çıkış Yap
-            </button>
           </div>
-        ) : (
-          <div className="flex flex-col items-center">
-            <button
-              onClick={handleGoogleLogin}
-              className="flex items-center justify-center bg-white text-black font-semibold px-4 py-2 rounded-xl hover:bg-gray-200 transition"
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="w-6 h-6 mr-2"
-              />
-              Google ile Giriş Yap
-            </button>
+
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-white/10 focus:border-pink-500 outline-none"
+            />
           </div>
-        )}
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 bg-pink-500 hover:bg-pink-600 transition-all rounded-lg font-semibold"
+          >
+            {loading
+              ? "Loading..."
+              : isRegister
+              ? "Create Account"
+              : "Login"}
+          </button>
+        </form>
+
+        <div className="text-center mt-4">
+          <button
+            onClick={() => setIsRegister(!isRegister)}
+            className="text-sm text-gray-400 hover:text-pink-400"
+          >
+            {isRegister
+              ? "Already have an account? Login"
+              : "Don’t have an account? Register"}
+          </button>
+        </div>
       </div>
     </div>
   );
