@@ -80,14 +80,14 @@ export default function RelatedAnime({ related = [] }) {
                 {/* 🔥 Trending Badge */}
                 {isTrending && (
                   <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 via-purple-500 to-indigo-500 text-xs font-semibold text-white shadow-[0_0_12px_rgba(255,0,128,0.6)] backdrop-blur-sm border border-white/20 animate-pulse z-20">
-                    🔥 Trending Now
+                    🔥 Bu Sezon Popüler
                   </div>
                 )}
 
                 {/* ⭐ Top Rated Badge */}
                 {isTopRated && (
                   <div className="absolute top-2 left-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-xs font-semibold text-black shadow-[0_0_12px_rgba(255,215,0,0.7)] backdrop-blur-sm border border-yellow-300/40 animate-pulse z-20">
-                    ⭐ Top Rated
+                    ⭐ Beğenilenler
                   </div>
                 )}
 
