@@ -1,4 +1,3 @@
-// src/context/SupabaseProvider.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -6,18 +5,20 @@ const SupabaseContext = createContext();
 
 export function SupabaseProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user once and subscribe to changes
   useEffect(() => {
-    const getSession = async () => {
+    const init = async () => {
       const { data } = await supabase.auth.getSession();
+      setSession(data?.session || null);
       setUser(data?.session?.user || null);
       setLoading(false);
     };
-    getSession();
+    init();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
       setUser(session?.user || null);
     });
 
@@ -25,7 +26,7 @@ export function SupabaseProvider({ children }) {
   }, []);
 
   return (
-    <SupabaseContext.Provider value={{ user, loading, supabase }}>
+    <SupabaseContext.Provider value={{ supabase, user, session, loading }}>
       {children}
     </SupabaseContext.Provider>
   );

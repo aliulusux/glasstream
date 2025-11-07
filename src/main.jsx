@@ -7,11 +7,10 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ToastProvider>
-      <SupabaseProvider>
+    <SupabaseProvider>
+      <ToastProvider>
         <App />
-      </SupabaseProvider>
-    </ToastProvider>  
+      </ToastProvider>
+    </SupabaseProvider>
   </React.StrictMode>
-  
 );

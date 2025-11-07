@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
-import { supabase } from "../lib/supabaseClient";
+import { useSupabase } from "../context/SupabaseProvider";
 import { useToast } from "../context/ToastContext";
 
 export default function FavoriteButton({ anime, className = "" }) {
@@ -32,7 +32,7 @@ export default function FavoriteButton({ anime, className = "" }) {
   }, []);
 
   // ✅ Fetch favorite status once user is known
-  useEffect(() => {
+  React.useEffect(() => {
     if (!user) return;
     const fetchFavorite = async () => {
       const { data } = await supabase
@@ -47,24 +47,22 @@ export default function FavoriteButton({ anime, className = "" }) {
   }, [user, anime.mal_id]);
 
   const toggleFavorite = async () => {
-    try {
-      if (!user) {
-        showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
-        return;
-      }
+    if (!user) {
+      showToast("⚠️ Favorilere eklemek için giriş yapmalısınız!", "warning");
+      return;
+    }
 
+    try {
       if (isFavorite) {
-        const { error } = await supabase
+        await supabase
           .from("favorites")
           .delete()
           .eq("user_id", user.id)
           .eq("mal_id", anime.mal_id);
-        if (error) throw error;
-
         setIsFavorite(false);
         showToast("❌ Favorilerden kaldırıldı.", "error");
       } else {
-        const { error } = await supabase.from("favorites").insert([
+        await supabase.from("favorites").insert([
           {
             user_id: user.id,
             mal_id: anime.mal_id,
@@ -77,13 +75,11 @@ export default function FavoriteButton({ anime, className = "" }) {
             score: anime.score || null,
           },
         ]);
-        if (error) throw error;
-
         setIsFavorite(true);
         showToast("💖 Favorilere eklendi!", "success");
       }
-    } catch (err) {
-      console.error("Favorite toggle error:", err);
+    } catch (e) {
+      console.error("Favorite error:", e.message);
       showToast("⚠️ Favori işlemi başarısız oldu!", "error");
     }
   };
