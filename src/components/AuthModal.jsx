@@ -15,19 +15,16 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
 
 const handleGoogleLogin = async () => {
   const redirectUrl = `${window.location.origin}/auth/callback`;
-  console.log("🔍 Redirect URL being sent:", redirectUrl); // 👈 Add this line
+  console.log("🔍 Google redirectTo being sent:", redirectUrl);
 
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: redirectUrl,
-      },
+      options: { redirectTo: redirectUrl },
     });
-
     if (error) throw error;
   } catch (err) {
-    console.error("Google login error:", err.message);
+    console.error("Unexpected Google login error:", err);
   }
 };
 
