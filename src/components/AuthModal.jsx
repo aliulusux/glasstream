@@ -14,26 +14,20 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
   if (!isOpen) return null;
 
 const handleGoogleLogin = async () => {
-  const redirectUrl = `${window.location.origin}/auth/callback`;
-  console.log("🔍 Google redirectTo being sent:", redirectUrl); // <- we’ll see this in console
-
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: "https://glasstream.vercel.app/auth/callback", // 👈 Add this line
       },
     });
 
-    if (error) {
-      console.error("Google login error:", error.message);
-    } else {
-      console.log("✅ Supabase returned:", data);
-    }
+    if (error) throw error;
   } catch (err) {
-    console.error("⚠️ Unexpected error:", err.message);
+    console.error("Unexpected Google login error:", err);
   }
 };
+
 
 
   const handleSubmit = async (e) => {
