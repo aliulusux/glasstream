@@ -14,17 +14,20 @@ export default function AuthModal({ isOpen, onClose, mode = "login" }) {
   if (!isOpen) return null;
 
 const handleGoogleLogin = async () => {
+  const redirectUrl = `${window.location.origin}/auth/callback`;
+  console.log("🔍 Redirect URL being sent:", redirectUrl); // 👈 Add this line
+
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`, // 👈 this auto matches 5173 or vercel
+        redirectTo: redirectUrl,
       },
     });
+
     if (error) throw error;
   } catch (err) {
     console.error("Google login error:", err.message);
-    alert("Google ile giriş yapılamadı: " + err.message);
   }
 };
 
