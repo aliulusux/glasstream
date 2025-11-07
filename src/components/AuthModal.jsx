@@ -22,13 +22,7 @@ const handleGoogleLogin = async () => {
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: redirectUrl, // ✅ this is CRUCIAL
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
-      },
+      options: { redirectTo: redirectUrl },
     });
 
     if (error) throw error;

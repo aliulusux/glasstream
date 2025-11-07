@@ -18,7 +18,7 @@ if (typeof window !== "undefined") {
   // 🔁 Force session restore on reload
   supabase.auth.getSession().then(({ data }) => {
     if (!data.session) {
-      const saved = localStorage.getItem("sb-" + SUPABASE_URL.split("//")[1] + "-auth-token");
+      const saved = localStorage.getItem("sb-" + supabaseUrl.split("//")[1] + "-auth-token");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
