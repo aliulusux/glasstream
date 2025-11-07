@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
-import { useSupabase } from "../context/SupabaseProvider";
 import { supabase } from "../lib/supabaseClient";
 import { useToast } from "../context/ToastContext";
 
