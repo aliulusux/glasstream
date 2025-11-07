@@ -152,11 +152,10 @@ const handleGoogleLogin = async () => {
               {/* Google login */}
               <button
                 onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black 
-                           rounded-lg hover:bg-gray-200 transition font-medium"
+                className="w-full mt-3 flex items-center justify-center gap-2 bg-white text-gray-900 font-medium py-2 rounded-md hover:bg-gray-100 transition"
               >
                 <img
-                  src="https://developers.google.com/identity/images/g-logo.png"
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
                   alt="Google"
                   className="w-5 h-5"
                 />
